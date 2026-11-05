@@ -9,10 +9,11 @@ components:
       Amazon has a current and a legacy version of the Orders and Finances APIs, and
       both are supported. Each orders and finances method takes **API version**:
 
-      | Area | Current (default) | Legacy | Amazon removes the legacy reads |
-      |---|---|---|---|
-      | Orders | `2026-01-01` | `v0` | 27 March 2027 |
-      | Finances | `2024-06-19` (transactions) | `v0` (financial events) | 27 August 2027 |
+      - **Orders:** current `2026-01-01` (default), legacy `v0`. Amazon removes
+        the legacy read operations on 27 March 2027.
+      - **Finances:** current `2024-06-19` (transactions, default), legacy `v0`
+        (financial events). Amazon removes the legacy event operations on
+        27 August 2027.
 
       The same method, inputs and normalized output work for both versions. A
       filter that exists in one version only is refused with

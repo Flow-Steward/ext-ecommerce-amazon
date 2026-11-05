@@ -76,10 +76,8 @@ components:
       Seller ID and the marketplace. The API region (NA, EU or FE) is chosen
       automatically from the marketplace.
 
-      | Example connection | Marketplace | API region |
-      |---|---|---|
-      | Amazon UK | United Kingdom | EU |
-      | Amazon US | United States | NA |
+      - **Amazon UK**: marketplace United Kingdom, API region EU.
+      - **Amazon US**: marketplace United States, API region NA.
 
       Two connections of the same seller in one region (for example UK and
       Germany) may use the same refresh token. Amazon's rate limits are shared by
