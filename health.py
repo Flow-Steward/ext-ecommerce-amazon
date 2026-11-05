@@ -10,7 +10,7 @@ def check_health() -> dict[str, object]:
     from runtime.marketplaces import MARKETPLACES
 
     return {
-        "extension_id": "flowsteward.amazon_sp_api",
+        "extension_id": "flowsteward.amazon-sp-api",
         "ok": True,
         "status": "healthy",
         "declared_operations": len(OPERATIONS),
