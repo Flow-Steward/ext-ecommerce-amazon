@@ -6,7 +6,10 @@
   the link without its query string (where the signature lives) and a
   ``signed`` flag, never the signed URL itself. ``include_schema`` downloads
   the schema through the transport's presigned-document path (Amazon S3 hosts
-  only, no access token sent, capped at 5 MB) and returns it parsed.
+  only, no access token sent) and returns it parsed. The download is capped at
+  2.5 MB so the step result stays under the 4.5 MB response limit; a larger
+  schema is refused with ``response_too_large`` and a pointer to
+  ``parentage_level`` and ``requirements``, which shrink it.
 * Listings Restrictions 2021-08-01: whether the seller may list an ASIN.
 * ``validate_listing``: the exact put or patch request of ``create_listing`` /
   ``update_listing_attributes`` (built by the same code in
@@ -55,7 +58,8 @@ SEARCH_TYPES_PATH = "/definitions/2020-09-01/productTypes"
 TYPE_PATH = "/definitions/2020-09-01/productTypes/{productType}"
 RESTRICTIONS_PATH = "/listings/2021-08-01/restrictions"
 
-MAX_SCHEMA_BYTES = 5 * 1024 * 1024
+#: Downloaded schema JSON returned inline; the step response itself is capped at 4.5 MB.
+MAX_SCHEMA_BYTES = 2_621_440  # 2.5 MiB
 REQUIREMENTS = ("LISTING", "LISTING_PRODUCT_ONLY", "LISTING_OFFER_ONLY")
 REQUIREMENTS_ENFORCED = ("ENFORCED", "NOT_ENFORCED")
 PARENTAGE_LEVELS = ("NONE", "CHILD", "PARENT")
@@ -166,9 +170,19 @@ def _checksum_matches(content: bytes, checksum: Any) -> bool | None:
 
 def _download_schema(context: Context, raw_link: Any) -> tuple[Any, bool | None, int]:
     resource = dig(raw_link, "link", "resource")
-    content = context.transport.download_document(
-        resource, max_bytes=MAX_SCHEMA_BYTES, purpose="Amazon product type schema"
-    )
+    try:
+        content = context.transport.download_document(
+            resource, max_bytes=MAX_SCHEMA_BYTES, purpose="Amazon product type schema"
+        )
+    except ExtensionError as exc:
+        if exc.code != errors.RESPONSE_TOO_LARGE:
+            raise
+        raise ExtensionError(
+            errors.RESPONSE_TOO_LARGE,
+            "The product type schema is larger than 2.5 MB, more than one step result can carry. "
+            "Narrow it with parentage_level (PARENT or CHILD) or requirements (LISTING_PRODUCT_ONLY or "
+            "LISTING_OFFER_ONLY), or leave include_schema off and use property_groups.",
+        ) from None
     try:
         schema = json.loads(content.decode("utf-8", "strict"))
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -343,7 +357,8 @@ OPERATIONS: tuple[Operation, ...] = (
         description=(
             "Returns a product type's definition for the connection's marketplace: version, property "
             "groups and the link to its JSON Schema (without the signed query string). include_schema "
-            "also downloads the schema (up to 5 MB) and returns it parsed; parentage_level makes it smaller."
+            "also downloads the schema (up to 2.5 MB) and returns it parsed; parentage_level and requirements "
+            "make it smaller, and a larger schema is refused with response_too_large."
         ),
         section="requirements",
         properties={
@@ -371,7 +386,8 @@ OPERATIONS: tuple[Operation, ...] = (
                 "Fill seller-specific values such as the seller's brands (default true).",
             ),
             "include_schema": boolean(
-                "Include schema", "Download and return the JSON Schema (up to 5 MB)."
+                "Include schema",
+                "Download and return the JSON Schema (up to 2.5 MB; narrow it with parentage_level or requirements).",
             ),
         },
         required=("connection_ref", "product_type"),

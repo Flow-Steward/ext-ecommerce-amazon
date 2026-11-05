@@ -19,7 +19,10 @@ if str(GENERATOR_ROOT) not in sys.path:
     sys.path.insert(0, str(GENERATOR_ROOT))
 
 from runtime import operations  # noqa: E402
+from runtime.catalog import OPERATIONS_BY_ID  # noqa: E402
+from runtime.errors import ExtensionError  # noqa: E402
 from runtime.transport import SpApiTransport  # noqa: E402
+from runtime.validation import validate  # noqa: E402
 
 CONNECTION_ID = "conn-amazon-uk"
 SELLER_ID = "A1SELLER0TEST1"
@@ -77,7 +80,11 @@ class Recorded:
         self.path = parsed.path
         self.query = {key: values[0] for key, values in parse_qs(parsed.query).items()}
         self.headers = {key.lower(): value for key, value in request.header_items()}
-        self.body = json.loads(request.data) if request.data and self.headers.get("content-type", "").startswith("application/json") else request.data
+        self.body = (
+            json.loads(request.data)
+            if request.data and self.headers.get("content-type", "").startswith("application/json")
+            else request.data
+        )
 
 
 class FakeAmazon:
@@ -92,8 +99,21 @@ class FakeAmazon:
         self.routes: dict[tuple[str, str], list[tuple[int, bytes, dict[str, str]]]] = {}
         self.requests: list[Recorded] = []
 
-    def reply(self, method: str, path: str, body: Any = None, *, status: int = 200, headers: dict[str, str] | None = None, raw: bytes | None = None) -> None:
-        payload = raw if raw is not None else json.dumps(body if body is not None else {}, default=_default).encode()
+    def reply(
+        self,
+        method: str,
+        path: str,
+        body: Any = None,
+        *,
+        status: int = 200,
+        headers: dict[str, str] | None = None,
+        raw: bytes | None = None,
+    ) -> None:
+        payload = (
+            raw
+            if raw is not None
+            else json.dumps(body if body is not None else {}, default=_default).encode()
+        )
         self.routes.setdefault((method, path), []).append((status, payload, headers or {}))
 
     def opener(self, request: Any, *, timeout_seconds: float, purpose: str = "") -> FakeResponse:
@@ -110,7 +130,9 @@ class FakeAmazon:
 
     def transport_factory(self) -> Callable[..., SpApiTransport]:
         def build(connection: Any) -> SpApiTransport:
-            return SpApiTransport(connection, opener=self.opener, sleep=lambda _s: None, jitter=lambda a, b: 0.0)
+            return SpApiTransport(
+                connection, opener=self.opener, sleep=lambda _s: None, jitter=lambda a, b: 0.0
+            )
 
         return build
 
@@ -120,7 +142,11 @@ class _BytesReader:
         self._body = body
 
     def read(self, size: int = -1) -> bytes:
-        chunk, self._body = (self._body, b"") if size is None or size < 0 else (self._body[:size], self._body[size:])
+        chunk, self._body = (
+            (self._body, b"")
+            if size is None or size < 0
+            else (self._body[:size], self._body[size:])
+        )
         return chunk
 
     def close(self) -> None:
@@ -165,9 +191,19 @@ def make_payload(
     return {
         "contract_version": HOST_CONTRACT_VERSION,
         "mode": "action",
-        "scope": {"account_id": "acct-1", "project_id": "proj-1", "workflow_id": "wf-1", "job_id": "job-1", **ROOT_STEP_SCOPE},
+        "scope": {
+            "account_id": "acct-1",
+            "project_id": "proj-1",
+            "workflow_id": "wf-1",
+            "job_id": "job-1",
+            **ROOT_STEP_SCOPE,
+        },
         "runtime_context": runtime_context,
-        "action": {"action_id": operation_id, "input": data, "target": target or connection_target()},
+        "action": {
+            "action_id": operation_id,
+            "input": data,
+            "target": target or connection_target(),
+        },
     }
 
 
@@ -197,6 +233,44 @@ def run(amazon: FakeAmazon) -> Callable[..., dict[str, Any]]:
         response = operations.handle_runtime(payload, **kwargs)
         json.dumps(response)  # every response must be JSON-serializable
         assert ACCESS_TOKEN not in json.dumps(response)
+        assert_result_matches_outputs(operation_id, response)
         return response
 
     return invoke
+
+
+def assert_result_matches_outputs(operation_id: str, response: dict[str, Any]) -> None:
+    """Every successful result carries each declared output, valid against its schema.
+
+    The published contract tells the platform and the workflow what a step
+    returns; a result that drops a field or puts a null into a non-nullable one
+    breaks every step downstream that reads it. Errors (``ok`` false) carry no
+    result fields and are not checked.
+
+    A suppressed mutation (test mode) is exempt on purpose: nothing was sent to
+    Amazon, so there is no SKU status, feed ID or shipment to report. The
+    rehearsal returns only the effect facts (``external_effect_status``
+    "suppressed", ``definitely_no_external_effect`` true, ``suppressed`` true),
+    which is how the platform recognizes a rehearsal; filling the outputs with
+    nulls or invented values would be a lie the schema cannot express.
+    """
+    if response.get("ok") is not True:
+        return
+    row = OPERATIONS_BY_ID.get(operation_id)
+    if row is None:
+        return
+    result = response["result"]
+    if result.get("external_effect_status") == "suppressed":
+        assert row.mutating, f"{operation_id} is not a mutation but returned a suppressed result"
+        assert result == {
+            "external_effect_status": "suppressed",
+            "definitely_no_external_effect": True,
+            "suppressed": True,
+        }
+        return
+    for output in row.outputs:
+        assert output.name in result, f"{operation_id}: result has no {output.name}"
+        try:
+            validate(result[output.name], output.schema, f"result.{output.name}")
+        except ExtensionError as exc:
+            raise AssertionError(f"{operation_id}: {exc.message}") from None

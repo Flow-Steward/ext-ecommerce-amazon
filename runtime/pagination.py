@@ -3,8 +3,10 @@
 Amazon's own page tokens say nothing about which connection, API version or
 filters produced them, and Amazon's answer to a mismatched token varies by API.
 This extension therefore hands the workflow its own opaque token: Amazon's token
-wrapped together with the operation, the API version, the connection and a
-digest of the filters. A token presented with a different connection, version or
+wrapped together with the operation, the resolved API version, the connection
+and a digest of the filters. An operation may name extra inputs that are allowed
+to change between pages (``Operation.page_only_inputs``), for example the order
+sections ``included_data`` of Orders 2026-01-01. A token presented with a different connection, version or
 filter set is refused with ``continuation_token_invalid`` before anything is
 sent. The token is not a secret and carries no credential, but it is not meant
 to be read either.
@@ -26,14 +28,18 @@ from .errors import ExtensionError
 from .registry import Context
 
 _VERSION = 1
-#: Inputs that may differ between pages of the same search.
-_PAGE_ONLY_INPUTS = frozenset({"next_token", "max_results", "page_size", "connection_ref"})
+#: Inputs that may differ between pages of the same search. ``api_version`` is
+#: not part of the filter digest because the envelope binds the *resolved*
+#: version under ``a``: leaving it out and naming the default explicitly is the
+#: same search, while naming the other version is still refused.
+_PAGE_ONLY_INPUTS = frozenset(
+    {"next_token", "max_results", "page_size", "connection_ref", "api_version"}
+)
 
 
 def _filter_digest(context: Context) -> str:
-    filters = {
-        key: value for key, value in context.input.items() if key not in _PAGE_ONLY_INPUTS
-    }
+    ignored = _PAGE_ONLY_INPUTS | frozenset(context.operation.page_only_inputs)
+    filters = {key: value for key, value in context.input.items() if key not in ignored}
     canonical = json.dumps(filters, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:32]
 

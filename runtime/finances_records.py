@@ -46,34 +46,60 @@ _POSTED_DATE_KEYS = ("PostedDate", "postedDate", "TransactionPostedDate", "Trans
 
 
 def collect_amounts(value: Any) -> tuple[list[dict[str, str]], bool]:
-    """Every money value inside ``value``, labelled by its path; and whether cut off."""
+    """Every money value inside ``value``, labelled by its path; and whether cut off.
+
+    The result is cut off (``True``) when more than ``MAX_AMOUNTS_PER_RECORD``
+    amounts exist, or when an amount sits deeper than ``_MAX_DEPTH`` levels and
+    is therefore not listed. The full object stays under ``amazon`` either way.
+    """
     found: list[dict[str, str]] = []
-    truncated = _walk(value, "", found, 0)
-    return found, truncated
+    state = {"truncated": False}
+    _walk(value, "", found, 0, state)
+    return found, state["truncated"]
 
 
-def _walk(value: Any, label: str, found: list[dict[str, str]], depth: int) -> bool:
+def _walk(
+    value: Any, label: str, found: list[dict[str, str]], depth: int, state: dict[str, bool]
+) -> bool:
+    """Collect amounts; return True to stop the walk (the count cap was reached)."""
     if depth > _MAX_DEPTH:
+        if _contains_money(value):
+            state["truncated"] = True
         return False
     if isinstance(value, Mapping):
         amount = money(value)
         if amount is not None:
             if len(found) >= MAX_AMOUNTS_PER_RECORD:
+                state["truncated"] = True
                 return True
             found.append({"label": label or "amount", **amount})
             return False
         for key, item in value.items():
             if isinstance(item, (Mapping, list)):
                 child = f"{label}.{key}" if label else str(key)
-                if _walk(item, child, found, depth + 1):
+                if _walk(item, child, found, depth + 1, state):
                     return True
         return False
     if isinstance(value, list):
         for item in value:
             kind = first(item, *_DISCRIMINATORS)
             child = f"{label}[{kind}]" if isinstance(kind, str) and kind else f"{label}[]"
-            if _walk(item, child, found, depth + 1):
+            if _walk(item, child, found, depth + 1, state):
                 return True
+    return False
+
+
+def _contains_money(value: Any) -> bool:
+    """Whether a subtree holds at least one money value; iterative, so depth costs no stack."""
+    pending = [value]
+    while pending:
+        item = pending.pop()
+        if isinstance(item, Mapping):
+            if money(item) is not None:
+                return True
+            pending.extend(child for child in item.values() if isinstance(child, (Mapping, list)))
+        elif isinstance(item, list):
+            pending.extend(child for child in item if isinstance(child, (Mapping, list)))
     return False
 
 

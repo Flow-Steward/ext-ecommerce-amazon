@@ -22,6 +22,7 @@ from ..registry import (
     ARRAY_OF_OBJECTS,
     BOOLEAN,
     CONNECTION_REF,
+    NULLABLE_OBJECT,
     NULLABLE_TEXT,
     TEXT,
     Context,
@@ -32,9 +33,13 @@ from ..values import as_list, dig
 
 PARTICIPATIONS_PATH = "/sellers/v1/marketplaceParticipations"
 LISTINGS_SEARCH_PATH = "/listings/2021-08-01/items/{sellerId}"
+#: Core refuses a verified display name longer than this many UTF-8 bytes.
+MAX_DISPLAY_NAME_BYTES = 512
 
 
-def _check(name: str, status: str, *, error_code: str | None = None, message: str = "") -> dict[str, Any]:
+def _check(
+    name: str, status: str, *, error_code: str | None = None, message: str = ""
+) -> dict[str, Any]:
     return {"check": name, "status": status, "error_code": error_code, "message": message}
 
 
@@ -44,12 +49,16 @@ def _participation(context: Context) -> tuple[dict[str, Any], dict[str, Any] | N
             "GET", PARTICIPATIONS_PATH, mutating=False, purpose="Amazon marketplace participations"
         )
     except ExtensionError as exc:
-        return _check("marketplace_participation", "failed", error_code=exc.code, message=exc.message), None
+        return _check(
+            "marketplace_participation", "failed", error_code=exc.code, message=exc.message
+        ), None
     for entry in as_list(dig(response.body, "payload")):
         if dig(entry, "marketplace", "id") == context.connection.marketplace_id:
             participating = dig(entry, "participation", "isParticipating") is True
             status = "passed" if participating else "failed"
-            message = "" if participating else "The seller does not currently sell in this marketplace"
+            message = (
+                "" if participating else "The seller does not currently sell in this marketplace"
+            )
             return _check("marketplace_participation", status, message=message), entry
     return (
         _check(
@@ -86,7 +95,10 @@ def _seller_check(context: Context) -> dict[str, Any]:
 
 def _test_connection(context: Context) -> dict[str, Any]:
     participation_check, entry = _participation(context)
-    if participation_check["error_code"] in {errors.AUTHENTICATION_FAILED, errors.REAUTHORIZATION_REQUIRED}:
+    if participation_check["error_code"] in {
+        errors.AUTHENTICATION_FAILED,
+        errors.REAUTHORIZATION_REQUIRED,
+    }:
         raise ExtensionError(participation_check["error_code"], participation_check["message"])
     seller_check = _seller_check(context)
     marketplace = context.connection.marketplace
@@ -103,14 +115,49 @@ def _test_connection(context: Context) -> dict[str, Any]:
     }
 
 
+def _post_connect(
+    *,
+    subject: str = "",
+    health: str,
+    error_code: str | None,
+    safe_metadata: dict[str, Any] | None = None,
+    verified_display_name: str | None = None,
+) -> dict[str, Any]:
+    """The platform's closed post-connect shape, every key present every time."""
+    return {
+        "subject": subject,
+        "health": health,
+        "error_code": error_code,
+        "safe_metadata": safe_metadata,
+        "verified_display_name": verified_display_name,
+    }
+
+
+def _display_name(value: Any) -> str:
+    """The store name within Core's 512-byte limit, cut on a character boundary."""
+    if not isinstance(value, str):
+        return ""
+    encoded = value.strip().encode("utf-8")[:MAX_DISPLAY_NAME_BYTES]
+    return encoded.decode("utf-8", "ignore").strip()
+
+
 def _verify_connection(context: Context) -> dict[str, Any]:
-    """The post-connect check, in the platform's closed identity/health shape."""
+    """The post-connect check, in the platform's closed identity/health shape.
+
+    Core accepts exactly these keys; ``error_code`` is null when ``health`` is
+    ``ok`` and one of Core's codes otherwise.
+    """
     participation_check, entry = _participation(context)
     code = participation_check["error_code"]
     if code in {errors.AUTHENTICATION_FAILED, errors.REAUTHORIZATION_REQUIRED}:
-        return {"subject": "", "health": "authorization_required", "error_code": "authorization_required"}
-    if code in {errors.TIMEOUT, errors.CONNECTION_FAILED, errors.UPSTREAM_FAILURE, errors.RATE_LIMITED}:
-        return {"subject": "", "health": "needs_attention", "error_code": "provider_unavailable"}
+        return _post_connect(health="authorization_required", error_code="authorization_required")
+    if code in {
+        errors.TIMEOUT,
+        errors.CONNECTION_FAILED,
+        errors.UPSTREAM_FAILURE,
+        errors.RATE_LIMITED,
+    }:
+        return _post_connect(health="needs_attention", error_code="provider_unavailable")
     seller_check = _seller_check(context)
     marketplace = context.connection.marketplace
     metadata = {"marketplace": marketplace.code, "region": marketplace.region}
@@ -119,24 +166,24 @@ def _verify_connection(context: Context) -> dict[str, Any]:
     elif seller_check["status"] != "passed":
         metadata["problem"] = "seller_id_not_confirmed"
     if "problem" in metadata:
-        return {
-            "subject": "",
-            "health": "needs_attention",
-            "error_code": "internal_failure",
-            "safe_metadata": metadata,
-        }
+        return _post_connect(
+            health="needs_attention", error_code="internal_failure", safe_metadata=metadata
+        )
     store_name = dig(entry, "storeName")
-    result: dict[str, Any] = {
-        "subject": context.connection.seller_id,
-        "health": "ok",
-        "safe_metadata": metadata,
-    }
-    if isinstance(store_name, str) and store_name.strip():
-        result["verified_display_name"] = store_name.strip()[:200]
-    return result
+    display_name = _display_name(store_name)
+    return _post_connect(
+        subject=context.connection.seller_id,
+        health="ok",
+        error_code=None,
+        safe_metadata=metadata,
+        verified_display_name=display_name or None,
+    )
 
 
-_ROLES = ("Selling Partner Insights or Product Listing (getMarketplaceParticipations)", "Product Listing (searchListingsItems)")
+_ROLES = (
+    "Selling Partner Insights or Product Listing (getMarketplaceParticipations)",
+    "Product Listing (searchListingsItems)",
+)
 _CALLS = (
     "Sellers v1 getMarketplaceParticipations",
     "Listings Items 2021-08-01 searchListingsItems",
@@ -180,6 +227,8 @@ OPERATIONS: tuple[Operation, ...] = (
             out("subject", TEXT),
             out("health", TEXT),
             out("error_code", NULLABLE_TEXT),
+            out("safe_metadata", NULLABLE_OBJECT),
+            out("verified_display_name", NULLABLE_TEXT),
         ),
         handler=_verify_connection,
         amazon_calls=_CALLS,

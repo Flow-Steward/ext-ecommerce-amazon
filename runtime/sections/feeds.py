@@ -55,7 +55,7 @@ from ..registry import (
     text,
     timestamp,
 )
-from ..values import as_list, dig
+from ..values import MAX_SERIALIZED_RESPONSE_BYTES, as_list, dig, serialized_size
 
 API_VERSION = "2021-06-30"
 
@@ -93,8 +93,12 @@ _MAX_REPORTED_PROBLEMS = 20
 MAX_FEED_BYTES = 10 * 1024 * 1024
 MAX_RESULT_DOWNLOAD_BYTES = 20 * 1024 * 1024
 MAX_RESULT_CONTENT_BYTES = 64 * 1024 * 1024
-#: Entries returned in the step result; the full report can be saved as a file.
-MAX_RETURNED_ISSUES = 5_000
+#: Serialized size of all returned issue lists together. The step result must
+#: stay under the entrypoint's response cap (4.5 MB); the full report can be
+#: saved as a file.
+MAX_RETURNED_ISSUE_BYTES = 2_621_440  # 2.5 MiB
+#: Room kept for the rest of the result (summary, report_file facts, envelope).
+_RESULT_HEADROOM_BYTES = 64 * 1024
 
 FEED_INPUT = ArtifactBinding(
     binding_key="amazon_feed_input",
@@ -404,6 +408,11 @@ def parse_processing_report(report: Any) -> dict[str, Any]:
         has_error = any(item["severity"] == "ERROR" for item in entry["issues"])
         (failed if has_error else accepted_with_issues).append(entry)
     item_summary = summary.get("itemSummary")
+    # Feed-level problems first, then rejected messages, then accepted ones with
+    # warnings: when the budget runs out, the least important entries are cut.
+    (kept_feed, kept_failed, kept_accepted), truncated = _within_budget(
+        (feed_issues, failed, accepted_with_issues), MAX_RETURNED_ISSUE_BYTES
+    )
     return {
         "summary": {
             "errors": summary.get("errors"),
@@ -413,12 +422,37 @@ def parse_processing_report(report: Any) -> dict[str, Any]:
             "messages_invalid": summary.get("messagesInvalid"),
             "item_summary": dict(item_summary) if isinstance(item_summary, Mapping) else None,
         },
-        "failed": failed[:MAX_RETURNED_ISSUES],
-        "accepted_with_issues": accepted_with_issues[:MAX_RETURNED_ISSUES],
-        "feed_issues": feed_issues[:MAX_RETURNED_ISSUES],
-        "issues_truncated": max(len(failed), len(accepted_with_issues), len(feed_issues))
-        > MAX_RETURNED_ISSUES,
+        "failed": kept_failed,
+        "accepted_with_issues": kept_accepted,
+        "feed_issues": kept_feed,
+        "issues_truncated": truncated,
     }
+
+
+def _within_budget(
+    lists: tuple[list[dict[str, Any]], ...], budget: int
+) -> tuple[tuple[list[dict[str, Any]], ...], bool]:
+    """The longest prefix of ``lists`` (taken in order) whose JSON fits ``budget`` bytes.
+
+    Once one entry does not fit, nothing after it is added, so what is returned
+    is always "everything up to a point" in priority order, never a sample.
+    """
+    remaining = budget
+    kept: list[list[dict[str, Any]]] = []
+    truncated = False
+    for entries in lists:
+        taken: list[dict[str, Any]] = []
+        for entry in entries:
+            if truncated:
+                break
+            cost = serialized_size(entry) + 1  # the separating comma
+            if cost > remaining:
+                truncated = True
+                break
+            remaining -= cost
+            taken.append(entry)
+        kept.append(taken)
+    return tuple(kept), truncated
 
 
 def _issue(raw: Mapping[str, Any]) -> dict[str, Any]:
@@ -476,6 +510,13 @@ def _get_feed_result(context: Context) -> dict[str, Any]:
             errors.INVALID_JSON_RESPONSE, "The processing report is not valid JSON"
         ) from exc
     result.update(parse_processing_report(report), report_available=True)
+    # The file is written only once the result is known to fit the response cap:
+    # a stored file whose step then fails as response_too_large would be orphaned.
+    if serialized_size(result) + _RESULT_HEADROOM_BYTES > MAX_SERIALIZED_RESPONSE_BYTES:
+        raise ExtensionError(
+            errors.RESPONSE_TOO_LARGE,
+            "The processing report summary is larger than one step result can carry",
+        )
     if context.input.get("save_report_file"):
         result["report_file"] = documents.write_artifact(context, FEED_RESULT_OUTPUT, content)
     return result
@@ -546,10 +587,10 @@ OPERATIONS: tuple[Operation, ...] = (
         },
         required=("connection_ref", "feed_type", "feed_document_id"),
         outputs=(
-            out("feed_id", NULLABLE_TEXT),
-            out("feed_type", NULLABLE_TEXT),
-            out("submission_status", NULLABLE_TEXT),
-            out("message", NULLABLE_TEXT),
+            out("feed_id", TEXT),
+            out("feed_type", TEXT),
+            out("submission_status", TEXT),
+            out("message", TEXT),
         ),
         handler=_create_feed,
         amazon_calls=("Feeds 2021-06-30 createFeed",),
@@ -611,7 +652,10 @@ OPERATIONS: tuple[Operation, ...] = (
             "Reads a feed and, once Amazon has finished it, its processing report: summary counts, "
             "messages that failed (at least one ERROR) and messages applied with warnings, each with "
             "messageId, sku and Amazon's issues. Messages without issues appear only in the summary "
-            "count. While the feed is still processing it returns the status alone; it never waits."
+            "count. The issue lists together are capped at 2.5 MB (feed-level issues first, then failed, "
+            "then accepted with issues); issues_truncated is true when entries were left out, and "
+            "save_report_file keeps the full report. While the feed is still processing it returns the "
+            "status alone; it never waits."
         ),
         section="feeds",
         properties={

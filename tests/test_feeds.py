@@ -216,7 +216,8 @@ def test_create_feed_in_test_mode_sends_nothing(amazon, run):
     )
     assert response["ok"] is True
     assert response["result"]["external_effect_status"] == "suppressed"
-    assert response["result"]["feed_id"] is None
+    assert "feed_id" not in response["result"]
+    assert response["result"]["suppressed"] is True
     assert amazon.requests == []
 
 
@@ -414,6 +415,91 @@ def test_feed_result_without_save_writes_no_file(amazon, run):
     response = run("get_feed_result", {"feed_id": "50001"}, artifact_writer=writer)
     assert response["ok"] is True, response
     assert response["result"]["report_file"] is None
+
+
+def _big_report(messages: int) -> dict[str, Any]:
+    return {
+        "issues": [
+            {
+                "messageId": index + 1,
+                "sku": f"SKU-{index + 1}",
+                "code": "90220",
+                "message": "The value for attribute item_name is not valid. " * 4,
+                "severity": "ERROR" if index % 2 else "WARNING",
+                "attributeName": "item_name",
+            }
+            for index in range(messages)
+        ],
+        "summary": {"errors": messages // 2, "warnings": messages - messages // 2},
+    }
+
+
+def _serve_report(amazon, raw: bytes) -> None:
+    amazon.reply("GET", "/feeds/2021-06-30/feeds/50001", FEED_DONE)
+    amazon.reply(
+        "GET",
+        "/feeds/2021-06-30/documents/amzn1.tortuga.result.1",
+        {"feedDocumentId": "x", "url": RESULT_URL, "compressionAlgorithm": "GZIP"},
+    )
+    amazon.reply("GET", "/feed-result-1", raw=gzip.compress(raw))
+
+
+def test_feed_result_issue_lists_share_one_byte_budget_and_fit_the_response(amazon, run):
+    import main
+
+    raw = json.dumps(_big_report(25_000)).encode()
+    assert len(raw) > 3 * feeds.MAX_RETURNED_ISSUE_BYTES
+    _serve_report(amazon, raw)
+    written: list[bytes] = []
+
+    def writer(payload, body, *, binding_key, content_type):
+        written.append(body)
+        return {"artifact_handle": "art-big", "size_bytes": len(body), "content_type": content_type}
+
+    response = run(
+        "get_feed_result", {"feed_id": "50001", "save_report_file": True}, artifact_writer=writer
+    )
+    assert response["ok"] is True, response
+    result = response["result"]
+    assert result["issues_truncated"] is True
+    assert result["failed"] and result["report_file"]["artifact_handle"] == "art-big"
+    issue_bytes = sum(
+        len(json.dumps(result[name], ensure_ascii=False, separators=(",", ":")).encode())
+        for name in ("failed", "accepted_with_issues", "feed_issues")
+    )
+    assert issue_bytes <= feeds.MAX_RETURNED_ISSUE_BYTES + 16
+    final, serialized = main._bounded_serialized_response(response)
+    assert final["ok"] is True
+    assert len(serialized) < main.MAX_SERIALIZED_RESPONSE_BYTES
+    assert written == [raw]
+
+
+def test_feed_result_small_report_is_not_truncated(amazon, run):
+    _serve_report(amazon, json.dumps(_big_report(10)).encode())
+    result = run("get_feed_result", {"feed_id": "50001"})["result"]
+    assert result["issues_truncated"] is False
+    assert len(result["failed"]) + len(result["accepted_with_issues"]) == 10
+
+
+def test_feed_result_file_is_written_only_after_the_result_fits(amazon, run, monkeypatch):
+    monkeypatch.setattr(feeds, "MAX_SERIALIZED_RESPONSE_BYTES", feeds._RESULT_HEADROOM_BYTES + 10)
+    _serve_report(amazon, json.dumps(_big_report(10)).encode())
+
+    def writer(*args, **kwargs):  # pragma: no cover - must not be called
+        raise AssertionError("no file may be written for a result that cannot be returned")
+
+    response = run(
+        "get_feed_result", {"feed_id": "50001", "save_report_file": True}, artifact_writer=writer
+    )
+    assert response["error_code"] == "response_too_large"
+
+
+def test_result_budget_mirrors_the_entrypoint_cap():
+    import main
+
+    from runtime import values
+
+    assert values.MAX_SERIALIZED_RESPONSE_BYTES == main.MAX_SERIALIZED_RESPONSE_BYTES
 
 
 def test_feed_result_zip_bomb_is_refused(amazon, run, monkeypatch):

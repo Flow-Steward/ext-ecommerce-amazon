@@ -3,9 +3,9 @@
 Order of checks for every invocation:
 
 1. The input is validated against the operation's own schema.
-2. A mutation in test mode returns a neutral suppressed result here, before a
-   connection is hydrated or a transport exists, so a rehearsal cannot reach
-   Amazon even by accident.
+2. A mutation in test mode returns a neutral suppressed result here (the effect
+   facts only, no outputs), before a connection is hydrated or a transport
+   exists, so a rehearsal cannot reach Amazon even by accident.
 3. A real mutation needs the host's external-effect id.
 4. The connection is hydrated and must be the one ``connection_ref`` names.
 5. The handler runs; its result is made JSON-safe (decimals become strings).
@@ -74,9 +74,11 @@ def run_operation(
     effect_id = ""
     if row.mutating:
         if validation.test_mode(payload):
-            return _ok(_suppressed_result(row))
+            return _ok(_suppressed_result())
         effect_id = validation.external_effect_id(payload, action=row.display_name.lower())
-    connection = connection_from_payload(payload, connection_ref=_connection_ref(payload, row, operation_input))
+    connection = connection_from_payload(
+        payload, connection_ref=_connection_ref(payload, row, operation_input)
+    )
     context = Context(
         operation=row,
         input=operation_input,
@@ -94,7 +96,9 @@ def run_operation(
     return _ok(result)
 
 
-def _connection_ref(payload: Mapping[str, Any], row: Operation, operation_input: Mapping[str, Any]) -> str:
+def _connection_ref(
+    payload: Mapping[str, Any], row: Operation, operation_input: Mapping[str, Any]
+) -> str:
     """The connection a row runs against.
 
     Workflow-visible rows name it in ``connection_ref``. The parameterless
@@ -109,11 +113,18 @@ def _connection_ref(payload: Mapping[str, Any], row: Operation, operation_input:
     return value if isinstance(value, str) else ""
 
 
-def _suppressed_result(row: Operation) -> dict[str, Any]:
-    result: dict[str, Any] = {output.name: None for output in row.outputs}
-    result["external_effect_status"] = "suppressed"
-    result["definitely_no_external_effect"] = True
-    return result
+def _suppressed_result() -> dict[str, Any]:
+    """The rehearsal of a mutation: only the effect facts, no invented outputs.
+
+    Nothing was sent, so there is no SKU status, feed ID or shipment to report.
+    The outputs are left out rather than set to null, because most of them are
+    not nullable and a null would claim an answer Amazon never gave.
+    """
+    return {
+        "external_effect_status": "suppressed",
+        "definitely_no_external_effect": True,
+        "suppressed": True,
+    }
 
 
 def _envelope(payload: Mapping[str, Any]) -> tuple[str, Any]:

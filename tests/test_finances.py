@@ -5,7 +5,7 @@ import json
 import pytest
 from conftest import UK_MARKETPLACE_ID
 
-from runtime.finances_records import MAX_AMOUNTS_PER_RECORD, collect_amounts
+from runtime.finances_records import _MAX_DEPTH, MAX_AMOUNTS_PER_RECORD, collect_amounts
 from runtime.sections import finances
 
 # Raw bytes so the amounts are JSON numbers, decoded by the transport as Decimal.
@@ -288,6 +288,29 @@ def test_amounts_are_bounded():
     amounts, truncated = collect_amounts(event)
     assert len(amounts) == MAX_AMOUNTS_PER_RECORD
     assert truncated is True
+
+
+def _nested(depth: int, leaf: dict) -> dict:
+    value = leaf
+    for index in range(depth):
+        value = {f"Level{index}": value}
+    return value
+
+
+def test_amounts_cut_by_the_depth_limit_are_flagged():
+    money = {"CurrencyCode": "GBP", "CurrencyAmount": "1.00"}
+    deep = {"Shallow": money, "Deep": _nested(_MAX_DEPTH + 3, money)}
+    amounts, truncated = collect_amounts(deep)
+    assert [item["label"] for item in amounts] == ["Shallow"]
+    assert truncated is True
+
+
+def test_deep_structure_without_amounts_is_not_flagged():
+    money = {"CurrencyCode": "GBP", "CurrencyAmount": "1.00"}
+    deep = {"Shallow": money, "Deep": _nested(_MAX_DEPTH + 3, {"Note": {"text": "x"}})}
+    amounts, truncated = collect_amounts(deep)
+    assert len(amounts) == 1
+    assert truncated is False
 
 
 def test_descriptions_state_the_removal_date_delay_and_no_mixing():

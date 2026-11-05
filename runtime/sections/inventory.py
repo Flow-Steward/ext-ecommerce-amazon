@@ -7,10 +7,13 @@
   ``fulfillment_availability`` for the merchant channel ``DEFAULT``.
 
 Physical FBA stock cannot be changed by this extension: Amazon counts it in its
-fulfillment centers. ``set_fbm_quantity`` first reads the listing and refuses a
-SKU that has only Amazon fulfillment channels, because adding a ``DEFAULT``
-channel to it would turn an FBA offer into a merchant-fulfilled one. It then
-sends a single ``merge`` patch of ``fulfillment_availability`` for the
+fulfillment centers. ``set_fbm_quantity`` first reads the listing and changes
+the quantity only of a ``DEFAULT`` channel that already exists. A SKU with only
+Amazon fulfillment channels, or with no fulfillment availability at all, is
+refused before anything is sent: adding a ``DEFAULT`` channel would turn an FBA
+offer, or an offer whose fulfillment is not set up yet, into a merchant-fulfilled
+one, which is a decision about how the SKU is fulfilled, not a stock update. It
+then sends a single ``merge`` patch of ``fulfillment_availability`` for the
 ``DEFAULT`` channel; merge keeps the other channels and optional fields such as
 lead time as they are, where ``replace`` would drop them.
 """
@@ -174,11 +177,17 @@ def _set_fbm_quantity(context: Context) -> dict[str, Any]:
     body = build_quantity_body(context)
     _, channels = _channels(context, str(context.input["sku"]))
     codes = {item["fulfillment_channel_code"] for item in channels}
-    if codes and MERCHANT_CHANNEL not in codes:
+    if MERCHANT_CHANNEL not in codes:
+        situation = (
+            "is fulfilled by Amazon (no DEFAULT channel)"
+            if codes
+            else "has no fulfillment availability yet (no DEFAULT channel)"
+        )
         raise ExtensionError(
             errors.INVALID_PAYLOAD,
-            "This SKU is fulfilled by Amazon (no DEFAULT channel); setting a merchant quantity would switch "
-            "it to merchant fulfillment, so nothing was sent",
+            f"This SKU {situation}; set_fbm_quantity only changes the quantity of an existing "
+            "merchant-fulfilled channel, so nothing was sent. To make the SKU merchant-fulfilled, set "
+            "fulfillment_availability with update_listing_attributes.",
             definitely_no_external_effect=True,
             external_effect_status="failed",
         )
@@ -238,8 +247,9 @@ OPERATIONS: tuple[Operation, ...] = (
         display_name="Set merchant quantity",
         description=(
             "Sets the quantity available for a merchant-fulfilled (DEFAULT channel) SKU. Only the "
-            "fulfillment_availability attribute for the DEFAULT channel is sent. A SKU fulfilled only by "
-            "Amazon is refused before anything is sent; FBA stock is not changed by this extension."
+            "fulfillment_availability attribute for the DEFAULT channel is sent. The listing must already "
+            "have a DEFAULT channel: a SKU fulfilled only by Amazon, or without fulfillment availability, "
+            "is refused before anything is sent. FBA stock is not changed by this extension."
             + SUBMISSION_NOTE
         ),
         section="inventory",

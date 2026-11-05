@@ -78,6 +78,10 @@ class Operation:
     artifact_input: ArtifactBinding | None = None
     artifact_output: ArtifactBinding | None = None
     pii: bool = False
+    #: Inputs besides the common ones (next_token, page size, connection_ref)
+    #: that may change between pages of one search without invalidating its
+    #: continuation token; see ``runtime/pagination.py``.
+    page_only_inputs: tuple[str, ...] = ()
 
     @property
     def input_schema(self) -> dict[str, Any]:
@@ -123,7 +127,9 @@ NEXT_TOKEN: dict[str, Any] = {
 }
 
 
-def text(title: str, description: str, *, max_length: int = MAX_ID_LENGTH, min_length: int = 1) -> dict[str, Any]:
+def text(
+    title: str, description: str, *, max_length: int = MAX_ID_LENGTH, min_length: int = 1
+) -> dict[str, Any]:
     return {
         "type": "string",
         "title": title,
@@ -159,7 +165,9 @@ def enum(title: str, description: str, values: tuple[str, ...]) -> dict[str, Any
     return {"type": "string", "title": title, "description": description, "enum": list(values)}
 
 
-def enum_list(title: str, description: str, values: tuple[str, ...], *, max_items: int | None = None) -> dict[str, Any]:
+def enum_list(
+    title: str, description: str, values: tuple[str, ...], *, max_items: int | None = None
+) -> dict[str, Any]:
     schema: dict[str, Any] = {
         "type": "array",
         "title": title,
@@ -171,7 +179,9 @@ def enum_list(title: str, description: str, values: tuple[str, ...], *, max_item
     return schema
 
 
-def text_list(title: str, description: str, *, max_items: int, max_length: int = MAX_ID_LENGTH) -> dict[str, Any]:
+def text_list(
+    title: str, description: str, *, max_items: int, max_length: int = MAX_ID_LENGTH
+) -> dict[str, Any]:
     return {
         "type": "array",
         "title": title,

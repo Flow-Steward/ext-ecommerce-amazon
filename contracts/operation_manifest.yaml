@@ -111,10 +111,24 @@ operations:
       type:
       - string
       - 'null'
+  - name: safe_metadata
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  - name: verified_display_name
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
   result_fields:
   - result.subject
   - result.health
   - result.error_code
+  - result.safe_metadata
+  - result.verified_display_name
   error_codes:
   - invalid_payload
   - invalid_configuration
@@ -242,7 +256,7 @@ operations:
     schema:
       type: array
       title: Included data (2026-01-01)
-      description: Extra order sections to return.
+      description: Extra order sections to return. FULFILLMENT and PROCEEDS are always included.
       minItems: 1
       items:
         type: string
@@ -380,7 +394,7 @@ operations:
     schema:
       type: array
       title: Included data (2026-01-01)
-      description: Extra order sections to return.
+      description: Extra order sections to return. FULFILLMENT and PROCEEDS are always included.
       minItems: 1
       items:
         type: string
@@ -1973,7 +1987,7 @@ operations:
   - internal_error
 - operation_id: get_product_type_definition
   display_name: Get product type requirements
-  description: 'Returns a product type''s definition for the connection''s marketplace: version, property groups and the link to its JSON Schema (without the signed query string). include_schema also downloads the schema (up to 5 MB) and returns it parsed; parentage_level makes it smaller.'
+  description: 'Returns a product type''s definition for the connection''s marketplace: version, property groups and the link to its JSON Schema (without the signed query string). include_schema also downloads the schema (up to 2.5 MB) and returns it parsed; parentage_level and requirements make it smaller, and a larger schema is refused with response_too_large.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -2093,7 +2107,7 @@ operations:
     schema:
       type: boolean
       title: Include schema
-      description: Download and return the JSON Schema (up to 5 MB).
+      description: Download and return the JSON Schema (up to 2.5 MB; narrow it with parentage_level or requirements).
   outputs:
   - name: product_type
     value_type: text
@@ -3291,7 +3305,7 @@ operations:
   - internal_error
 - operation_id: set_fbm_quantity
   display_name: Set merchant quantity
-  description: 'Sets the quantity available for a merchant-fulfilled (DEFAULT channel) SKU. Only the fulfillment_availability attribute for the DEFAULT channel is sent. A SKU fulfilled only by Amazon is refused before anything is sent; FBA stock is not changed by this extension. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  description: 'Sets the quantity available for a merchant-fulfilled (DEFAULT channel) SKU. Only the fulfillment_availability attribute for the DEFAULT channel is sent. The listing must already have a DEFAULT channel: a SKU fulfilled only by Amazon, or without fulfillment availability, is refused before anything is sent. FBA stock is not changed by this extension. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -3533,27 +3547,19 @@ operations:
   - name: feed_id
     value_type: text
     schema:
-      type:
-      - string
-      - 'null'
+      type: string
   - name: feed_type
     value_type: text
     schema:
-      type:
-      - string
-      - 'null'
+      type: string
   - name: submission_status
     value_type: text
     schema:
-      type:
-      - string
-      - 'null'
+      type: string
   - name: message
     value_type: text
     schema:
-      type:
-      - string
-      - 'null'
+      type: string
   result_fields:
   - result.feed_id
   - result.feed_type
@@ -3762,7 +3768,7 @@ operations:
   - continuation_token_invalid
 - operation_id: get_feed_result
   display_name: Get feed result
-  description: 'Reads a feed and, once Amazon has finished it, its processing report: summary counts, messages that failed (at least one ERROR) and messages applied with warnings, each with messageId, sku and Amazon''s issues. Messages without issues appear only in the summary count. While the feed is still processing it returns the status alone; it never waits.'
+  description: 'Reads a feed and, once Amazon has finished it, its processing report: summary counts, messages that failed (at least one ERROR) and messages applied with warnings, each with messageId, sku and Amazon''s issues. Messages without issues appear only in the summary count. The issue lists together are capped at 2.5 MB (feed-level issues first, then failed, then accepted with issues); issues_truncated is true when entries were left out, and save_report_file keeps the full report. While the feed is still processing it returns the status alone; it never waits.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -4628,7 +4634,7 @@ operations:
   - internal_error
 - operation_id: download_report
   display_name: Download a report
-  description: 'Downloads a finished report (up to 100 MB compressed, 250 MB uncompressed) and stores it as a file. Give report_id, or report_document_id with report_type. The report is not parsed. Supported types: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2, GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE.'
+  description: 'Downloads a finished report (up to 100 MB compressed, 200 MB uncompressed) and stores it as a file. Give the report_id from search_reports, create_report or get_report; the report''s type is read from Amazon and must be one of the supported types. The report is not parsed. Supported types: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2, GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -4641,39 +4647,13 @@ operations:
     required: true
   - name: report_id
     value_type: text
-    required: false
+    required: true
     schema:
       type: string
       title: Report ID
       description: The report_id create_report or search_reports returned.
       minLength: 1
       maxLength: 64
-  - name: report_document_id
-    value_type: text
-    required: false
-    schema:
-      type: string
-      title: Report document ID
-      description: The report_document_id of a finished report.
-      minLength: 1
-      maxLength: 256
-  - name: report_type
-    value_type: text
-    required: false
-    schema:
-      type: string
-      title: Report type
-      description: The report's type; required with report_document_id.
-      enum:
-      - GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
-      - GET_MERCHANT_LISTINGS_ALL_DATA
-      - GET_MERCHANT_LISTINGS_DATA
-      - GET_FLAT_FILE_OPEN_LISTINGS_DATA
-      - GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL
-      - GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL
-      - GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA
-      - GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA
-      - GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE
   outputs:
   - name: artifact_handle
     value_type: text
@@ -4702,9 +4682,7 @@ operations:
   - name: report_id
     value_type: text
     schema:
-      type:
-      - string
-      - 'null'
+      type: string
   - name: report_document_id
     value_type: text
     schema:

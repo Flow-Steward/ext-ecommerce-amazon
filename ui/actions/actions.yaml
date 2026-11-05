@@ -57,6 +57,8 @@ actions:
   - subject
   - health
   - error_code
+  - safe_metadata
+  - verified_display_name
   error_codes:
   - invalid_payload
   - invalid_configuration
@@ -876,7 +878,7 @@ actions:
   - internal_error
 - action_id: get_product_type_definition
   title: Get product type requirements
-  description: 'Returns a product type''s definition for the connection''s marketplace: version, property groups and the link to its JSON Schema (without the signed query string). include_schema also downloads the schema (up to 5 MB) and returns it parsed; parentage_level makes it smaller.'
+  description: 'Returns a product type''s definition for the connection''s marketplace: version, property groups and the link to its JSON Schema (without the signed query string). include_schema also downloads the schema (up to 2.5 MB) and returns it parsed; parentage_level and requirements make it smaller, and a larger schema is refused with response_too_large.'
   required_scopes:
   - extension:invoke
   handler:
@@ -1441,7 +1443,7 @@ actions:
   - internal_error
 - action_id: set_fbm_quantity
   title: Set merchant quantity
-  description: 'Sets the quantity available for a merchant-fulfilled (DEFAULT channel) SKU. Only the fulfillment_availability attribute for the DEFAULT channel is sent. A SKU fulfilled only by Amazon is refused before anything is sent; FBA stock is not changed by this extension. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  description: 'Sets the quantity available for a merchant-fulfilled (DEFAULT channel) SKU. Only the fulfillment_availability attribute for the DEFAULT channel is sent. The listing must already have a DEFAULT channel: a SKU fulfilled only by Amazon, or without fulfillment availability, is refused before anything is sent. FBA stock is not changed by this extension. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
   required_scopes:
   - extension:invoke
   handler:
@@ -1688,7 +1690,7 @@ actions:
   - continuation_token_invalid
 - action_id: get_feed_result
   title: Get feed result
-  description: 'Reads a feed and, once Amazon has finished it, its processing report: summary counts, messages that failed (at least one ERROR) and messages applied with warnings, each with messageId, sku and Amazon''s issues. Messages without issues appear only in the summary count. While the feed is still processing it returns the status alone; it never waits.'
+  description: 'Reads a feed and, once Amazon has finished it, its processing report: summary counts, messages that failed (at least one ERROR) and messages applied with warnings, each with messageId, sku and Amazon''s issues. Messages without issues appear only in the summary count. The issue lists together are capped at 2.5 MB (feed-level issues first, then failed, then accepted with issues); issues_truncated is true when entries were left out, and save_report_file keeps the full report. While the feed is still processing it returns the status alone; it never waits.'
   required_scopes:
   - extension:invoke
   - artifact:write
@@ -2112,7 +2114,7 @@ actions:
   - internal_error
 - action_id: download_report
   title: Download a report
-  description: 'Downloads a finished report (up to 100 MB compressed, 250 MB uncompressed) and stores it as a file. Give report_id, or report_document_id with report_type. The report is not parsed. Supported types: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2, GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE.'
+  description: 'Downloads a finished report (up to 100 MB compressed, 200 MB uncompressed) and stores it as a file. Give the report_id from search_reports, create_report or get_report; the report''s type is read from Amazon and must be one of the supported types. The report is not parsed. Supported types: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2, GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE.'
   required_scopes:
   - extension:invoke
   - artifact:write
@@ -2126,13 +2128,7 @@ actions:
     required: true
   - name: report_id
     type: string
-    required: false
-  - name: report_document_id
-    type: string
-    required: false
-  - name: report_type
-    type: string
-    required: false
+    required: true
   result_fields:
   - artifact_handle
   - size_bytes

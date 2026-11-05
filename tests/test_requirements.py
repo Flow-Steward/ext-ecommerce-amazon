@@ -125,6 +125,38 @@ def test_schema_link_outside_s3_is_refused(amazon, run):
     assert len(amazon.requests) == 1
 
 
+def test_schema_link_on_a_non_s3_amazonaws_host_is_refused(amazon, run):
+    definition = dict(
+        DEFINITION,
+        schema={
+            "link": {
+                "resource": "https://abc123.execute-api.us-east-1.amazonaws.com/s.json",
+                "verb": "GET",
+            },
+            "checksum": "x",
+        },
+    )
+    amazon.reply("GET", "/definitions/2020-09-01/productTypes/MUG", definition)
+    response = run("get_product_type_definition", {"product_type": "MUG", "include_schema": True})
+    assert response["error_code"] == "blocked_address"
+    assert len(amazon.requests) == 1
+
+
+def test_schema_over_the_inline_cap_points_to_the_narrowing_filters(amazon, run):
+    from runtime.sections import requirements
+
+    assert requirements.MAX_SCHEMA_BYTES == 2_621_440
+    big = json.dumps(
+        {"properties": {f"p{index}": {"title": "x" * 100} for index in range(30_000)}}
+    ).encode()
+    assert len(big) > requirements.MAX_SCHEMA_BYTES
+    amazon.reply("GET", "/definitions/2020-09-01/productTypes/MUG", DEFINITION)
+    amazon.reply("GET", SCHEMA_PATH, raw=big)
+    response = run("get_product_type_definition", {"product_type": "MUG", "include_schema": True})
+    assert response["error_code"] == "response_too_large"
+    assert "parentage_level" in response["error"] and "requirements" in response["error"]
+
+
 def test_product_type_name_is_checked(amazon, run):
     assert (
         run("get_product_type_definition", {"product_type": "../x"})["error_code"]

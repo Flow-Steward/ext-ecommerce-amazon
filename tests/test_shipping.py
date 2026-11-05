@@ -89,7 +89,7 @@ def test_cod_is_sent_in_japan(amazon, run):
 def test_confirm_shipment_in_test_mode_sends_nothing(amazon, run):
     response = run("confirm_shipment", BASE, test_mode=True)
     assert response["result"]["external_effect_status"] == "suppressed"
-    assert response["result"]["confirmed"] is None
+    assert "confirmed" not in response["result"]
     assert amazon.requests == []
 
 

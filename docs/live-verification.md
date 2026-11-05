@@ -31,7 +31,9 @@ yet. Sandbox and fixtures are not evidence of live behaviour.
 | Listings | `merchant_suggested_asin` value shape and the `PRODUCT` default product type for offer-only listings. |
 | Pricing | Full shape of a B2B `our_price` entry in `purchasable_offer` (the `audience: B2B` selector is documented, a complete example is not). |
 | Inventory | Whether `fulfillment_availability` needs `marketplace_id` in a merge patch. |
-| Requirements | That product type schema links are signed S3 URLs (inferred from "valid for seven days"). |
+| Orders | That Orders 2026-01-01 returns `fulfillment` and `proceeds` (order and item level) only when `includedData` names FULFILLMENT and PROCEEDS, as the model's optional sections suggest; the extension always asks for both. |
+| Documents | That every presigned feed, report and schema URL Amazon returns is on an Amazon S3 host (`*.s3*.amazonaws.com`); any other `amazonaws.com` host is refused. |
+| Requirements | That product type schema links are signed S3 URLs (inferred from "valid for seven days"), and how many product types exceed the 2.5 MB inline schema cap without `parentage_level`. |
 | Reports | Character encoding of flat files per marketplace (files are stored unchanged). |
 | Roles | Role names per operation in the matrix (not part of the OpenAPI models). |
 | Rate limits | Behaviour under real throttling with several connections of one seller in a region. |

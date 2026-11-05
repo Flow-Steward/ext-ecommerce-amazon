@@ -306,7 +306,7 @@ def test_mutation_in_test_mode_sends_nothing(amazon, run):
     )
     assert response["ok"] is True
     assert response["result"]["external_effect_status"] == "suppressed"
-    assert response["result"]["submission_id"] is None
+    assert "submission_id" not in response["result"]
     assert amazon.requests == []
 
 

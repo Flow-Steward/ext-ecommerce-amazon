@@ -14,9 +14,15 @@ Responses are decoded with ``Decimal`` for every number with a fraction, and
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping, Sequence
 from decimal import Decimal
 from typing import Any
+
+#: The subprocess entrypoint (``main.MAX_SERIALIZED_RESPONSE_BYTES``) replaces any
+#: response larger than this with ``response_too_large``. Handlers that return
+#: content of unbounded size budget against it.
+MAX_SERIALIZED_RESPONSE_BYTES = 9 * 512 * 1024
 
 _AMOUNT_KEYS = ("amount", "Amount", "currencyAmount", "CurrencyAmount")
 _CURRENCY_KEYS = ("currencyCode", "CurrencyCode")
@@ -92,4 +98,32 @@ def as_list(value: Any) -> list[Any]:
     return []
 
 
-__all__ = ["as_list", "decimal_text", "dig", "first", "json_safe", "money"]
+def serialized_size(value: Any) -> int:
+    """UTF-8 bytes of ``value`` serialized the way the entrypoint writes it."""
+    return len(
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            default=_decimal_default,
+        ).encode("utf-8")
+    )
+
+
+def _decimal_default(value: Any) -> str:
+    if isinstance(value, Decimal):
+        return format(value, "f")
+    raise TypeError(type(value).__name__)
+
+
+__all__ = [
+    "MAX_SERIALIZED_RESPONSE_BYTES",
+    "as_list",
+    "decimal_text",
+    "dig",
+    "first",
+    "json_safe",
+    "money",
+    "serialized_size",
+]

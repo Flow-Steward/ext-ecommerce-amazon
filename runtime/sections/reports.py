@@ -7,12 +7,16 @@ and the file format, all as stated on Amazon's report type value pages
 
 * Settlement reports (``GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2``) "cannot be
   requested or scheduled": Amazon generates them on its own schedule. They can
-  only be found with ``search_reports`` and fetched with ``download_report``.
+  only be found with ``search_reports`` and fetched with ``download_report``
+  by their report ID.
 * Every type here is a tab-delimited flat file. Its character set is Amazon's
   and depends on the marketplace; the file is stored unchanged.
 
-``download_report`` stores the report as a platform file. The presigned Amazon
-S3 URL it is downloaded from is never returned. Report content is not parsed.
+``download_report`` stores the report as a platform file. It takes a report ID
+only: the report's type is read from Amazon (``getReport``) and checked against
+the allowlist, so a report outside it, or one whose personal-data flag would be
+wrong, cannot be fetched by naming a different type. The presigned Amazon S3
+URL it is downloaded from is never returned. Report content is not parsed.
 """
 
 from __future__ import annotations
@@ -139,7 +143,7 @@ CREATABLE_REPORT_TYPE_NAMES = tuple(name for name, row in REPORT_TYPES.items() i
 PROCESSING_STATUSES = ("CANCELLED", "DONE", "FATAL", "IN_PROGRESS", "IN_QUEUE")
 
 MAX_REPORT_DOWNLOAD_BYTES = 100 * 1024 * 1024
-MAX_REPORT_CONTENT_BYTES = 250 * 1024 * 1024
+MAX_REPORT_CONTENT_BYTES = 200 * 1024 * 1024
 
 REPORT_OUTPUT = ArtifactBinding(
     binding_key="amazon_report_document",
@@ -267,41 +271,24 @@ def _get_report(context: Context) -> dict[str, Any]:
 
 
 def _download_report(context: Context) -> dict[str, Any]:
-    data = context.input
-    report_id = data.get("report_id")
-    document_id = data.get("report_document_id")
-    if (report_id is None) == (document_id is None):
+    report_id = str(context.input["report_id"])
+    report = _read_report(context, report_id)
+    report_type = report["report_type"]
+    if report_type not in REPORT_TYPES:
         raise ExtensionError(
-            errors.INVALID_PAYLOAD, "Give exactly one of report_id or report_document_id"
+            errors.INVALID_PAYLOAD, "That report's type is not supported by this extension"
         )
-    if report_id is not None:
-        report = _read_report(context, str(report_id))
-        report_type = report["report_type"]
-        if report_type not in REPORT_TYPES:
-            raise ExtensionError(
-                errors.INVALID_PAYLOAD, "That report's type is not supported by this extension"
-            )
-        if data.get("report_type") is not None and data["report_type"] != report_type:
-            raise ExtensionError(
-                errors.INVALID_PAYLOAD, f"That report is a {report_type}, not {data['report_type']}"
-            )
-        if report["processing_status"] != "DONE" or not report["report_document_id"]:
-            raise ExtensionError(
-                errors.DOCUMENT_UNAVAILABLE,
-                f"The report is {report['processing_status'] or 'not ready'}; download it once its status is DONE",
-            )
-        document_id = report["report_document_id"]
-    else:
-        report_type = data.get("report_type")
-        if report_type is None:
-            raise ExtensionError(
-                errors.INVALID_PAYLOAD, "report_type is required with report_document_id"
-            )
+    if report["processing_status"] != "DONE" or not report["report_document_id"]:
+        raise ExtensionError(
+            errors.DOCUMENT_UNAVAILABLE,
+            f"The report is {report['processing_status'] or 'not ready'}; download it once its status is DONE",
+        )
     row = _report_type(report_type)
+    document_id = str(report["report_document_id"])
     response = context.transport.call(
         "GET",
         DOCUMENT,
-        path={"reportDocumentId": str(document_id)},
+        path={"reportDocumentId": document_id},
         mutating=False,
         purpose="Amazon get report document",
     )
@@ -313,7 +300,7 @@ def _download_report(context: Context) -> dict[str, Any]:
         purpose="Amazon report download",
     )
     written = documents.write_artifact(context, REPORT_OUTPUT, content)
-    name_part = _FILENAME_SAFE.sub("_", str(report_id or document_id))[:80]
+    name_part = _FILENAME_SAFE.sub("_", report_id)[:80]
     return {
         "artifact_handle": written["artifact_handle"],
         "size_bytes": written["size_bytes"],
@@ -413,24 +400,14 @@ OPERATIONS: tuple[Operation, ...] = (
         operation_id="download_report",
         display_name="Download a report",
         description=(
-            "Downloads a finished report (up to 100 MB compressed, 250 MB uncompressed) and stores it "
-            "as a file. Give report_id, or report_document_id with report_type. The report is not "
-            "parsed. Supported types: " + _REPORT_TYPE_LIST + "."
+            "Downloads a finished report (up to 100 MB compressed, 200 MB uncompressed) and stores it "
+            "as a file. Give the report_id from search_reports, create_report or get_report; the "
+            "report's type is read from Amazon and must be one of the supported types. The report is "
+            "not parsed. Supported types: " + _REPORT_TYPE_LIST + "."
         ),
         section="reports",
-        properties={
-            "connection_ref": CONNECTION_REF,
-            "report_id": _REPORT_ID_INPUT,
-            "report_document_id": text(
-                "Report document ID", "The report_document_id of a finished report.", max_length=256
-            ),
-            "report_type": enum(
-                "Report type",
-                "The report's type; required with report_document_id.",
-                REPORT_TYPE_NAMES,
-            ),
-        },
-        required=("connection_ref",),
+        properties={"connection_ref": CONNECTION_REF, "report_id": _REPORT_ID_INPUT},
+        required=("connection_ref", "report_id"),
         outputs=(
             out("artifact_handle", TEXT),
             out("size_bytes", INTEGER),
@@ -438,7 +415,7 @@ OPERATIONS: tuple[Operation, ...] = (
             out("content_type", TEXT),
             out("filename", TEXT),
             out("report_type", TEXT),
-            out("report_id", NULLABLE_TEXT),
+            out("report_id", TEXT),
             out("report_document_id", TEXT),
             out("was_compressed", BOOLEAN),
             out("contains_pii", BOOLEAN),

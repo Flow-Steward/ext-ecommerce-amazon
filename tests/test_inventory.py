@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 from conftest import SELLER_ID, UK_MARKETPLACE_ID
 
 ITEM = f"/listings/2021-08-01/items/{SELLER_ID}/SKU-1"
@@ -164,6 +165,22 @@ def test_set_fbm_quantity_refuses_an_fba_only_sku(amazon, run):
     assert [request.method for request in amazon.requests] == ["GET"]
 
 
+@pytest.mark.parametrize(
+    "listing",
+    [
+        {"sku": "SKU-1", "fulfillmentAvailability": []},
+        {"sku": "SKU-1"},
+    ],
+)
+def test_set_fbm_quantity_refuses_a_listing_without_any_channel(amazon, run, listing):
+    amazon.reply("GET", ITEM, listing)
+    response = run("set_fbm_quantity", {"sku": "SKU-1", "product_type": "MUG", "quantity": 1})
+    assert response["error_code"] == "invalid_payload"
+    assert "no fulfillment availability" in response["error"]
+    assert response["definitely_no_external_effect"] is True
+    assert [request.method for request in amazon.requests] == ["GET"]
+
+
 def test_set_fbm_quantity_input_and_modes(amazon, run):
     assert (
         run("set_fbm_quantity", {"sku": "SKU-1", "product_type": "MUG", "quantity": -1})[
@@ -191,7 +208,14 @@ def test_set_fbm_quantity_input_and_modes(amazon, run):
         == "missing_idempotency_key"
     )
     assert amazon.requests == []
-    amazon.reply("GET", ITEM, {"sku": "SKU-1", "fulfillmentAvailability": []})
+    amazon.reply(
+        "GET",
+        ITEM,
+        {
+            "sku": "SKU-1",
+            "fulfillmentAvailability": [{"fulfillmentChannelCode": "DEFAULT", "quantity": 4}],
+        },
+    )
     amazon.reply("PATCH", ITEM, {}, status=500)
     unknown = run("set_fbm_quantity", {"sku": "SKU-1", "product_type": "MUG", "quantity": 1})
     assert unknown["error_code"] == "outcome_unknown"

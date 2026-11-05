@@ -13,6 +13,12 @@ work for both; what differs is stated, not hidden:
   field this extension does not normalize is still there.
 * Personal data: ``v0`` needs a restricted data token, minted per call;
   ``2026-01-01`` returns it according to the application's roles.
+* In ``2026-01-01`` the order status, ``fulfilledBy``, the order total and the
+  items' shipped quantity and proceeds sit in the optional ``FULFILLMENT`` and
+  ``PROCEEDS`` sections. ``search_orders``, ``get_order`` and
+  ``get_order_items`` always ask for both (added to the caller's
+  ``included_data``), so the normalized fields are filled the same way as in
+  ``v0``. ``included_data`` may change between pages of one search.
 
 Amazon removes the six ``v0`` read operations on 2027-03-27. After that date the
 ``v0`` choice fails with Amazon's own error; nothing falls back to the other
@@ -102,7 +108,14 @@ API_VERSION_INPUT = enum(
     "2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).",
     API_VERSIONS,
 )
-ORDER_ID_INPUT = text("Amazon order ID", "The Amazon order ID, for example 123-1234567-1234567.", max_length=64)
+ORDER_ID_INPUT = text(
+    "Amazon order ID", "The Amazon order ID, for example 123-1234567-1234567.", max_length=64
+)
+
+#: 2026-01-01 sections the normalized order and item fields are read from:
+#: status and fulfilled_by (FULFILLMENT), order_total and item_total (PROCEEDS),
+#: quantity_shipped (FULFILLMENT).
+REQUIRED_INCLUDED_DATA = ("FULFILLMENT", "PROCEEDS")
 
 #: Filters that only one version understands.
 _ONLY_2026 = ("included_data",)
@@ -111,6 +124,11 @@ _ONLY_V0 = ("amazon_order_ids", "seller_order_id")
 
 def api_version(context: Context) -> str:
     return str(context.input.get("api_version") or V2026)
+
+
+def included_data(requested: Any) -> list[str]:
+    """The caller's sections plus the ones normalization needs; no repeats, stable order."""
+    return list(dict.fromkeys([*(requested or ()), *REQUIRED_INCLUDED_DATA]))
 
 
 def _refuse_other_version_filters(context: Context, version: str) -> None:
@@ -215,11 +233,16 @@ def _search_orders(context: Context) -> dict[str, Any]:
     for name in ("created_after", "created_before", "last_updated_after", "last_updated_before"):
         validation.timestamp(data.get(name), name)
     token = pagination.unwrap(context, version)
-    if token is None and not (data.get("created_after") or data.get("last_updated_after") or data.get("amazon_order_ids")):
+    if token is None and not (
+        data.get("created_after") or data.get("last_updated_after") or data.get("amazon_order_ids")
+    ):
         raise ExtensionError(
             errors.INVALID_PAYLOAD, "Give created_after or last_updated_after to search orders"
         )
-    if data.get("created_after") and (data.get("last_updated_after") or data.get("last_updated_before")):
+    by_creation = data.get("created_after") or data.get("created_before")
+    if by_creation and (data.get("last_updated_after") or data.get("last_updated_before")):
+        # Both Orders models forbid mixing createdAfter/createdBefore with
+        # lastUpdatedAfter/lastUpdatedBefore.
         raise ExtensionError(
             errors.INVALID_PAYLOAD,
             "Search by creation time or by update time, not both in one search",
@@ -236,7 +259,7 @@ def _search_orders(context: Context) -> dict[str, Any]:
             "fulfillmentStatuses": statuses or None,
             "fulfilledBy": fulfilled_by or None,
             "maxResultsPerPage": data.get("max_results"),
-            "includedData": data.get("included_data"),
+            "includedData": included_data(data.get("included_data")),
             "paginationToken": token,
         }
         response = context.transport.call(
@@ -298,13 +321,15 @@ def _get_order_raw(context: Context, version: str, included: list[str] | None) -
 def _get_order(context: Context) -> dict[str, Any]:
     version = api_version(context)
     _refuse_other_version_filters(context, version)
-    raw = _get_order_raw(context, version, context.input.get("included_data"))
+    raw = _get_order_raw(context, version, included_data(context.input.get("included_data")))
     if not isinstance(raw, dict):
         raise ExtensionError(errors.NOT_FOUND, "Amazon returned no order for that ID")
     return {
         "order": normalize_order(raw, version),
         "api_version": version,
-        "amazon_operation": "Orders 2026-01-01 getOrder" if version == V2026 else "Orders v0 getOrder",
+        "amazon_operation": "Orders 2026-01-01 getOrder"
+        if version == V2026
+        else "Orders v0 getOrder",
     }
 
 
@@ -316,7 +341,7 @@ def _get_order_items(context: Context) -> dict[str, Any]:
                 errors.UNSUPPORTED_FILTER,
                 "Orders API 2026-01-01 returns all items of an order at once; next_token is v0 only",
             )
-        raw = _get_order_raw(context, version, None)
+        raw = _get_order_raw(context, version, included_data(None))
         items = as_list(dig(raw, "orderItems"))
         amazon_token = None
         operation = "Orders 2026-01-01 getOrder"
@@ -373,12 +398,20 @@ def _get_buyer_info(context: Context) -> dict[str, Any]:
         ],
     )
     buyer_response = context.transport.call(
-        "GET", BUYER_V0, path={"orderId": order_id}, mutating=False,
-        purpose="Amazon order buyer info", access_token=token,
+        "GET",
+        BUYER_V0,
+        path={"orderId": order_id},
+        mutating=False,
+        purpose="Amazon order buyer info",
+        access_token=token,
     )
     address_response = context.transport.call(
-        "GET", ADDRESS_V0, path={"orderId": order_id}, mutating=False,
-        purpose="Amazon order address", access_token=token,
+        "GET",
+        ADDRESS_V0,
+        path={"orderId": order_id},
+        mutating=False,
+        purpose="Amazon order address",
+        access_token=token,
     )
     buyer = dig(buyer_response.body, "payload")
     address = dig(address_response.body, "payload")
@@ -408,11 +441,19 @@ _SEARCH_PROPERTIES: dict[str, dict[str, Any]] = {
     "created_before": timestamp("Created before", "Orders created before this time."),
     "last_updated_after": timestamp("Updated after", "Orders updated at or after this time."),
     "last_updated_before": timestamp("Updated before", "Orders updated before this time."),
-    "statuses": enum_list("Statuses", "Only orders in these statuses. INVOICE_UNCONFIRMED is v0 only.", STATUSES),
+    "statuses": enum_list(
+        "Statuses", "Only orders in these statuses. INVOICE_UNCONFIRMED is v0 only.", STATUSES
+    ),
     "fulfilled_by": enum_list("Fulfilled by", "MERCHANT (FBM) or AMAZON (FBA).", FULFILLED_BY),
     "max_results": integer("Page size", "Orders per page, 1 to 100.", minimum=1, maximum=100),
-    "included_data": enum_list("Included data (2026-01-01)", "Extra order sections to return.", INCLUDED_DATA),
-    "amazon_order_ids": text_list("Amazon order IDs (v0)", "Up to 50 order IDs.", max_items=50, max_length=64),
+    "included_data": enum_list(
+        "Included data (2026-01-01)",
+        "Extra order sections to return. FULFILLMENT and PROCEEDS are always included.",
+        INCLUDED_DATA,
+    ),
+    "amazon_order_ids": text_list(
+        "Amazon order IDs (v0)", "Up to 50 order IDs.", max_items=50, max_length=64
+    ),
     "seller_order_id": text("Seller order ID (v0)", "Your own order identifier.", max_length=64),
     "next_token": NEXT_TOKEN,
 }
@@ -439,7 +480,11 @@ OPERATIONS: tuple[Operation, ...] = (
             AMAZON_OPERATION_OUTPUT,
         ),
         handler=_search_orders,
-        amazon_calls=("Orders 2026-01-01 searchOrders", "Orders v0 getOrders"),
+        amazon_calls=(
+            "Orders 2026-01-01 searchOrders (includedData FULFILLMENT, PROCEEDS)",
+            "Orders v0 getOrders",
+        ),
+        page_only_inputs=("included_data",),
         roles=(_ROLE_ORDERS,),
         extra_error_codes=(errors.UNSUPPORTED_FILTER, errors.CONTINUATION_TOKEN_INVALID),
     ),
@@ -457,7 +502,10 @@ OPERATIONS: tuple[Operation, ...] = (
         required=("connection_ref", "order_id"),
         outputs=(out("order", OBJECT), API_VERSION_OUTPUT, AMAZON_OPERATION_OUTPUT),
         handler=_get_order,
-        amazon_calls=("Orders 2026-01-01 getOrder", "Orders v0 getOrder"),
+        amazon_calls=(
+            "Orders 2026-01-01 getOrder (includedData FULFILLMENT, PROCEEDS)",
+            "Orders v0 getOrder",
+        ),
         roles=(_ROLE_ORDERS,),
         extra_error_codes=(errors.UNSUPPORTED_FILTER,),
     ),
@@ -482,7 +530,10 @@ OPERATIONS: tuple[Operation, ...] = (
             AMAZON_OPERATION_OUTPUT,
         ),
         handler=_get_order_items,
-        amazon_calls=("Orders 2026-01-01 getOrder", "Orders v0 getOrderItems"),
+        amazon_calls=(
+            "Orders 2026-01-01 getOrder (includedData FULFILLMENT, PROCEEDS)",
+            "Orders v0 getOrderItems",
+        ),
         roles=(_ROLE_ORDERS,),
         extra_error_codes=(errors.UNSUPPORTED_FILTER, errors.CONTINUATION_TOKEN_INVALID),
     ),

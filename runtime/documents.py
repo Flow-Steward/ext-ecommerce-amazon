@@ -5,17 +5,23 @@ presigned URL is a time-limited credential: whoever holds it can read the
 report or, for a feed document, write the feed. This module is the only place
 that sees those URLs, and nothing it returns contains one. Downloads and uploads
 go through ``SpApiTransport.download_document`` / ``upload_document``, which
-accept only ``https`` URLs on an ``amazonaws.com`` host and never send the
-access token there.
+accept only ``https`` URLs on an Amazon S3 host and never send the access token
+there.
 
 Decompression is bounded twice: the compressed download is capped by the
 transport, and the gunzip output is capped here while it is produced, chunk by
 chunk, so a small archive that would expand to gigabytes (a "zip bomb") is
 refused after at most the cap plus one chunk has been inflated.
+
+Memory: content is collected in a ``BytesIO`` and returned with ``getvalue()``,
+which hands over the buffer itself instead of copying it, and the SDK's artifact
+writer takes a ``bytes`` object without copying it again. A 200 MB report is
+therefore held once (plus its compressed download), not twice.
 """
 
 from __future__ import annotations
 
+import io
 import zlib
 from collections.abc import Mapping
 from typing import Any
@@ -33,7 +39,8 @@ _MAX_GZIP_MEMBERS = 64
 
 def gunzip_bounded(data: bytes, *, max_bytes: int) -> bytes:
     """Inflate a gzip stream (one or more members) to at most ``max_bytes``."""
-    output = bytearray()
+    output = io.BytesIO()
+    size = 0
     remaining = data
     members = 0
     while remaining:
@@ -47,9 +54,10 @@ def gunzip_bounded(data: bytes, *, max_bytes: int) -> bytes:
                 # max_length bounds every step, so output is checked before it can grow
                 # past the cap by more than one chunk.
                 chunk = inflater.decompress(pending, _INFLATE_CHUNK)
-                output.extend(chunk)
-                if len(output) > max_bytes:
+                size += len(chunk)
+                if size > max_bytes:
                     raise _too_large()
+                output.write(chunk)
                 pending = inflater.unconsumed_tail
                 if inflater.eof or (not chunk and not pending):
                     break
@@ -59,7 +67,8 @@ def gunzip_bounded(data: bytes, *, max_bytes: int) -> bytes:
             raise _corrupt() from exc
         # Bytes after the end of one member are either another member or padding.
         remaining = inflater.unused_data.lstrip(b"\x00")
-    return bytes(output)
+    # getvalue() returns the BytesIO's own buffer: no second full copy.
+    return output.getvalue()
 
 
 def fetch_document(

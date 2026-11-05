@@ -7,8 +7,13 @@ Two kinds of request leave the extension:
   one of the fixed templates in ``runtime/operations*.py`` with its parameters
   percent-encoded here.
 * Document transfers, to the presigned Amazon S3 URL Amazon itself returned for a
-  feed or report document. Only ``https`` URLs on an ``amazonaws.com`` host are
-  accepted, and the access token is never sent there.
+  feed or report document, or a product type schema. Only ``https`` URLs on an
+  Amazon S3 host are accepted: ``s3.amazonaws.com`` and its regional and
+  dual-stack forms (``s3.<region>``, ``s3-<region>``, ``s3-external-1``,
+  ``s3.dualstack.<region>``), with or without a bucket label in front. Other
+  ``amazonaws.com`` hosts (EC2 instances, API Gateway, Lambda URLs) can be run
+  by anyone with an AWS account and are refused. The access token is never sent
+  to a document host.
 
 Every request goes out through the public Flow Steward extension SDK, which
 performs URL validation, DNS/IP pinning, connected-peer verification, redirect
@@ -26,8 +31,11 @@ workflow that runs many calls in parallel must bound that parallelism itself.
 
 from __future__ import annotations
 
+import http.client
+import io
 import json
 import random
+import re
 import time
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -64,7 +72,10 @@ BACKOFF_CAP_SECONDS = 10.0
 MAX_AMAZON_ERRORS = 20
 MAX_AMAZON_MESSAGE_LENGTH = 500
 
-DOCUMENT_HOST_SUFFIX = ".amazonaws.com"
+#: Amazon S3 endpoints only: an optional bucket prefix, then ``s3`` with optional
+#: regional / dual-stack labels, under ``amazonaws.com``. Any other amazonaws.com
+#: host can be operated by an arbitrary AWS customer.
+_S3_HOST_RE = re.compile(r"^(?:[a-z0-9][a-z0-9.-]*\.)?s3(?:[.-][a-z0-9-]+)*\.amazonaws\.com$")
 
 USER_AGENT = "FlowSteward-AmazonSPAPI/0.1 (Language=Python)"
 
@@ -219,10 +230,14 @@ class SpApiTransport:
                 ) from exc
             raise _Retry(
                 ExtensionError(
-                    errors.TIMEOUT, "Amazon did not respond in time", **_transport_facts(mutating=False)
+                    errors.TIMEOUT,
+                    "Amazon did not respond in time",
+                    **_transport_facts(mutating=False),
                 )
             ) from exc
-        except OSError as exc:
+        except (OSError, http.client.HTTPException) as exc:
+            # HTTPException covers IncompleteRead and BadStatusLine: the connection
+            # broke while the answer was being read, so a mutation may have landed.
             if mutating:
                 raise ExtensionError(
                     errors.OUTCOME_UNKNOWN,
@@ -231,7 +246,9 @@ class SpApiTransport:
                 ) from exc
             raise _Retry(
                 ExtensionError(
-                    errors.CONNECTION_FAILED, "Amazon could not be reached", **_transport_facts(mutating=False)
+                    errors.CONNECTION_FAILED,
+                    "Amazon could not be reached",
+                    **_transport_facts(mutating=False),
                 )
             ) from exc
         if 300 <= status < 400:
@@ -251,7 +268,9 @@ class SpApiTransport:
         safe_url = assert_document_url(url)
         request = Request(safe_url, method="GET", headers={"User-Agent": USER_AGENT})
         try:
-            with self._opener(request, timeout_seconds=self._timeout_seconds, purpose=purpose) as response:
+            with self._opener(
+                request, timeout_seconds=self._timeout_seconds, purpose=purpose
+            ) as response:
                 status = _status(response)
                 if status >= 300:
                     raise ExtensionError(
@@ -268,9 +287,10 @@ class SpApiTransport:
             ) from None
         except PinnedPeerError as exc:
             raise ExtensionError(
-                errors.BLOCKED_ADDRESS, "The document address is not reachable under the host policy"
+                errors.BLOCKED_ADDRESS,
+                "The document address is not reachable under the host policy",
             ) from exc
-        except (TimeoutError, OSError) as exc:
+        except (TimeoutError, OSError, http.client.HTTPException) as exc:
             raise ExtensionError(
                 errors.CONNECTION_FAILED, "The Amazon document could not be downloaded"
             ) from exc
@@ -285,7 +305,9 @@ class SpApiTransport:
             headers={"Content-Type": content_type, "User-Agent": USER_AGENT},
         )
         try:
-            with self._opener(request, timeout_seconds=self._timeout_seconds, purpose=purpose) as response:
+            with self._opener(
+                request, timeout_seconds=self._timeout_seconds, purpose=purpose
+            ) as response:
                 status = _status(response)
                 read_bounded(response, MAX_ERROR_BODY_BYTES)
         except HTTPError as exc:
@@ -299,7 +321,7 @@ class SpApiTransport:
             raise ExtensionError(
                 errors.BLOCKED_ADDRESS, "The upload address is not reachable under the host policy"
             ) from exc
-        except (TimeoutError, OSError) as exc:
+        except (TimeoutError, OSError, http.client.HTTPException) as exc:
             raise ExtensionError(
                 errors.CONNECTION_FAILED,
                 "The upload did not complete; create a new feed document and upload again",
@@ -320,13 +342,18 @@ class _Retry(Exception):
         self.minimum_delay = minimum_delay
 
 
+def is_amazon_s3_host(host: str) -> bool:
+    """Whether ``host`` is an Amazon S3 endpoint (path- or virtual-hosted style)."""
+    return _S3_HOST_RE.fullmatch(host.lower()) is not None
+
+
 def assert_document_url(url: Any) -> str:
     """Accept only an https presigned URL on an Amazon S3 host."""
     if not isinstance(url, str) or not url:
         raise ExtensionError(errors.DOCUMENT_UNAVAILABLE, "Amazon returned no document URL")
     parsed = urlparse(url)
-    host = (parsed.hostname or "").lower()
-    if parsed.scheme != "https" or not host.endswith(DOCUMENT_HOST_SUFFIX):
+    host = parsed.hostname or ""
+    if parsed.scheme != "https" or not is_amazon_s3_host(host):
         raise ExtensionError(
             errors.BLOCKED_ADDRESS, "Amazon returned a document URL outside Amazon S3"
         )
@@ -388,25 +415,35 @@ def amazon_error_list(raw: bytes) -> list[dict[str, str]]:
 def _mentions_next_token(amazon_errors: Sequence[Mapping[str, str]]) -> bool:
     for entry in amazon_errors:
         text = f"{entry.get('message', '')} {entry.get('details', '')}".lower()
-        if "nexttoken" in text.replace(" ", "") or "next token" in text or "paginationtoken" in text:
+        if (
+            "nexttoken" in text.replace(" ", "")
+            or "next token" in text
+            or "paginationtoken" in text
+        ):
             return True
     return False
 
 
 def read_bounded(response: Any, limit: int, *, mutating: bool = False) -> bytes:
-    """Read at most ``limit`` bytes; an oversized answer to a mutation is unknown."""
-    buffer = bytearray()
+    """Read at most ``limit`` bytes; an oversized answer to a mutation is unknown.
+
+    The chunks go into a ``BytesIO`` whose ``getvalue()`` hands over its own
+    buffer, so a 100 MB document is held once, not once more as a copy.
+    """
+    buffer = io.BytesIO()
+    size = 0
     while True:
-        chunk = response.read(min(CHUNK_BYTES, limit + 1 - len(buffer)))
+        chunk = response.read(min(CHUNK_BYTES, limit + 1 - size))
         if not chunk:
             break
-        buffer.extend(chunk)
-        if len(buffer) > limit:
+        buffer.write(chunk)
+        size += len(chunk)
+        if size > limit:
             raise ExtensionError(
                 errors.OUTCOME_UNKNOWN if mutating else errors.RESPONSE_TOO_LARGE,
                 "The Amazon response exceeds its safe limit",
             )
-    return bytes(buffer)
+    return buffer.getvalue()
 
 
 def decode_json(raw: bytes, *, mutating: bool = False) -> Any:
@@ -497,5 +534,6 @@ __all__ = [
     "decode_json",
     "encode_path",
     "encode_query",
+    "is_amazon_s3_host",
     "read_bounded",
 ]

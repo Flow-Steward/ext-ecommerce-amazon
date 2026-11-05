@@ -26,6 +26,6 @@ artifact_policies:
     binding_key: amazon_report_document
     filename: amazon-report.tsv
     content_type: text/tab-separated-values
-    max_size_bytes: 262144000
+    max_size_bytes: 209715200
     max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
     retention_class: run_window

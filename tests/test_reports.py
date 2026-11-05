@@ -186,7 +186,12 @@ def test_download_report_by_id_gunzips_and_stores_a_file(amazon, run):
     assert "report-sig-secret" not in dumped and "amazonaws.com" not in dumped
 
 
-def test_download_settlement_report_by_document_id(amazon, run):
+def test_download_settlement_report_by_report_id(amazon, run):
+    amazon.reply(
+        "GET",
+        "/reports/2021-06-30/reports/SETTLE-1",
+        report(report_type=SETTLEMENT, reportId="SETTLE-1", reportDocumentId="amzn1.spdoc.9"),
+    )
     amazon.reply(
         "GET",
         "/reports/2021-06-30/documents/amzn1.spdoc.9",
@@ -194,16 +199,15 @@ def test_download_settlement_report_by_document_id(amazon, run):
     )
     amazon.reply("GET", "/report-doc-1", raw=b"settlement-id\ttotal-amount\n1\t0.10\n")
     writer = Writer()
-    response = run(
-        "download_report",
-        {"report_document_id": "amzn1.spdoc.9", "report_type": SETTLEMENT},
-        artifact_writer=writer,
-    )
+    response = run("download_report", {"report_id": "SETTLE-1"}, artifact_writer=writer)
     assert response["ok"] is True, response
     assert response["result"]["report_type"] == SETTLEMENT
+    assert response["result"]["report_id"] == "SETTLE-1"
+    assert response["result"]["report_document_id"] == "amzn1.spdoc.9"
     assert response["result"]["was_compressed"] is False
     assert writer.calls[0]["body"] == b"settlement-id\ttotal-amount\n1\t0.10\n"
     assert [request.path for request in amazon.requests] == [
+        "/reports/2021-06-30/reports/SETTLE-1",
         "/reports/2021-06-30/documents/amzn1.spdoc.9",
         "/report-doc-1",
     ]
@@ -211,12 +215,39 @@ def test_download_settlement_report_by_document_id(amazon, run):
 
 @pytest.mark.parametrize(
     "inputs",
-    [{}, {"report_id": "REP-1", "report_document_id": "doc"}, {"report_document_id": "doc"}],
+    [
+        {},
+        {"report_document_id": "amzn1.spdoc.9"},
+        {"report_document_id": "amzn1.spdoc.9", "report_type": LISTINGS},
+        {"report_id": "REP-1", "report_type": LISTINGS},
+    ],
 )
-def test_download_report_needs_one_way_to_find_the_document(amazon, run, inputs):
+def test_download_report_takes_a_report_id_only(amazon, run, inputs):
+    """A document ID with a caller-named type would skip the allowlist and the PII flag."""
     response = run("download_report", inputs, artifact_writer=Writer())
     assert response["error_code"] == "invalid_payload"
     assert amazon.requests == []
+
+
+def test_download_report_reads_the_type_from_amazon_not_the_caller(amazon, run):
+    amazon.reply(
+        "GET", "/reports/2021-06-30/reports/REP-7", report(report_type=ORDERS, reportId="REP-7")
+    )
+    amazon.reply(
+        "GET",
+        "/reports/2021-06-30/documents/amzn1.spdoc.1",
+        {"reportDocumentId": "amzn1.spdoc.1", "url": REPORT_URL},
+    )
+    amazon.reply("GET", "/report-doc-1", raw=b"order-id\tbuyer-email\n1\ta@b.example\n")
+    response = run("download_report", {"report_id": "REP-7"}, artifact_writer=Writer())
+    assert response["ok"] is True, response
+    assert response["result"]["report_type"] == ORDERS
+    assert response["result"]["contains_pii"] is True
+
+
+def test_report_content_cap_is_200_mb():
+    assert reports.MAX_REPORT_CONTENT_BYTES == 200 * 1024 * 1024
+    assert reports.REPORT_OUTPUT.max_size_bytes == reports.MAX_REPORT_CONTENT_BYTES
 
 
 def test_download_of_a_report_not_done_is_refused(amazon, run):
