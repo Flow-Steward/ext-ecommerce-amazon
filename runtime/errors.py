@@ -12,7 +12,9 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-_MESSAGE_UNKNOWN_OUTCOME = "The outcome of this request is unknown; read the current state before retrying"
+_MESSAGE_UNKNOWN_OUTCOME = (
+    "The outcome of this request is unknown; read the current state before retrying"
+)
 _MESSAGE_AMAZON_FAILED = "Amazon could not complete the request"
 
 INVALID_PAYLOAD = "invalid_payload"
@@ -36,7 +38,7 @@ UPSTREAM_VALIDATION_FAILED = "upstream_validation_failed"
 UPSTREAM_FAILURE = "upstream_failure"
 INVALID_JSON_RESPONSE = "invalid_json_response"
 RESPONSE_TOO_LARGE = "response_too_large"
-CONTINUATION_TOKEN_INVALID = "continuation_token_invalid"
+CONTINUATION_TOKEN_INVALID = "continuation_token_invalid"  # nosec B105 - an error code, not a credential
 DOCUMENT_UNAVAILABLE = "document_unavailable"
 ARTIFACT_INPUT_UNAVAILABLE = "artifact_input_unavailable"
 ARTIFACT_OUTPUT_UNAVAILABLE = "artifact_output_unavailable"

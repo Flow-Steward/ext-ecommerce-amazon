@@ -134,7 +134,9 @@ def step_ui_manifest() -> dict[str, Any]:
             for name, spec in row.properties.items()
             if name != "connection_ref"
         ]
-        forms.append({"operation_id": row.operation_id, "title": row.display_name, "fields": fields})
+        forms.append(
+            {"operation_id": row.operation_id, "title": row.display_name, "fields": fields}
+        )
     return {"forms": forms}
 
 
@@ -162,7 +164,11 @@ def action_manifest() -> dict[str, Any]:
         entry["mutates_platform"] = row.mutating
         entry["workflow_visible"] = row.workflow_visible
         entry["parameters"] = [
-            {"name": item["name"], "type": _parameter_type(item["value_type"]), "required": item["required"]}
+            {
+                "name": item["name"],
+                "type": _parameter_type(item["value_type"]),
+                "required": item["required"],
+            }
             for item in _inputs(row)
         ]
         entry["result_fields"] = list(row.result_fields)
@@ -244,7 +250,9 @@ def artifact_policies_block() -> str:
     policies = artifact_policies()["artifact_policies"]
     if not policies:
         return "artifact_policies: []\n"
-    return yaml.safe_dump({"artifact_policies": policies}, sort_keys=False, default_flow_style=None, width=4096)
+    return yaml.safe_dump(
+        {"artifact_policies": policies}, sort_keys=False, default_flow_style=None, width=4096
+    )
 
 
 def manifest_with_artifact_policies(current: str) -> str:

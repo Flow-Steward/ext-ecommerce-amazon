@@ -20,7 +20,9 @@ from .transport import encode_path
 TOKENS_PATH = "/tokens/2021-03-01/restrictedDataToken"
 
 
-def restricted_data_token(context: Context, resources: Sequence[tuple[str, str, dict[str, str]]]) -> str:
+def restricted_data_token(
+    context: Context, resources: Sequence[tuple[str, str, dict[str, str]]]
+) -> str:
     """Mint one RDT covering ``resources`` given as (method, path template, path params)."""
     body = {
         "restrictedResources": [

@@ -62,7 +62,9 @@ def test_post_connect_action_has_the_closed_profile():
 
 
 def test_connection_type_lists_exactly_the_supported_marketplaces():
-    data = yaml.safe_load((ROOT / "contracts" / "connection_types.yaml").read_text(encoding="utf-8"))
+    data = yaml.safe_load(
+        (ROOT / "contracts" / "connection_types.yaml").read_text(encoding="utf-8")
+    )
     (connection_type,) = data["connection_types"]
     assert connection_type["connection_type_id"] == CONNECTION_TYPE_ID
     marketplace = connection_type["config_schema"]["properties"]["marketplace"]

@@ -152,7 +152,11 @@ def timestamp(value: Any, name: str) -> str | None:
 
 def decimal_string(value: Any, name: str) -> str:
     """A decimal amount as a string; binary floats are refused, not rounded."""
-    if isinstance(value, bool) or not isinstance(value, str) or _DECIMAL_RE.fullmatch(value) is None:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, str)
+        or _DECIMAL_RE.fullmatch(value) is None
+    ):
         raise _invalid(name, 'must be a decimal string such as "19.99"')
     try:
         Decimal(value)
