@@ -31,6 +31,9 @@ GENERATED_HEADER = (
 
 REQUIRED_SCOPES: list[str] = ["extension:invoke"]
 ARTIFACT_RETENTION = "run_window"
+#: The platform requires this exact ceiling on an output that names max_size_env;
+#: the runtime enforces its own, smaller caps before writing.
+CANONICAL_ARTIFACT_MAX_BYTES = 209_715_200
 
 
 def _schema(value: Any) -> Any:
@@ -202,7 +205,7 @@ def artifact_policies() -> dict[str, Any]:
                     "binding_key": binding.binding_key,
                     "filename": binding.filename,
                     "content_type": binding.content_type,
-                    "max_size_bytes": binding.max_size_bytes,
+                    "max_size_bytes": CANONICAL_ARTIFACT_MAX_BYTES,
                     "max_size_env": "FS_EXTENSION_ARTIFACT_MAX_BYTES",
                     "retention_class": ARTIFACT_RETENTION,
                 }

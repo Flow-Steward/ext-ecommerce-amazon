@@ -67,7 +67,7 @@ artifact_policies:
   - {kind: artifact, value_type: artifact_handle, binding_key: amazon_feed_input, field: content_file, required: false, max_size_bytes: 10485760}
 - operation_id: get_feed_result
   outputs:
-  - {kind: artifact, value_type: artifact_handle, binding_key: amazon_feed_result, filename: amazon-feed-processing-report.json, content_type: application/json, max_size_bytes: 67108864, max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES, retention_class: run_window}
+  - {kind: artifact, value_type: artifact_handle, binding_key: amazon_feed_result, filename: amazon-feed-processing-report.json, content_type: application/json, max_size_bytes: 209715200, max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES, retention_class: run_window}
 - operation_id: download_report
   outputs:
   - {kind: artifact, value_type: artifact_handle, binding_key: amazon_report_document, filename: amazon-report.tsv, content_type: text/tab-separated-values, max_size_bytes: 209715200, max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES, retention_class: run_window}
