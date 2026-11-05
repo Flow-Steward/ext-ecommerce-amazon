@@ -293,3 +293,1875 @@ actions:
   - redirect_rejected
   - blocked_address
   - internal_error
+- action_id: confirm_shipment
+  title: Confirm a shipment
+  description: 'Confirms that a package of a merchant-fulfilled order was shipped: carrier, tracking number, ship date and the items with quantities in the package. Amazon answers without the new order state; read the order afterwards. Orders v0 only: Orders 2026-01-01 has no equivalent, and this call is not in Amazon''s v0 deprecation schedule.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  command_type: invoke_extension_action
+  mutates_platform: true
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: order_id
+    type: string
+    required: true
+  - name: package_reference_id
+    type: string
+    required: true
+  - name: carrier_code
+    type: string
+    required: true
+  - name: carrier_name
+    type: string
+    required: false
+  - name: shipping_method
+    type: string
+    required: false
+  - name: tracking_number
+    type: string
+    required: true
+  - name: ship_date
+    type: string
+    required: true
+  - name: ship_from_supply_source_id
+    type: string
+    required: false
+  - name: items
+    type: array
+    required: true
+  - name: cod_collection_method
+    type: string
+    required: false
+  result_fields:
+  - order_id
+  - confirmed
+  - package_reference_id
+  - note
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+  - unsupported_filter
+- action_id: update_shipment_status
+  title: Update shipment status
+  description: 'Sets the shipment status of a merchant-fulfilled order to ReadyForPickup, PickedUp or RefusedPickup, for the whole order or for the listed items. Amazon answers without the new order state; read the order afterwards. Orders v0 only: Orders 2026-01-01 has no equivalent, and this call is not in Amazon''s v0 deprecation schedule.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  command_type: invoke_extension_action
+  mutates_platform: true
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: order_id
+    type: string
+    required: true
+  - name: shipment_status
+    type: string
+    required: true
+  - name: items
+    type: array
+    required: false
+  result_fields:
+  - order_id
+  - shipment_status
+  - updated
+  - note
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+- action_id: search_catalog_items
+  title: Search the Amazon catalog
+  description: Finds products in the Amazon catalog of the connection's marketplace, either by up to 20 identifiers of one type (ASIN, EAN, GTIN, ISBN, JAN, MINSAN, SKU, UPC) or by keywords. Pass next_token for the next page.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: identifiers
+    type: array
+    required: false
+  - name: identifiers_type
+    type: string
+    required: false
+  - name: keywords
+    type: array
+    required: false
+  - name: brand_names
+    type: array
+    required: false
+  - name: classification_ids
+    type: array
+    required: false
+  - name: keywords_locale
+    type: string
+    required: false
+  - name: included_data
+    type: array
+    required: false
+  - name: locale
+    type: string
+    required: false
+  - name: page_size
+    type: integer
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - items
+  - count
+  - number_of_results
+  - next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- action_id: get_catalog_item
+  title: Get a catalog item
+  description: 'Returns one Amazon catalog product by ASIN: summary, attributes, images, identifiers and, with relationships, its variation parent and children.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: asin
+    type: string
+    required: true
+  - name: included_data
+    type: array
+    required: false
+  - name: locale
+    type: string
+    required: false
+  result_fields:
+  - item
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: search_listings
+  title: Find listings
+  description: Returns one page of the connection's own listings in its marketplace, filtered by identifiers, parent SKU, dates, status or issue severity. Pass next_token for the next page.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: identifiers
+    type: array
+    required: false
+  - name: identifiers_type
+    type: string
+    required: false
+  - name: variation_parent_sku
+    type: string
+    required: false
+  - name: package_hierarchy_sku
+    type: string
+    required: false
+  - name: created_after
+    type: string
+    required: false
+  - name: created_before
+    type: string
+    required: false
+  - name: last_updated_after
+    type: string
+    required: false
+  - name: last_updated_before
+    type: string
+    required: false
+  - name: with_issue_severity
+    type: array
+    required: false
+  - name: with_status
+    type: array
+    required: false
+  - name: without_status
+    type: array
+    required: false
+  - name: sort_by
+    type: string
+    required: false
+  - name: sort_order
+    type: string
+    required: false
+  - name: included_data
+    type: array
+    required: false
+  - name: issue_locale
+    type: string
+    required: false
+  - name: page_size
+    type: integer
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - listings
+  - count
+  - number_of_results
+  - next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- action_id: get_listing
+  title: Get a listing
+  description: 'Returns one of the seller''s listings by SKU: summary, attributes, issues, offers and quantities.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  - name: included_data
+    type: array
+    required: false
+  - name: issue_locale
+    type: string
+    required: false
+  result_fields:
+  - listing
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: get_listing_issues
+  title: Get listing issues
+  description: Returns the issues Amazon reports for one listing (code, message, severity, attributes, categories, enforcement), including issues raised after a submission was accepted.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  - name: issue_locale
+    type: string
+    required: false
+  result_fields:
+  - sku
+  - issues
+  - issue_count
+  - error_count
+  - warning_count
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: create_listing
+  title: Create or replace a listing
+  description: 'Creates a listing for a SKU, or fully replaces an existing one (attributes left out are dropped). offer_on_existing_asin sells an existing catalog product: give asin and the offer attributes (price, quantity, condition); it is sent as LISTING_OFFER_ONLY with the ASIN as merchant_suggested_asin. new_product creates the product too (requirements LISTING): give product_type and all required attributes; Amazon may refuse to create a new ASIN without brand registry or GTIN approval. Check eligibility with check_listing_restrictions and try validate_listing first. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  command_type: invoke_extension_action
+  mutates_platform: true
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  - name: listing_kind
+    type: string
+    required: true
+  - name: asin
+    type: string
+    required: false
+  - name: condition_type
+    type: string
+    required: false
+  - name: product_type
+    type: string
+    required: false
+  - name: attributes
+    type: object
+    required: true
+  - name: issue_locale
+    type: string
+    required: false
+  result_fields:
+  - sku
+  - submission_id
+  - status
+  - accepted
+  - applied
+  - check_with
+  - issues
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+  - unsupported_filter
+- action_id: update_listing_attributes
+  title: Update listing attributes
+  description: 'Changes selected top-level attributes of an existing listing with JSON Patch operations (add, replace, merge, delete on /attributes/<name>); other attributes stay as they are. Amazon requires the listing''s product_type. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  command_type: invoke_extension_action
+  mutates_platform: true
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  - name: product_type
+    type: string
+    required: true
+  - name: patches
+    type: array
+    required: true
+  - name: issue_locale
+    type: string
+    required: false
+  result_fields:
+  - sku
+  - submission_id
+  - status
+  - accepted
+  - applied
+  - check_with
+  - issues
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+  - unsupported_filter
+- action_id: search_product_types
+  title: Find product types
+  description: Finds the Amazon product types of the connection's marketplace by keywords, or recommends one from a product title (item_name). The product type is needed to create or update listings.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: keywords
+    type: array
+    required: false
+  - name: item_name
+    type: string
+    required: false
+  - name: locale
+    type: string
+    required: false
+  - name: search_locale
+    type: string
+    required: false
+  result_fields:
+  - product_types
+  - count
+  - product_type_version
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: get_product_type_definition
+  title: Get product type requirements
+  description: 'Returns a product type''s definition for the connection''s marketplace: version, property groups and the link to its JSON Schema (without the signed query string). include_schema also downloads the schema (up to 5 MB) and returns it parsed; parentage_level makes it smaller.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: product_type
+    type: string
+    required: true
+  - name: requirements
+    type: string
+    required: false
+  - name: requirements_enforced
+    type: string
+    required: false
+  - name: locale
+    type: string
+    required: false
+  - name: product_type_version
+    type: string
+    required: false
+  - name: parentage_level
+    type: string
+    required: false
+  - name: seller_specific
+    type: boolean
+    required: false
+  - name: include_schema
+    type: boolean
+    required: false
+  result_fields:
+  - product_type
+  - display_name
+  - requirements
+  - requirements_enforced
+  - locale
+  - marketplace_ids
+  - product_type_version
+  - property_groups
+  - schema_link
+  - meta_schema_link
+  - schema
+  - schema_checksum_verified
+  - schema_bytes
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - document_unavailable
+- action_id: check_listing_restrictions
+  title: Check listing restrictions
+  description: Tells whether the seller may list an ASIN in the connection's marketplace, optionally for one condition, with Amazon's reasons and links to request approval.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: asin
+    type: string
+    required: true
+  - name: condition_type
+    type: string
+    required: false
+  - name: product_type
+    type: string
+    required: false
+  - name: reason_locale
+    type: string
+    required: false
+  result_fields:
+  - asin
+  - restricted
+  - restrictions
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: validate_listing
+  title: Validate a listing (dry run)
+  description: 'Sends the same request as create_listing (request_kind put) or update_listing_attributes (request_kind patch) in Amazon''s VALIDATION_PREVIEW mode: Amazon checks it and reports VALID or INVALID with issues, and changes nothing.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  - name: request_kind
+    type: string
+    required: true
+  - name: listing_kind
+    type: string
+    required: false
+  - name: asin
+    type: string
+    required: false
+  - name: condition_type
+    type: string
+    required: false
+  - name: product_type
+    type: string
+    required: false
+  - name: attributes
+    type: object
+    required: false
+  - name: patches
+    type: array
+    required: false
+  - name: issue_locale
+    type: string
+    required: false
+  result_fields:
+  - sku
+  - status
+  - valid
+  - issues
+  - asin
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+- action_id: get_own_offer
+  title: Get my offer
+  description: 'Returns the seller''s own offer for a SKU in the connection''s marketplace: the standard price, the business price if any, each offer''s audience, and the listing''s fulfillment channels.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  result_fields:
+  - sku
+  - asin
+  - price
+  - business_price
+  - offers
+  - fulfillment_channels
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: get_listing_offers
+  title: Get offers on my listing
+  description: Returns up to 20 offers on the item behind one of the seller's SKUs, including competitors, with Amazon's lowest and Buy Box prices and which offer is the seller's own.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  - name: item_condition
+    type: string
+    required: true
+  - name: customer_type
+    type: string
+    required: false
+  result_fields:
+  - asin
+  - sku
+  - item_condition
+  - status
+  - summary
+  - offers
+  - own_offer
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: get_item_offers
+  title: Get offers on an ASIN
+  description: Returns up to 20 offers on any ASIN in the connection's marketplace, with Amazon's lowest and Buy Box prices.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: asin
+    type: string
+    required: true
+  - name: item_condition
+    type: string
+    required: true
+  - name: customer_type
+    type: string
+    required: false
+  result_fields:
+  - asin
+  - sku
+  - item_condition
+  - status
+  - summary
+  - offers
+  - own_offer
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: get_competitive_summary
+  title: Get competitive summary
+  description: 'Returns, for 1 to 20 ASINs, the featured buying options, reference prices and lowest priced offers. Each ASIN has its own ok, status_code and errors: one failing ASIN does not fail the step.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: asins
+    type: array
+    required: true
+  - name: included_data
+    type: array
+    required: true
+  - name: lowest_priced_offers_conditions
+    type: array
+    required: false
+  result_fields:
+  - results
+  - count
+  - failed_count
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+- action_id: get_featured_offer_expected_price
+  title: Get featured offer expected price
+  description: Returns, for 1 to 40 of the seller's SKUs, the price at or below which the offer may become the featured offer (Buy Box), with the current and competing featured offers. Not a guarantee. Each SKU has its own ok, status_code and errors.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: skus
+    type: array
+    required: true
+  result_fields:
+  - results
+  - count
+  - failed_count
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: set_price
+  title: Set a price
+  description: 'Sets the price (including tax where applicable) of the seller''s offer for a SKU in the connection''s marketplace, and optionally the business (B2B) price. Only the purchasable_offer attribute is sent, merged by marketplace, currency and audience, so nothing else on the listing changes. currency_code must be the marketplace currency. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  command_type: invoke_extension_action
+  mutates_platform: true
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  - name: product_type
+    type: string
+    required: true
+  - name: price
+    type: string
+    required: true
+  - name: currency_code
+    type: string
+    required: true
+  - name: business_price
+    type: string
+    required: false
+  - name: issue_locale
+    type: string
+    required: false
+  result_fields:
+  - sku
+  - submission_id
+  - status
+  - accepted
+  - applied
+  - check_with
+  - issues
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+- action_id: get_fba_inventory
+  title: Get FBA inventory
+  description: 'Returns FBA inventory summaries for the connection''s marketplace with every quantity category kept separate: fulfillable, inbound (working, shipped, receiving), reserved, researching and unfulfillable, each broken down. A quantity Amazon does not send is null. Filter by up to 50 SKUs or by start_date_time (changes since then; inbound changes are not detected), not both. Amazon''s page token expires 30 seconds after it is issued.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: seller_skus
+    type: array
+    required: false
+  - name: start_date_time
+    type: string
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - summaries
+  - count
+  - next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- action_id: get_fbm_quantity
+  title: Get merchant quantity
+  description: Returns the quantity the seller makes available on the merchant-fulfilled channel (DEFAULT) for a SKU, and every fulfillment channel of the listing.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  result_fields:
+  - sku
+  - quantity
+  - merchant_channel_found
+  - channels
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: set_fbm_quantity
+  title: Set merchant quantity
+  description: 'Sets the quantity available for a merchant-fulfilled (DEFAULT channel) SKU. Only the fulfillment_availability attribute for the DEFAULT channel is sent. A SKU fulfilled only by Amazon is refused before anything is sent; FBA stock is not changed by this extension. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  command_type: invoke_extension_action
+  mutates_platform: true
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: sku
+    type: string
+    required: true
+  - name: product_type
+    type: string
+    required: true
+  - name: quantity
+    type: integer
+    required: true
+  - name: issue_locale
+    type: string
+    required: false
+  result_fields:
+  - sku
+  - submission_id
+  - status
+  - accepted
+  - applied
+  - check_with
+  - issues
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+- action_id: upload_feed_document
+  title: Upload a feed document
+  description: Validates a JSON_LISTINGS_FEED (header.sellerId must be the connection's seller, version 2.0, 1 to 25,000 messages each with messageId, sku and operationType) and uploads it to Amazon. Returns the feed_document_id for create_feed; Amazon keeps it for two days. Nothing changes on Amazon until create_feed.
+  required_scopes:
+  - extension:invoke
+  - artifact:read
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: feed_type
+    type: string
+    required: true
+  - name: content
+    type: object
+    required: false
+  - name: content_file
+    type: object
+    required: false
+  result_fields:
+  - feed_document_id
+  - feed_type
+  - content_type
+  - size_bytes
+  - sha256
+  - message_count
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - document_unavailable
+  - artifact_input_unavailable
+- action_id: create_feed
+  title: Submit a feed
+  description: 'Submits an uploaded feed document for processing in the connection''s marketplace. Amazon processes it asynchronously: the result means submitted, not processed. Check get_feed and get_feed_result later.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  command_type: invoke_extension_action
+  mutates_platform: true
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: feed_type
+    type: string
+    required: true
+  - name: feed_document_id
+    type: string
+    required: true
+  result_fields:
+  - feed_id
+  - feed_type
+  - submission_status
+  - message
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+- action_id: get_feed
+  title: Get feed status
+  description: Returns one feed's processing status, timestamps and result document ID.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: feed_id
+    type: string
+    required: true
+  result_fields:
+  - feed
+  - processing_status
+  - result_feed_document_id
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: search_feeds
+  title: Find feeds
+  description: Returns one page of the connection's feeds of the given types in its marketplace. Amazon keeps feeds for 90 days.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: feed_types
+    type: array
+    required: true
+  - name: processing_statuses
+    type: array
+    required: false
+  - name: created_since
+    type: string
+    required: false
+  - name: created_until
+    type: string
+    required: false
+  - name: page_size
+    type: integer
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - feeds
+  - count
+  - next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - continuation_token_invalid
+- action_id: get_feed_result
+  title: Get feed result
+  description: 'Reads a feed and, once Amazon has finished it, its processing report: summary counts, messages that failed (at least one ERROR) and messages applied with warnings, each with messageId, sku and Amazon''s issues. Messages without issues appear only in the summary count. While the feed is still processing it returns the status alone; it never waits.'
+  required_scopes:
+  - extension:invoke
+  - artifact:write
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: feed_id
+    type: string
+    required: true
+  - name: save_report_file
+    type: boolean
+    required: false
+  result_fields:
+  - feed_id
+  - processing_status
+  - report_available
+  - summary
+  - failed
+  - accepted_with_issues
+  - feed_issues
+  - issues_truncated
+  - report_file
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - document_unavailable
+  - artifact_output_unavailable
+- action_id: list_financial_records
+  title: List financial records
+  description: 'Returns one page of financial records posted in a time window: 2024-06-19 transactions (default) or v0 financial events, flattened into one list. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile. Amazon may take up to 48 hours to post an event, so a window ending now is not complete yet.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: api_version
+    type: string
+    required: false
+  - name: posted_after
+    type: string
+    required: false
+  - name: posted_before
+    type: string
+    required: false
+  - name: transaction_status
+    type: string
+    required: false
+  - name: omit_marketplace_filter
+    type: boolean
+    required: false
+  - name: max_results
+    type: integer
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - records
+  - count
+  - next_token
+  - api_version
+  - amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- action_id: list_financial_records_for_order
+  title: List financial records of an order
+  description: 'Returns one page of the financial records of one order: 2024-06-19 transactions related to the order ID (default) or v0 financial events of the order. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile. Amazon may take up to 48 hours to post an event, so a window ending now is not complete yet.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: order_id
+    type: string
+    required: true
+  - name: api_version
+    type: string
+    required: false
+  - name: transaction_status
+    type: string
+    required: false
+  - name: omit_marketplace_filter
+    type: boolean
+    required: false
+  - name: max_results
+    type: integer
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - records
+  - count
+  - next_token
+  - api_version
+  - amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- action_id: list_financial_event_groups
+  title: List financial event groups
+  description: 'Returns one page of financial event groups (settlement periods) opened in a time window, with original and converted totals, processing and fund transfer status. Finances v0 listFinancialEventGroups: v0 only, and not on Amazon''s deprecation schedule.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: started_after
+    type: string
+    required: false
+  - name: started_before
+    type: string
+    required: false
+  - name: max_results
+    type: integer
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - groups
+  - count
+  - next_token
+  - api_version
+  - amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - continuation_token_invalid
+- action_id: list_financial_events_by_group
+  title: List financial records of a group
+  description: 'Returns one page of the financial records of one financial event group: 2024-06-19 transactions related to the group ID (default) or v0 listFinancialEventsByGroupId. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile.'
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: group_id
+    type: string
+    required: true
+  - name: api_version
+    type: string
+    required: false
+  - name: posted_after
+    type: string
+    required: false
+  - name: posted_before
+    type: string
+    required: false
+  - name: transaction_status
+    type: string
+    required: false
+  - name: omit_marketplace_filter
+    type: boolean
+    required: false
+  - name: max_results
+    type: integer
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - records
+  - count
+  - next_token
+  - api_version
+  - amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- action_id: search_reports
+  title: Find reports
+  description: Returns one page of the connection's reports of the given types in its marketplace, including the settlement reports Amazon generates on its own. Amazon keeps reports for 90 days.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: report_types
+    type: array
+    required: true
+  - name: processing_statuses
+    type: array
+    required: false
+  - name: created_since
+    type: string
+    required: false
+  - name: created_until
+    type: string
+    required: false
+  - name: page_size
+    type: integer
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - reports
+  - count
+  - next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - continuation_token_invalid
+- action_id: create_report
+  title: Request a report
+  description: Asks Amazon to compile a report for the connection's marketplace. Amazon builds it asynchronously; read it later with get_report and download_report. Settlement reports cannot be requested.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: report_type
+    type: string
+    required: true
+  - name: data_start_time
+    type: string
+    required: false
+  - name: data_end_time
+    type: string
+    required: false
+  result_fields:
+  - report_id
+  - report_type
+  - contains_pii
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: get_report
+  title: Get report status
+  description: Returns one report's processing status, period and document ID.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: report_id
+    type: string
+    required: true
+  result_fields:
+  - report
+  - processing_status
+  - report_document_id
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: download_report
+  title: Download a report
+  description: 'Downloads a finished report (up to 100 MB compressed, 250 MB uncompressed) and stores it as a file. Give report_id, or report_document_id with report_type. The report is not parsed. Supported types: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2, GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE.'
+  required_scopes:
+  - extension:invoke
+  - artifact:write
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: report_id
+    type: string
+    required: false
+  - name: report_document_id
+    type: string
+    required: false
+  - name: report_type
+    type: string
+    required: false
+  result_fields:
+  - artifact_handle
+  - size_bytes
+  - sha256
+  - content_type
+  - filename
+  - report_type
+  - report_id
+  - report_document_id
+  - was_compressed
+  - contains_pii
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - document_unavailable
+  - artifact_output_unavailable

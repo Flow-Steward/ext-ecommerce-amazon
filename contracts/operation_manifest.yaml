@@ -619,3 +619,4133 @@ operations:
   - redirect_rejected
   - blocked_address
   - internal_error
+- operation_id: confirm_shipment
+  display_name: Confirm a shipment
+  description: 'Confirms that a package of a merchant-fulfilled order was shipped: carrier, tracking number, ship date and the items with quantities in the package. Amazon answers without the new order state; read the order afterwards. Orders v0 only: Orders 2026-01-01 has no equivalent, and this call is not in Amazon''s v0 deprecation schedule.'
+  operation_kind: action
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  effect_kind: amazon_shipment_confirmation
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: order_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon order ID
+      description: The Amazon order ID, for example 123-1234567-1234567.
+      minLength: 1
+      maxLength: 64
+  - name: package_reference_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Package reference ID
+      description: Your positive numeric identifier of this package within the order, for example 1.
+      minLength: 1
+      maxLength: 19
+  - name: carrier_code
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Carrier code
+      description: Amazon's carrier code, for example UPS, DHL, Royal Mail, or Other with carrier_name.
+      minLength: 1
+      maxLength: 100
+  - name: carrier_name
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Carrier name
+      description: Required when carrier_code is Other.
+      minLength: 1
+      maxLength: 100
+  - name: shipping_method
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Shipping method
+      description: The ship method, for example Next Day.
+      minLength: 1
+      maxLength: 100
+  - name: tracking_number
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Tracking number
+      description: The carrier's tracking number.
+      minLength: 1
+      maxLength: 100
+  - name: ship_date
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Ship date
+      description: When the package was shipped. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: ship_from_supply_source_id
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Supply source ID
+      description: The supply source the package ships from, if you use supply sources.
+      minLength: 1
+      maxLength: 128
+  - name: items
+    value_type: array
+    required: true
+    schema:
+      type: array
+      title: Order items
+      description: The order items and quantities in this package.
+      minItems: 1
+      maxItems: 100
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - order_item_id
+        - quantity
+        properties:
+          order_item_id:
+            type: string
+            title: Order item ID
+            description: The order item ID from get_order_items.
+            minLength: 1
+            maxLength: 64
+          quantity:
+            type: integer
+            minimum: 1
+            maximum: 100000
+          transparency_codes:
+            type: array
+            title: Transparency codes
+            description: Amazon Transparency codes for this item, if it needs them.
+            minItems: 1
+            maxItems: 100
+            items:
+              type: string
+              minLength: 1
+              maxLength: 100
+  - name: cod_collection_method
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: COD collection method
+      description: Cash-on-delivery collection method (Japan only).
+      enum:
+      - DirectPayment
+  outputs:
+  - name: order_id
+    value_type: text
+    schema:
+      type: string
+  - name: confirmed
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: package_reference_id
+    value_type: text
+    schema:
+      type: string
+  - name: note
+    value_type: text
+    schema:
+      type: string
+  result_fields:
+  - result.order_id
+  - result.confirmed
+  - result.package_reference_id
+  - result.note
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+  - unsupported_filter
+- operation_id: update_shipment_status
+  display_name: Update shipment status
+  description: 'Sets the shipment status of a merchant-fulfilled order to ReadyForPickup, PickedUp or RefusedPickup, for the whole order or for the listed items. Amazon answers without the new order state; read the order afterwards. Orders v0 only: Orders 2026-01-01 has no equivalent, and this call is not in Amazon''s v0 deprecation schedule.'
+  operation_kind: action
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  effect_kind: amazon_shipment_status_update
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: order_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon order ID
+      description: The Amazon order ID, for example 123-1234567-1234567.
+      minLength: 1
+      maxLength: 64
+  - name: shipment_status
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Shipment status
+      description: The status to apply.
+      enum:
+      - ReadyForPickup
+      - PickedUp
+      - RefusedPickup
+  - name: items
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Order items
+      description: 'For a partial update: the order items and quantities the status applies to.'
+      minItems: 1
+      maxItems: 100
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - order_item_id
+        - quantity
+        properties:
+          order_item_id:
+            type: string
+            title: Order item ID
+            description: The order item ID from get_order_items.
+            minLength: 1
+            maxLength: 64
+          quantity:
+            type: integer
+            minimum: 1
+            maximum: 100000
+  outputs:
+  - name: order_id
+    value_type: text
+    schema:
+      type: string
+  - name: shipment_status
+    value_type: text
+    schema:
+      type: string
+  - name: updated
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: note
+    value_type: text
+    schema:
+      type: string
+  result_fields:
+  - result.order_id
+  - result.shipment_status
+  - result.updated
+  - result.note
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+- operation_id: search_catalog_items
+  display_name: Search the Amazon catalog
+  description: Finds products in the Amazon catalog of the connection's marketplace, either by up to 20 identifiers of one type (ASIN, EAN, GTIN, ISBN, JAN, MINSAN, SKU, UPC) or by keywords. Pass next_token for the next page.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: identifiers
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Identifiers
+      description: Up to 20 product identifiers.
+      minItems: 1
+      maxItems: 20
+      items:
+        type: string
+        minLength: 1
+        maxLength: 200
+  - name: identifiers_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Identifier type
+      description: The type of every value in identifiers.
+      enum:
+      - ASIN
+      - EAN
+      - GTIN
+      - ISBN
+      - JAN
+      - MINSAN
+      - SKU
+      - UPC
+  - name: keywords
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Keywords
+      description: Up to 20 search keywords.
+      minItems: 1
+      maxItems: 20
+      items:
+        type: string
+        minLength: 1
+        maxLength: 200
+  - name: brand_names
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Brands
+      description: 'Keyword search only: limit to these brands.'
+      minItems: 1
+      maxItems: 20
+      items:
+        type: string
+        minLength: 1
+        maxLength: 200
+  - name: classification_ids
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Classification IDs
+      description: 'Keyword search only: limit to these browse classifications.'
+      minItems: 1
+      maxItems: 20
+      items:
+        type: string
+        minLength: 1
+        maxLength: 64
+  - name: keywords_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Keywords language
+      description: 'Keyword search only: the language of the keywords.'
+      minLength: 1
+      maxLength: 10
+  - name: included_data
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Included data
+      description: 'Catalog data sets to return (Amazon default: summaries). relationships gives variation parents and children; vendorDetails needs a vendor account.'
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - attributes
+        - classifications
+        - dimensions
+        - identifiers
+        - images
+        - productTypes
+        - relationships
+        - salesRanks
+        - summaries
+        - vendorDetails
+      maxItems: 10
+  - name: locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Locale
+      description: Locale for localized summaries, for example en_GB.
+      minLength: 1
+      maxLength: 10
+  - name: page_size
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      title: Page size
+      description: Items per page, 1 to 20.
+      minimum: 1
+      maximum: 20
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: items
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: number_of_results
+    value_type: integer
+    schema:
+      type:
+      - integer
+      - 'null'
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.items
+  - result.count
+  - result.number_of_results
+  - result.next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- operation_id: get_catalog_item
+  display_name: Get a catalog item
+  description: 'Returns one Amazon catalog product by ASIN: summary, attributes, images, identifiers and, with relationships, its variation parent and children.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: asin
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: ASIN
+      description: The 10-character Amazon Standard Identification Number.
+      minLength: 10
+      maxLength: 10
+  - name: included_data
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Included data
+      description: 'Catalog data sets to return (Amazon default: summaries). relationships gives variation parents and children; vendorDetails needs a vendor account.'
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - attributes
+        - classifications
+        - dimensions
+        - identifiers
+        - images
+        - productTypes
+        - relationships
+        - salesRanks
+        - summaries
+        - vendorDetails
+      maxItems: 10
+  - name: locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Locale
+      description: Locale for localized summaries, for example en_GB.
+      minLength: 1
+      maxLength: 10
+  outputs:
+  - name: item
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.item
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: search_listings
+  display_name: Find listings
+  description: Returns one page of the connection's own listings in its marketplace, filtered by identifiers, parent SKU, dates, status or issue severity. Pass next_token for the next page.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: identifiers
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Identifiers
+      description: Up to 20 product identifiers of identifiers_type.
+      minItems: 1
+      maxItems: 20
+      items:
+        type: string
+        minLength: 1
+        maxLength: 200
+  - name: identifiers_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Identifier type
+      description: The type of every value in identifiers.
+      enum:
+      - ASIN
+      - EAN
+      - FNSKU
+      - GTIN
+      - ISBN
+      - JAN
+      - MINSAN
+      - SKU
+      - UPC
+  - name: variation_parent_sku
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Variation parent SKU
+      description: Only variation children of this SKU.
+      minLength: 1
+      maxLength: 200
+  - name: package_hierarchy_sku
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Package hierarchy SKU
+      description: Only listings that contain or are contained by this SKU.
+      minLength: 1
+      maxLength: 200
+  - name: created_after
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Created after
+      description: Listings created at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: created_before
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Created before
+      description: Listings created at or before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: last_updated_after
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Updated after
+      description: Listings updated at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: last_updated_before
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Updated before
+      description: Listings updated at or before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: with_issue_severity
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: With issue severity
+      description: Only listings with issues of these severities.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - WARNING
+        - ERROR
+      maxItems: 2
+  - name: with_status
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: With status
+      description: Only listings with these statuses.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - BUYABLE
+        - DISCOVERABLE
+      maxItems: 2
+  - name: without_status
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Without status
+      description: Only listings without these statuses.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - BUYABLE
+        - DISCOVERABLE
+      maxItems: 2
+  - name: sort_by
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Sort by
+      description: Sort field (Amazon default lastUpdatedDate).
+      enum:
+      - sku
+      - createdDate
+      - lastUpdatedDate
+  - name: sort_order
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Sort order
+      description: ASC or DESC (Amazon default DESC).
+      enum:
+      - ASC
+      - DESC
+  - name: included_data
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Included data
+      description: 'Listing data sets to return. Default for get_listing: summaries, attributes, issues, offers, fulfillmentAvailability; for search_listings Amazon''s default is summaries.'
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - summaries
+        - attributes
+        - issues
+        - offers
+        - fulfillmentAvailability
+        - procurement
+        - relationships
+        - productTypes
+      maxItems: 8
+  - name: issue_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Issue language
+      description: Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language.
+      minLength: 2
+      maxLength: 5
+  - name: page_size
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      title: Page size
+      description: Listings per page, 1 to 20.
+      minimum: 1
+      maximum: 20
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: listings
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: number_of_results
+    value_type: integer
+    schema:
+      type:
+      - integer
+      - 'null'
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.listings
+  - result.count
+  - result.number_of_results
+  - result.next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- operation_id: get_listing
+  display_name: Get a listing
+  description: 'Returns one of the seller''s listings by SKU: summary, attributes, issues, offers and quantities.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  - name: included_data
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Included data
+      description: 'Listing data sets to return. Default for get_listing: summaries, attributes, issues, offers, fulfillmentAvailability; for search_listings Amazon''s default is summaries.'
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - summaries
+        - attributes
+        - issues
+        - offers
+        - fulfillmentAvailability
+        - procurement
+        - relationships
+        - productTypes
+      maxItems: 8
+  - name: issue_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Issue language
+      description: Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language.
+      minLength: 2
+      maxLength: 5
+  outputs:
+  - name: listing
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.listing
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: get_listing_issues
+  display_name: Get listing issues
+  description: Returns the issues Amazon reports for one listing (code, message, severity, attributes, categories, enforcement), including issues raised after a submission was accepted.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  - name: issue_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Issue language
+      description: Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language.
+      minLength: 2
+      maxLength: 5
+  outputs:
+  - name: sku
+    value_type: text
+    schema:
+      type: string
+  - name: issues
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: issue_count
+    value_type: integer
+    schema:
+      type: integer
+  - name: error_count
+    value_type: integer
+    schema:
+      type: integer
+  - name: warning_count
+    value_type: integer
+    schema:
+      type: integer
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.sku
+  - result.issues
+  - result.issue_count
+  - result.error_count
+  - result.warning_count
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: create_listing
+  display_name: Create or replace a listing
+  description: 'Creates a listing for a SKU, or fully replaces an existing one (attributes left out are dropped). offer_on_existing_asin sells an existing catalog product: give asin and the offer attributes (price, quantity, condition); it is sent as LISTING_OFFER_ONLY with the ASIN as merchant_suggested_asin. new_product creates the product too (requirements LISTING): give product_type and all required attributes; Amazon may refuse to create a new ASIN without brand registry or GTIN approval. Check eligibility with check_listing_restrictions and try validate_listing first. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  operation_kind: action
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  effect_kind: amazon_listing_put
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  - name: listing_kind
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Listing kind
+      description: 'offer_on_existing_asin: sell an existing Amazon catalog product (offer only). new_product: create the product and the offer (Amazon may refuse to create a new ASIN without brand registry or GTIN approval).'
+      enum:
+      - offer_on_existing_asin
+      - new_product
+  - name: asin
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: ASIN
+      description: The 10-character Amazon Standard Identification Number.
+      minLength: 10
+      maxLength: 10
+  - name: condition_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Condition
+      description: The item condition of the offer.
+      enum:
+      - new_new
+      - new_open_box
+      - new_oem
+      - refurbished_refurbished
+      - used_like_new
+      - used_very_good
+      - used_good
+      - used_acceptable
+      - collectible_like_new
+      - collectible_very_good
+      - collectible_good
+      - collectible_acceptable
+      - club_club
+  - name: product_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon product type
+      description: The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission.
+      minLength: 1
+      maxLength: 100
+  - name: attributes
+    value_type: object
+    required: true
+    schema:
+      type: object
+      title: Attributes
+      description: 'Listing attributes keyed by Amazon attribute name, each a list of values as the product type definition describes them, for example {"item_name": [{"value": "Mug", "language_tag": "en_GB"}]}. A marketplace_id inside a value must be the connection''s.'
+  - name: issue_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Issue language
+      description: Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language.
+      minLength: 2
+      maxLength: 5
+  outputs:
+  - name: sku
+    value_type: text
+    schema:
+      type: string
+  - name: submission_id
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: status
+    value_type: text
+    schema:
+      type: string
+  - name: accepted
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: applied
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: check_with
+    value_type: text
+    schema:
+      type: string
+  - name: issues
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.sku
+  - result.submission_id
+  - result.status
+  - result.accepted
+  - result.applied
+  - result.check_with
+  - result.issues
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+  - unsupported_filter
+- operation_id: update_listing_attributes
+  display_name: Update listing attributes
+  description: 'Changes selected top-level attributes of an existing listing with JSON Patch operations (add, replace, merge, delete on /attributes/<name>); other attributes stay as they are. Amazon requires the listing''s product_type. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  operation_kind: action
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  effect_kind: amazon_listing_patch
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  - name: product_type
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon product type
+      description: The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission.
+      minLength: 1
+      maxLength: 100
+  - name: patches
+    value_type: array
+    required: true
+    schema:
+      type: array
+      title: Patches
+      description: 'JSON Patch operations on top-level attributes: op add, replace, merge or delete; path /attributes/<attribute name>; value a list of attribute values (optional for delete). merge works only for purchasable_offer and fulfillment_availability.'
+      minItems: 1
+      maxItems: 100
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - op
+        - path
+        properties:
+          op:
+            type: string
+            enum:
+            - add
+            - replace
+            - merge
+            - delete
+          path:
+            type: string
+            minLength: 13
+            maxLength: 112
+          value:
+            type: array
+            maxItems: 200
+            items:
+              type: object
+  - name: issue_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Issue language
+      description: Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language.
+      minLength: 2
+      maxLength: 5
+  outputs:
+  - name: sku
+    value_type: text
+    schema:
+      type: string
+  - name: submission_id
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: status
+    value_type: text
+    schema:
+      type: string
+  - name: accepted
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: applied
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: check_with
+    value_type: text
+    schema:
+      type: string
+  - name: issues
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.sku
+  - result.submission_id
+  - result.status
+  - result.accepted
+  - result.applied
+  - result.check_with
+  - result.issues
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+  - unsupported_filter
+- operation_id: search_product_types
+  display_name: Find product types
+  description: Finds the Amazon product types of the connection's marketplace by keywords, or recommends one from a product title (item_name). The product type is needed to create or update listings.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: keywords
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Keywords
+      description: Up to 20 keywords.
+      minItems: 1
+      maxItems: 20
+      items:
+        type: string
+        minLength: 1
+        maxLength: 100
+  - name: item_name
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Product title
+      description: A product title to get a product type recommendation for.
+      minLength: 1
+      maxLength: 500
+  - name: locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Display language
+      description: Locale for display names, for example en_GB.
+      minLength: 1
+      maxLength: 10
+  - name: search_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Search language
+      description: Language of keywords or item_name.
+      minLength: 1
+      maxLength: 10
+  outputs:
+  - name: product_types
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: product_type_version
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.product_types
+  - result.count
+  - result.product_type_version
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: get_product_type_definition
+  display_name: Get product type requirements
+  description: 'Returns a product type''s definition for the connection''s marketplace: version, property groups and the link to its JSON Schema (without the signed query string). include_schema also downloads the schema (up to 5 MB) and returns it parsed; parentage_level makes it smaller.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: product_type
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon product type
+      description: The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission.
+      minLength: 1
+      maxLength: 100
+  - name: requirements
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Requirements
+      description: Requirement set (Amazon default LISTING).
+      enum:
+      - LISTING
+      - LISTING_PRODUCT_ONLY
+      - LISTING_OFFER_ONLY
+  - name: requirements_enforced
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Requirements enforced
+      description: NOT_ENFORCED checks attribute structure without requiring every attribute (for partial updates).
+      enum:
+      - ENFORCED
+      - NOT_ENFORCED
+  - name: locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Locale
+      description: Language of labels in the definition.
+      enum:
+      - DEFAULT
+      - ar
+      - ar_AE
+      - de
+      - de_DE
+      - en
+      - en_AE
+      - en_AU
+      - en_CA
+      - en_GB
+      - en_IN
+      - en_SG
+      - en_US
+      - es
+      - es_ES
+      - es_MX
+      - es_US
+      - fr
+      - fr_CA
+      - fr_FR
+      - it
+      - it_IT
+      - ja
+      - ja_JP
+      - nl
+      - nl_NL
+      - pl
+      - pl_PL
+      - pt
+      - pt_BR
+      - pt_PT
+      - sv
+      - sv_SE
+      - tr
+      - tr_TR
+      - zh
+      - zh_CN
+      - zh_TW
+  - name: product_type_version
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Product type version
+      description: A version ID, LATEST (default) or RELEASE_CANDIDATE.
+      minLength: 1
+      maxLength: 100
+  - name: parentage_level
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Parentage level
+      description: Resolve the schema for this variation level.
+      enum:
+      - NONE
+      - CHILD
+      - PARENT
+  - name: seller_specific
+    value_type: boolean
+    required: false
+    schema:
+      type: boolean
+      title: Seller-specific values
+      description: Fill seller-specific values such as the seller's brands (default true).
+  - name: include_schema
+    value_type: boolean
+    required: false
+    schema:
+      type: boolean
+      title: Include schema
+      description: Download and return the JSON Schema (up to 5 MB).
+  outputs:
+  - name: product_type
+    value_type: text
+    schema:
+      type: string
+  - name: display_name
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: requirements
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: requirements_enforced
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: locale
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: marketplace_ids
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: string
+  - name: product_type_version
+    value_type: object
+    schema:
+      type: object
+  - name: property_groups
+    value_type: object
+    schema:
+      type: object
+  - name: schema_link
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  - name: meta_schema_link
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  - name: schema
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  - name: schema_checksum_verified
+    value_type: boolean
+    schema:
+      type:
+      - boolean
+      - 'null'
+  - name: schema_bytes
+    value_type: integer
+    schema:
+      type:
+      - integer
+      - 'null'
+  result_fields:
+  - result.product_type
+  - result.display_name
+  - result.requirements
+  - result.requirements_enforced
+  - result.locale
+  - result.marketplace_ids
+  - result.product_type_version
+  - result.property_groups
+  - result.schema_link
+  - result.meta_schema_link
+  - result.schema
+  - result.schema_checksum_verified
+  - result.schema_bytes
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - document_unavailable
+- operation_id: check_listing_restrictions
+  display_name: Check listing restrictions
+  description: Tells whether the seller may list an ASIN in the connection's marketplace, optionally for one condition, with Amazon's reasons and links to request approval.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: asin
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: ASIN
+      description: The 10-character Amazon Standard Identification Number.
+      minLength: 10
+      maxLength: 10
+  - name: condition_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Condition
+      description: The item condition of the offer.
+      enum:
+      - new_new
+      - new_open_box
+      - new_oem
+      - refurbished_refurbished
+      - used_like_new
+      - used_very_good
+      - used_good
+      - used_acceptable
+      - collectible_like_new
+      - collectible_very_good
+      - collectible_good
+      - collectible_acceptable
+      - club_club
+  - name: product_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon product type
+      description: The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission.
+      minLength: 1
+      maxLength: 100
+  - name: reason_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Reason language
+      description: Locale for reasons, for example en_US.
+      minLength: 2
+      maxLength: 5
+  outputs:
+  - name: asin
+    value_type: text
+    schema:
+      type: string
+  - name: restricted
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: restrictions
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.asin
+  - result.restricted
+  - result.restrictions
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: validate_listing
+  display_name: Validate a listing (dry run)
+  description: 'Sends the same request as create_listing (request_kind put) or update_listing_attributes (request_kind patch) in Amazon''s VALIDATION_PREVIEW mode: Amazon checks it and reports VALID or INVALID with issues, and changes nothing.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  - name: request_kind
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Request kind
+      description: put = create_listing, patch = update_listing_attributes.
+      enum:
+      - put
+      - patch
+  - name: listing_kind
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Listing kind
+      description: 'offer_on_existing_asin: sell an existing Amazon catalog product (offer only). new_product: create the product and the offer (Amazon may refuse to create a new ASIN without brand registry or GTIN approval).'
+      enum:
+      - offer_on_existing_asin
+      - new_product
+  - name: asin
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: ASIN
+      description: The 10-character Amazon Standard Identification Number.
+      minLength: 10
+      maxLength: 10
+  - name: condition_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Condition
+      description: The item condition of the offer.
+      enum:
+      - new_new
+      - new_open_box
+      - new_oem
+      - refurbished_refurbished
+      - used_like_new
+      - used_very_good
+      - used_good
+      - used_acceptable
+      - collectible_like_new
+      - collectible_very_good
+      - collectible_good
+      - collectible_acceptable
+      - club_club
+  - name: product_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon product type
+      description: The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission.
+      minLength: 1
+      maxLength: 100
+  - name: attributes
+    value_type: object
+    required: false
+    schema:
+      type: object
+      title: Attributes
+      description: 'Listing attributes keyed by Amazon attribute name, each a list of values as the product type definition describes them, for example {"item_name": [{"value": "Mug", "language_tag": "en_GB"}]}. A marketplace_id inside a value must be the connection''s.'
+  - name: patches
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Patches
+      description: 'JSON Patch operations on top-level attributes: op add, replace, merge or delete; path /attributes/<attribute name>; value a list of attribute values (optional for delete). merge works only for purchasable_offer and fulfillment_availability.'
+      minItems: 1
+      maxItems: 100
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - op
+        - path
+        properties:
+          op:
+            type: string
+            enum:
+            - add
+            - replace
+            - merge
+            - delete
+          path:
+            type: string
+            minLength: 13
+            maxLength: 112
+          value:
+            type: array
+            maxItems: 200
+            items:
+              type: object
+  - name: issue_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Issue language
+      description: Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language.
+      minLength: 2
+      maxLength: 5
+  outputs:
+  - name: sku
+    value_type: text
+    schema:
+      type: string
+  - name: status
+    value_type: text
+    schema:
+      type: string
+  - name: valid
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: issues
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: asin
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.sku
+  - result.status
+  - result.valid
+  - result.issues
+  - result.asin
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+- operation_id: get_own_offer
+  display_name: Get my offer
+  description: 'Returns the seller''s own offer for a SKU in the connection''s marketplace: the standard price, the business price if any, each offer''s audience, and the listing''s fulfillment channels.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  outputs:
+  - name: sku
+    value_type: text
+    schema:
+      type: string
+  - name: asin
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: price
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - amount
+      - currency_code
+      properties:
+        amount:
+          type: string
+        currency_code:
+          type: string
+  - name: business_price
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+      additionalProperties: false
+      required:
+      - amount
+      - currency_code
+      properties:
+        amount:
+          type: string
+        currency_code:
+          type: string
+  - name: offers
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: fulfillment_channels
+    value_type: array
+    schema:
+      type: array
+      items:
+        type:
+        - string
+        - 'null'
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.sku
+  - result.asin
+  - result.price
+  - result.business_price
+  - result.offers
+  - result.fulfillment_channels
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: get_listing_offers
+  display_name: Get offers on my listing
+  description: Returns up to 20 offers on the item behind one of the seller's SKUs, including competitors, with Amazon's lowest and Buy Box prices and which offer is the seller's own.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  - name: item_condition
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Item condition
+      description: The condition of the offers to return.
+      enum:
+      - New
+      - Used
+      - Collectible
+      - Refurbished
+      - Club
+  - name: customer_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Customer type
+      description: Consumer (default) or Business offers.
+      enum:
+      - Consumer
+      - Business
+  outputs:
+  - name: asin
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: sku
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: item_condition
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: status
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: summary
+    value_type: object
+    schema:
+      type: object
+  - name: offers
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: own_offer
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.asin
+  - result.sku
+  - result.item_condition
+  - result.status
+  - result.summary
+  - result.offers
+  - result.own_offer
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: get_item_offers
+  display_name: Get offers on an ASIN
+  description: Returns up to 20 offers on any ASIN in the connection's marketplace, with Amazon's lowest and Buy Box prices.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: asin
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: ASIN
+      description: The 10-character Amazon Standard Identification Number.
+      minLength: 10
+      maxLength: 10
+  - name: item_condition
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Item condition
+      description: The condition of the offers to return.
+      enum:
+      - New
+      - Used
+      - Collectible
+      - Refurbished
+      - Club
+  - name: customer_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Customer type
+      description: Consumer (default) or Business offers.
+      enum:
+      - Consumer
+      - Business
+  outputs:
+  - name: asin
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: sku
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: item_condition
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: status
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: summary
+    value_type: object
+    schema:
+      type: object
+  - name: offers
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: own_offer
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.asin
+  - result.sku
+  - result.item_condition
+  - result.status
+  - result.summary
+  - result.offers
+  - result.own_offer
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: get_competitive_summary
+  display_name: Get competitive summary
+  description: 'Returns, for 1 to 20 ASINs, the featured buying options, reference prices and lowest priced offers. Each ASIN has its own ok, status_code and errors: one failing ASIN does not fail the step.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: asins
+    value_type: array
+    required: true
+    schema:
+      type: array
+      title: ASINs
+      description: 1 to 20 distinct ASINs.
+      minItems: 1
+      maxItems: 20
+      items:
+        type: string
+        minLength: 10
+        maxLength: 10
+  - name: included_data
+    value_type: array
+    required: true
+    schema:
+      type: array
+      title: Included data
+      description: The data sets to return.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - featuredBuyingOptions
+        - referencePrices
+        - lowestPricedOffers
+        - similarItems
+      maxItems: 4
+  - name: lowest_priced_offers_conditions
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Lowest priced offer conditions
+      description: 'With lowestPricedOffers: the conditions to return the lowest consumer offers for (up to 5).'
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - New
+        - Used
+        - Collectible
+        - Refurbished
+        - Club
+      maxItems: 5
+  outputs:
+  - name: results
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: failed_count
+    value_type: integer
+    schema:
+      type: integer
+  result_fields:
+  - result.results
+  - result.count
+  - result.failed_count
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+- operation_id: get_featured_offer_expected_price
+  display_name: Get featured offer expected price
+  description: Returns, for 1 to 40 of the seller's SKUs, the price at or below which the offer may become the featured offer (Buy Box), with the current and competing featured offers. Not a guarantee. Each SKU has its own ok, status_code and errors.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: skus
+    value_type: array
+    required: true
+    schema:
+      type: array
+      title: SKUs
+      description: 1 to 40 distinct seller SKUs.
+      minItems: 1
+      maxItems: 40
+      items:
+        type: string
+        minLength: 1
+        maxLength: 200
+  outputs:
+  - name: results
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: failed_count
+    value_type: integer
+    schema:
+      type: integer
+  result_fields:
+  - result.results
+  - result.count
+  - result.failed_count
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: set_price
+  display_name: Set a price
+  description: 'Sets the price (including tax where applicable) of the seller''s offer for a SKU in the connection''s marketplace, and optionally the business (B2B) price. Only the purchasable_offer attribute is sent, merged by marketplace, currency and audience, so nothing else on the listing changes. currency_code must be the marketplace currency. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  operation_kind: action
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  effect_kind: amazon_price_update
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  - name: product_type
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon product type
+      description: The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission.
+      minLength: 1
+      maxLength: 100
+  - name: price
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Price
+      description: The new price as a decimal string, for example "19.99".
+      minLength: 1
+      maxLength: 24
+  - name: currency_code
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Currency
+      description: ISO 4217 code of the marketplace currency, for example GBP.
+      minLength: 3
+      maxLength: 3
+  - name: business_price
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Business price
+      description: Optional B2B price as a decimal string (Amazon Business sellers).
+      minLength: 1
+      maxLength: 24
+  - name: issue_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Issue language
+      description: Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language.
+      minLength: 2
+      maxLength: 5
+  outputs:
+  - name: sku
+    value_type: text
+    schema:
+      type: string
+  - name: submission_id
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: status
+    value_type: text
+    schema:
+      type: string
+  - name: accepted
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: applied
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: check_with
+    value_type: text
+    schema:
+      type: string
+  - name: issues
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.sku
+  - result.submission_id
+  - result.status
+  - result.accepted
+  - result.applied
+  - result.check_with
+  - result.issues
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+- operation_id: get_fba_inventory
+  display_name: Get FBA inventory
+  description: 'Returns FBA inventory summaries for the connection''s marketplace with every quantity category kept separate: fulfillable, inbound (working, shipped, receiving), reserved, researching and unfulfillable, each broken down. A quantity Amazon does not send is null. Filter by up to 50 SKUs or by start_date_time (changes since then; inbound changes are not detected), not both. Amazon''s page token expires 30 seconds after it is issued.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: seller_skus
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: SKUs
+      description: Up to 50 seller SKUs.
+      minItems: 1
+      maxItems: 50
+      items:
+        type: string
+        minLength: 1
+        maxLength: 200
+  - name: start_date_time
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Changed since
+      description: Only summaries changed since this time (at most 18 months ago). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: summaries
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.summaries
+  - result.count
+  - result.next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- operation_id: get_fbm_quantity
+  display_name: Get merchant quantity
+  description: Returns the quantity the seller makes available on the merchant-fulfilled channel (DEFAULT) for a SKU, and every fulfillment channel of the listing.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  outputs:
+  - name: sku
+    value_type: text
+    schema:
+      type: string
+  - name: quantity
+    value_type: integer
+    schema:
+      type:
+      - integer
+      - 'null'
+  - name: merchant_channel_found
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: channels
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.sku
+  - result.quantity
+  - result.merchant_channel_found
+  - result.channels
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: set_fbm_quantity
+  display_name: Set merchant quantity
+  description: 'Sets the quantity available for a merchant-fulfilled (DEFAULT channel) SKU. Only the fulfillment_availability attribute for the DEFAULT channel is sent. A SKU fulfilled only by Amazon is refused before anything is sent; FBA stock is not changed by this extension. Amazon answers ACCEPTED when the submission passed its synchronous checks; it applies the change later (usually within minutes) and may still raise issues, so accepted is not applied: read the listing with get_listing to confirm. INVALID means Amazon refused it and nothing changed (accepted false, external_effect_status failed).'
+  operation_kind: action
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  effect_kind: amazon_fbm_quantity_update
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: sku
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: SKU
+      description: Your seller SKU. Any character is allowed; it is sent percent-encoded.
+      minLength: 1
+      maxLength: 200
+  - name: product_type
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon product type
+      description: The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission.
+      minLength: 1
+      maxLength: 100
+  - name: quantity
+    value_type: integer
+    required: true
+    schema:
+      type: integer
+      title: Quantity
+      description: Units available for sale, 0 or more.
+      minimum: 0
+      maximum: 99999999
+  - name: issue_locale
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Issue language
+      description: Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language.
+      minLength: 2
+      maxLength: 5
+  outputs:
+  - name: sku
+    value_type: text
+    schema:
+      type: string
+  - name: submission_id
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: status
+    value_type: text
+    schema:
+      type: string
+  - name: accepted
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: applied
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: check_with
+    value_type: text
+    schema:
+      type: string
+  - name: issues
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.sku
+  - result.submission_id
+  - result.status
+  - result.accepted
+  - result.applied
+  - result.check_with
+  - result.issues
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+- operation_id: upload_feed_document
+  display_name: Upload a feed document
+  description: Validates a JSON_LISTINGS_FEED (header.sellerId must be the connection's seller, version 2.0, 1 to 25,000 messages each with messageId, sku and operationType) and uploads it to Amazon. Returns the feed_document_id for create_feed; Amazon keeps it for two days. Nothing changes on Amazon until create_feed.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: feed_type
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Feed type
+      description: The Amazon feed type. Only JSON_LISTINGS_FEED is supported.
+      enum:
+      - JSON_LISTINGS_FEED
+  - name: content
+    value_type: object
+    required: false
+    schema:
+      type: object
+      title: Feed content
+      description: The JSON_LISTINGS_FEED document as a JSON object (header and messages). Give this or content_file, not both.
+  - name: content_file
+    value_type: object
+    required: false
+    schema:
+      type:
+      - string
+      - object
+      title: Feed file
+      description: A JSON feed file from an earlier step, up to 10 MB. Give this or content, not both.
+  outputs:
+  - name: feed_document_id
+    value_type: text
+    schema:
+      type: string
+  - name: feed_type
+    value_type: text
+    schema:
+      type: string
+  - name: content_type
+    value_type: text
+    schema:
+      type: string
+  - name: size_bytes
+    value_type: integer
+    schema:
+      type: integer
+  - name: sha256
+    value_type: text
+    schema:
+      type: string
+  - name: message_count
+    value_type: integer
+    schema:
+      type: integer
+  result_fields:
+  - result.feed_document_id
+  - result.feed_type
+  - result.content_type
+  - result.size_bytes
+  - result.sha256
+  - result.message_count
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - document_unavailable
+  - artifact_input_unavailable
+- operation_id: create_feed
+  display_name: Submit a feed
+  description: 'Submits an uploaded feed document for processing in the connection''s marketplace. Amazon processes it asynchronously: the result means submitted, not processed. Check get_feed and get_feed_result later.'
+  operation_kind: action
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  effect_kind: amazon_feed_submission
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: feed_type
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Feed type
+      description: The Amazon feed type. Only JSON_LISTINGS_FEED is supported.
+      enum:
+      - JSON_LISTINGS_FEED
+  - name: feed_document_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Feed document ID
+      description: The feed_document_id upload_feed_document returned.
+      minLength: 1
+      maxLength: 256
+  outputs:
+  - name: feed_id
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: feed_type
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: submission_status
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: message
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.feed_id
+  - result.feed_type
+  - result.submission_status
+  - result.message
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
+- operation_id: get_feed
+  display_name: Get feed status
+  description: Returns one feed's processing status, timestamps and result document ID.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: feed_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Feed ID
+      description: The feed_id create_feed returned.
+      minLength: 1
+      maxLength: 64
+  outputs:
+  - name: feed
+    value_type: object
+    schema:
+      type: object
+  - name: processing_status
+    value_type: text
+    schema:
+      type: string
+  - name: result_feed_document_id
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.feed
+  - result.processing_status
+  - result.result_feed_document_id
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: search_feeds
+  display_name: Find feeds
+  description: Returns one page of the connection's feeds of the given types in its marketplace. Amazon keeps feeds for 90 days.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: feed_types
+    value_type: array
+    required: true
+    schema:
+      type: array
+      title: Feed types
+      description: Feed types to find.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - JSON_LISTINGS_FEED
+      maxItems: 1
+  - name: processing_statuses
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Processing statuses
+      description: Only feeds in these statuses.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - CANCELLED
+        - DONE
+        - FATAL
+        - IN_PROGRESS
+        - IN_QUEUE
+      maxItems: 5
+  - name: created_since
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Created since
+      description: 'Feeds created at or after this time (default: 90 days ago). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.'
+      minLength: 1
+      maxLength: 40
+  - name: created_until
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Created until
+      description: 'Feeds created before this time (default: now). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.'
+      minLength: 1
+      maxLength: 40
+  - name: page_size
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      title: Page size
+      description: Feeds per page, 1 to 100.
+      minimum: 1
+      maximum: 100
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: feeds
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.feeds
+  - result.count
+  - result.next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - continuation_token_invalid
+- operation_id: get_feed_result
+  display_name: Get feed result
+  description: 'Reads a feed and, once Amazon has finished it, its processing report: summary counts, messages that failed (at least one ERROR) and messages applied with warnings, each with messageId, sku and Amazon''s issues. Messages without issues appear only in the summary count. While the feed is still processing it returns the status alone; it never waits.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: feed_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Feed ID
+      description: The feed_id create_feed returned.
+      minLength: 1
+      maxLength: 64
+  - name: save_report_file
+    value_type: boolean
+    required: false
+    schema:
+      type: boolean
+      title: Save the report as a file
+      description: Also store Amazon's full processing report as a JSON file.
+  outputs:
+  - name: feed_id
+    value_type: text
+    schema:
+      type: string
+  - name: processing_status
+    value_type: text
+    schema:
+      type: string
+  - name: report_available
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: summary
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  - name: failed
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: accepted_with_issues
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: feed_issues
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: issues_truncated
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: report_file
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  result_fields:
+  - result.feed_id
+  - result.processing_status
+  - result.report_available
+  - result.summary
+  - result.failed
+  - result.accepted_with_issues
+  - result.feed_issues
+  - result.issues_truncated
+  - result.report_file
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - document_unavailable
+  - artifact_output_unavailable
+- operation_id: list_financial_records
+  display_name: List financial records
+  description: 'Returns one page of financial records posted in a time window: 2024-06-19 transactions (default) or v0 financial events, flattened into one list. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile. Amazon may take up to 48 hours to post an event, so a window ending now is not complete yet.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: api_version
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon API version
+      description: 2024-06-19 (listTransactions, default) or v0 (financial events; Amazon removes listFinancialEvents, listFinancialEventsByGroupId and listFinancialEventsByOrderId on 2027-08-27). The two versions return different records with no shared ID; do not mix them.
+      enum:
+      - '2024-06-19'
+      - v0
+  - name: posted_after
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Posted after
+      description: Records posted at or after this time; at least two minutes in the past. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: posted_before
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Posted before
+      description: 'Records posted before this time (default: two minutes ago). At most 180 days after posted_after. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.'
+      minLength: 1
+      maxLength: 40
+  - name: transaction_status
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Transaction status (2024-06-19)
+      description: Only transactions in this status.
+      enum:
+      - DEFERRED
+      - RELEASED
+      - DEFERRED_RELEASED
+  - name: omit_marketplace_filter
+    value_type: boolean
+    required: false
+    schema:
+      type: boolean
+      title: Do not filter by marketplace (2024-06-19)
+      description: 'Leave out Amazon''s marketplace filter. Amazon''s own note: to get MFN orders in the US store, do not send the marketplace. Records may then cover other marketplaces of the seller.'
+  - name: max_results
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      title: Page size (v0)
+      description: Events per page, 1 to 100.
+      minimum: 1
+      maximum: 100
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: records
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: api_version
+    value_type: text
+    schema:
+      type: string
+  - name: amazon_operation
+    value_type: text
+    schema:
+      type: string
+  result_fields:
+  - result.records
+  - result.count
+  - result.next_token
+  - result.api_version
+  - result.amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- operation_id: list_financial_records_for_order
+  display_name: List financial records of an order
+  description: 'Returns one page of the financial records of one order: 2024-06-19 transactions related to the order ID (default) or v0 financial events of the order. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile. Amazon may take up to 48 hours to post an event, so a window ending now is not complete yet.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: order_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon order ID
+      description: The Amazon order ID, for example 123-1234567-1234567.
+      minLength: 1
+      maxLength: 64
+  - name: api_version
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon API version
+      description: 2024-06-19 (listTransactions, default) or v0 (financial events; Amazon removes listFinancialEvents, listFinancialEventsByGroupId and listFinancialEventsByOrderId on 2027-08-27). The two versions return different records with no shared ID; do not mix them.
+      enum:
+      - '2024-06-19'
+      - v0
+  - name: transaction_status
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Transaction status (2024-06-19)
+      description: Only transactions in this status.
+      enum:
+      - DEFERRED
+      - RELEASED
+      - DEFERRED_RELEASED
+  - name: omit_marketplace_filter
+    value_type: boolean
+    required: false
+    schema:
+      type: boolean
+      title: Do not filter by marketplace (2024-06-19)
+      description: 'Leave out Amazon''s marketplace filter. Amazon''s own note: to get MFN orders in the US store, do not send the marketplace. Records may then cover other marketplaces of the seller.'
+  - name: max_results
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      title: Page size (v0)
+      description: Events per page, 1 to 100.
+      minimum: 1
+      maximum: 100
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: records
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: api_version
+    value_type: text
+    schema:
+      type: string
+  - name: amazon_operation
+    value_type: text
+    schema:
+      type: string
+  result_fields:
+  - result.records
+  - result.count
+  - result.next_token
+  - result.api_version
+  - result.amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- operation_id: list_financial_event_groups
+  display_name: List financial event groups
+  description: 'Returns one page of financial event groups (settlement periods) opened in a time window, with original and converted totals, processing and fund transfer status. Finances v0 listFinancialEventGroups: v0 only, and not on Amazon''s deprecation schedule.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: started_after
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Started after
+      description: Groups opened at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: started_before
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Started before
+      description: Groups opened before this time; at most 180 days after started_after. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: max_results
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      title: Page size
+      description: Groups per page, 1 to 100.
+      minimum: 1
+      maximum: 100
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: groups
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: api_version
+    value_type: text
+    schema:
+      type: string
+  - name: amazon_operation
+    value_type: text
+    schema:
+      type: string
+  result_fields:
+  - result.groups
+  - result.count
+  - result.next_token
+  - result.api_version
+  - result.amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - continuation_token_invalid
+- operation_id: list_financial_events_by_group
+  display_name: List financial records of a group
+  description: 'Returns one page of the financial records of one financial event group: 2024-06-19 transactions related to the group ID (default) or v0 listFinancialEventsByGroupId. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: group_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Financial event group ID
+      description: A group_id from list_financial_event_groups.
+      minLength: 1
+      maxLength: 256
+  - name: api_version
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon API version
+      description: 2024-06-19 (listTransactions, default) or v0 (financial events; Amazon removes listFinancialEvents, listFinancialEventsByGroupId and listFinancialEventsByOrderId on 2027-08-27). The two versions return different records with no shared ID; do not mix them.
+      enum:
+      - '2024-06-19'
+      - v0
+  - name: posted_after
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Posted after
+      description: Records posted at or after this time; at least two minutes in the past. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: posted_before
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Posted before
+      description: 'Records posted before this time (default: two minutes ago). At most 180 days after posted_after. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.'
+      minLength: 1
+      maxLength: 40
+  - name: transaction_status
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Transaction status (2024-06-19)
+      description: Only transactions in this status.
+      enum:
+      - DEFERRED
+      - RELEASED
+      - DEFERRED_RELEASED
+  - name: omit_marketplace_filter
+    value_type: boolean
+    required: false
+    schema:
+      type: boolean
+      title: Do not filter by marketplace (2024-06-19)
+      description: 'Leave out Amazon''s marketplace filter. Amazon''s own note: to get MFN orders in the US store, do not send the marketplace. Records may then cover other marketplaces of the seller.'
+  - name: max_results
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      title: Page size (v0)
+      description: Events per page, 1 to 100.
+      minimum: 1
+      maximum: 100
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: records
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: api_version
+    value_type: text
+    schema:
+      type: string
+  - name: amazon_operation
+    value_type: text
+    schema:
+      type: string
+  result_fields:
+  - result.records
+  - result.count
+  - result.next_token
+  - result.api_version
+  - result.amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- operation_id: search_reports
+  display_name: Find reports
+  description: Returns one page of the connection's reports of the given types in its marketplace, including the settlement reports Amazon generates on its own. Amazon keeps reports for 90 days.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: report_types
+    value_type: array
+    required: true
+    schema:
+      type: array
+      title: Report types
+      description: Report types to find.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
+        - GET_MERCHANT_LISTINGS_ALL_DATA
+        - GET_MERCHANT_LISTINGS_DATA
+        - GET_FLAT_FILE_OPEN_LISTINGS_DATA
+        - GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL
+        - GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL
+        - GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA
+        - GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA
+        - GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE
+      maxItems: 10
+  - name: processing_statuses
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Processing statuses
+      description: Only reports in these statuses.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - CANCELLED
+        - DONE
+        - FATAL
+        - IN_PROGRESS
+        - IN_QUEUE
+      maxItems: 5
+  - name: created_since
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Created since
+      description: 'Reports created at or after this time (default: 90 days ago). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.'
+      minLength: 1
+      maxLength: 40
+  - name: created_until
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Created until
+      description: 'Reports created before this time (default: now). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.'
+      minLength: 1
+      maxLength: 40
+  - name: page_size
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      title: Page size
+      description: Reports per page, 1 to 100.
+      minimum: 1
+      maximum: 100
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: reports
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.reports
+  - result.count
+  - result.next_token
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - continuation_token_invalid
+- operation_id: create_report
+  display_name: Request a report
+  description: Asks Amazon to compile a report for the connection's marketplace. Amazon builds it asynchronously; read it later with get_report and download_report. Settlement reports cannot be requested.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: report_type
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Report type
+      description: 'Requestable: GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE. GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2 cannot be requested; Amazon generates it.'
+      enum:
+      - GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
+      - GET_MERCHANT_LISTINGS_ALL_DATA
+      - GET_MERCHANT_LISTINGS_DATA
+      - GET_FLAT_FILE_OPEN_LISTINGS_DATA
+      - GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL
+      - GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL
+      - GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA
+      - GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA
+      - GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE
+  - name: data_start_time
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Data start
+      description: Start of the period the report covers. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: data_end_time
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Data end
+      description: End of the period the report covers. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  outputs:
+  - name: report_id
+    value_type: text
+    schema:
+      type: string
+  - name: report_type
+    value_type: text
+    schema:
+      type: string
+  - name: contains_pii
+    value_type: boolean
+    schema:
+      type: boolean
+  result_fields:
+  - result.report_id
+  - result.report_type
+  - result.contains_pii
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: get_report
+  display_name: Get report status
+  description: Returns one report's processing status, period and document ID.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: report_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Report ID
+      description: The report_id create_report or search_reports returned.
+      minLength: 1
+      maxLength: 64
+  outputs:
+  - name: report
+    value_type: object
+    schema:
+      type: object
+  - name: processing_status
+    value_type: text
+    schema:
+      type: string
+  - name: report_document_id
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.report
+  - result.processing_status
+  - result.report_document_id
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: download_report
+  display_name: Download a report
+  description: 'Downloads a finished report (up to 100 MB compressed, 250 MB uncompressed) and stores it as a file. Give report_id, or report_document_id with report_type. The report is not parsed. Supported types: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2, GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE.'
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: report_id
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Report ID
+      description: The report_id create_report or search_reports returned.
+      minLength: 1
+      maxLength: 64
+  - name: report_document_id
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Report document ID
+      description: The report_document_id of a finished report.
+      minLength: 1
+      maxLength: 256
+  - name: report_type
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Report type
+      description: The report's type; required with report_document_id.
+      enum:
+      - GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
+      - GET_MERCHANT_LISTINGS_ALL_DATA
+      - GET_MERCHANT_LISTINGS_DATA
+      - GET_FLAT_FILE_OPEN_LISTINGS_DATA
+      - GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL
+      - GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL
+      - GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA
+      - GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA
+      - GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE
+  outputs:
+  - name: artifact_handle
+    value_type: text
+    schema:
+      type: string
+  - name: size_bytes
+    value_type: integer
+    schema:
+      type: integer
+  - name: sha256
+    value_type: text
+    schema:
+      type: string
+  - name: content_type
+    value_type: text
+    schema:
+      type: string
+  - name: filename
+    value_type: text
+    schema:
+      type: string
+  - name: report_type
+    value_type: text
+    schema:
+      type: string
+  - name: report_id
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: report_document_id
+    value_type: text
+    schema:
+      type: string
+  - name: was_compressed
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: contains_pii
+    value_type: boolean
+    schema:
+      type: boolean
+  result_fields:
+  - result.artifact_handle
+  - result.size_bytes
+  - result.sha256
+  - result.content_type
+  - result.filename
+  - result.report_type
+  - result.report_id
+  - result.report_document_id
+  - result.was_compressed
+  - result.contains_pii
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - document_unavailable
+  - artifact_output_unavailable

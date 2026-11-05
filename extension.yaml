@@ -27,7 +27,14 @@ egress:
     - sellingpartnerapi-eu.amazon.com
     - sellingpartnerapi-fe.amazon.com
     - "*.amazonaws.com"
-external_effects: []
+external_effects:
+  - {operation_id: confirm_shipment, effect_kind: amazon_shipment_confirmation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: update_shipment_status, effect_kind: amazon_shipment_status_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: create_listing, effect_kind: amazon_listing_put, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: update_listing_attributes, effect_kind: amazon_listing_patch, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: set_price, effect_kind: amazon_price_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: set_fbm_quantity, effect_kind: amazon_fbm_quantity_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: create_feed, effect_kind: amazon_feed_submission, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
 runtime:
   contract_version: extension_host_v2
   extension_contract_v2:
@@ -54,7 +61,16 @@ runtime:
     operation_manifest: contracts/operation_manifest.yaml
     step_ui_manifest: contracts/step_ui_manifest.yaml
     artifact_policies: contracts/artifact_policies.yaml
-artifact_policies: []
+artifact_policies:
+- operation_id: upload_feed_document
+  inputs:
+  - {kind: artifact, value_type: artifact_handle, binding_key: amazon_feed_input, field: content_file, required: false, max_size_bytes: 10485760}
+- operation_id: get_feed_result
+  outputs:
+  - {kind: artifact, value_type: artifact_handle, binding_key: amazon_feed_result, filename: amazon-feed-processing-report.json, content_type: application/json, max_size_bytes: 67108864, max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES, retention_class: run_window}
+- operation_id: download_report
+  outputs:
+  - {kind: artifact, value_type: artifact_handle, binding_key: amazon_report_document, filename: amazon-report.tsv, content_type: text/tab-separated-values, max_size_bytes: 262144000, max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES, retention_class: run_window}
 entrypoint: {mode: subprocess, command: [python3, main.py], timeout_seconds: 180}
 health: {command: [python3, health.py], timeout_seconds: 5}
 ui_manifest: ui/ui_manifest.yaml

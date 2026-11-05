@@ -99,3 +99,752 @@ forms:
     label: Amazon API version
     widget_type: text
     required: false
+- operation_id: confirm_shipment
+  title: Confirm a shipment
+  fields:
+  - name: order_id
+    label: Amazon order ID
+    widget_type: text
+    required: true
+  - name: package_reference_id
+    label: Package reference ID
+    widget_type: text
+    required: true
+  - name: carrier_code
+    label: Carrier code
+    widget_type: text
+    required: true
+  - name: carrier_name
+    label: Carrier name
+    widget_type: text
+    required: false
+  - name: shipping_method
+    label: Shipping method
+    widget_type: text
+    required: false
+  - name: tracking_number
+    label: Tracking number
+    widget_type: text
+    required: true
+  - name: ship_date
+    label: Ship date
+    widget_type: text
+    required: true
+  - name: ship_from_supply_source_id
+    label: Supply source ID
+    widget_type: text
+    required: false
+  - name: items
+    label: Order items
+    widget_type: json
+    required: true
+  - name: cod_collection_method
+    label: COD collection method
+    widget_type: text
+    required: false
+- operation_id: update_shipment_status
+  title: Update shipment status
+  fields:
+  - name: order_id
+    label: Amazon order ID
+    widget_type: text
+    required: true
+  - name: shipment_status
+    label: Shipment status
+    widget_type: text
+    required: true
+  - name: items
+    label: Order items
+    widget_type: json
+    required: false
+- operation_id: search_catalog_items
+  title: Search the Amazon catalog
+  fields:
+  - name: identifiers
+    label: Identifiers
+    widget_type: json
+    required: false
+  - name: identifiers_type
+    label: Identifier type
+    widget_type: text
+    required: false
+  - name: keywords
+    label: Keywords
+    widget_type: json
+    required: false
+  - name: brand_names
+    label: Brands
+    widget_type: json
+    required: false
+  - name: classification_ids
+    label: Classification IDs
+    widget_type: json
+    required: false
+  - name: keywords_locale
+    label: Keywords language
+    widget_type: text
+    required: false
+  - name: included_data
+    label: Included data
+    widget_type: json
+    required: false
+  - name: locale
+    label: Locale
+    widget_type: text
+    required: false
+  - name: page_size
+    label: Page size
+    widget_type: number
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: get_catalog_item
+  title: Get a catalog item
+  fields:
+  - name: asin
+    label: ASIN
+    widget_type: text
+    required: true
+  - name: included_data
+    label: Included data
+    widget_type: json
+    required: false
+  - name: locale
+    label: Locale
+    widget_type: text
+    required: false
+- operation_id: search_listings
+  title: Find listings
+  fields:
+  - name: identifiers
+    label: Identifiers
+    widget_type: json
+    required: false
+  - name: identifiers_type
+    label: Identifier type
+    widget_type: text
+    required: false
+  - name: variation_parent_sku
+    label: Variation parent SKU
+    widget_type: text
+    required: false
+  - name: package_hierarchy_sku
+    label: Package hierarchy SKU
+    widget_type: text
+    required: false
+  - name: created_after
+    label: Created after
+    widget_type: text
+    required: false
+  - name: created_before
+    label: Created before
+    widget_type: text
+    required: false
+  - name: last_updated_after
+    label: Updated after
+    widget_type: text
+    required: false
+  - name: last_updated_before
+    label: Updated before
+    widget_type: text
+    required: false
+  - name: with_issue_severity
+    label: With issue severity
+    widget_type: json
+    required: false
+  - name: with_status
+    label: With status
+    widget_type: json
+    required: false
+  - name: without_status
+    label: Without status
+    widget_type: json
+    required: false
+  - name: sort_by
+    label: Sort by
+    widget_type: text
+    required: false
+  - name: sort_order
+    label: Sort order
+    widget_type: text
+    required: false
+  - name: included_data
+    label: Included data
+    widget_type: json
+    required: false
+  - name: issue_locale
+    label: Issue language
+    widget_type: text
+    required: false
+  - name: page_size
+    label: Page size
+    widget_type: number
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: get_listing
+  title: Get a listing
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+  - name: included_data
+    label: Included data
+    widget_type: json
+    required: false
+  - name: issue_locale
+    label: Issue language
+    widget_type: text
+    required: false
+- operation_id: get_listing_issues
+  title: Get listing issues
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+  - name: issue_locale
+    label: Issue language
+    widget_type: text
+    required: false
+- operation_id: create_listing
+  title: Create or replace a listing
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+  - name: listing_kind
+    label: Listing kind
+    widget_type: text
+    required: true
+  - name: asin
+    label: ASIN
+    widget_type: text
+    required: false
+  - name: condition_type
+    label: Condition
+    widget_type: text
+    required: false
+  - name: product_type
+    label: Amazon product type
+    widget_type: text
+    required: false
+  - name: attributes
+    label: Attributes
+    widget_type: json
+    required: true
+  - name: issue_locale
+    label: Issue language
+    widget_type: text
+    required: false
+- operation_id: update_listing_attributes
+  title: Update listing attributes
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+  - name: product_type
+    label: Amazon product type
+    widget_type: text
+    required: true
+  - name: patches
+    label: Patches
+    widget_type: json
+    required: true
+  - name: issue_locale
+    label: Issue language
+    widget_type: text
+    required: false
+- operation_id: search_product_types
+  title: Find product types
+  fields:
+  - name: keywords
+    label: Keywords
+    widget_type: json
+    required: false
+  - name: item_name
+    label: Product title
+    widget_type: text
+    required: false
+  - name: locale
+    label: Display language
+    widget_type: text
+    required: false
+  - name: search_locale
+    label: Search language
+    widget_type: text
+    required: false
+- operation_id: get_product_type_definition
+  title: Get product type requirements
+  fields:
+  - name: product_type
+    label: Amazon product type
+    widget_type: text
+    required: true
+  - name: requirements
+    label: Requirements
+    widget_type: text
+    required: false
+  - name: requirements_enforced
+    label: Requirements enforced
+    widget_type: text
+    required: false
+  - name: locale
+    label: Locale
+    widget_type: text
+    required: false
+  - name: product_type_version
+    label: Product type version
+    widget_type: text
+    required: false
+  - name: parentage_level
+    label: Parentage level
+    widget_type: text
+    required: false
+  - name: seller_specific
+    label: Seller-specific values
+    widget_type: boolean
+    required: false
+  - name: include_schema
+    label: Include schema
+    widget_type: boolean
+    required: false
+- operation_id: check_listing_restrictions
+  title: Check listing restrictions
+  fields:
+  - name: asin
+    label: ASIN
+    widget_type: text
+    required: true
+  - name: condition_type
+    label: Condition
+    widget_type: text
+    required: false
+  - name: product_type
+    label: Amazon product type
+    widget_type: text
+    required: false
+  - name: reason_locale
+    label: Reason language
+    widget_type: text
+    required: false
+- operation_id: validate_listing
+  title: Validate a listing (dry run)
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+  - name: request_kind
+    label: Request kind
+    widget_type: text
+    required: true
+  - name: listing_kind
+    label: Listing kind
+    widget_type: text
+    required: false
+  - name: asin
+    label: ASIN
+    widget_type: text
+    required: false
+  - name: condition_type
+    label: Condition
+    widget_type: text
+    required: false
+  - name: product_type
+    label: Amazon product type
+    widget_type: text
+    required: false
+  - name: attributes
+    label: Attributes
+    widget_type: json
+    required: false
+  - name: patches
+    label: Patches
+    widget_type: json
+    required: false
+  - name: issue_locale
+    label: Issue language
+    widget_type: text
+    required: false
+- operation_id: get_own_offer
+  title: Get my offer
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+- operation_id: get_listing_offers
+  title: Get offers on my listing
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+  - name: item_condition
+    label: Item condition
+    widget_type: text
+    required: true
+  - name: customer_type
+    label: Customer type
+    widget_type: text
+    required: false
+- operation_id: get_item_offers
+  title: Get offers on an ASIN
+  fields:
+  - name: asin
+    label: ASIN
+    widget_type: text
+    required: true
+  - name: item_condition
+    label: Item condition
+    widget_type: text
+    required: true
+  - name: customer_type
+    label: Customer type
+    widget_type: text
+    required: false
+- operation_id: get_competitive_summary
+  title: Get competitive summary
+  fields:
+  - name: asins
+    label: ASINs
+    widget_type: json
+    required: true
+  - name: included_data
+    label: Included data
+    widget_type: json
+    required: true
+  - name: lowest_priced_offers_conditions
+    label: Lowest priced offer conditions
+    widget_type: json
+    required: false
+- operation_id: get_featured_offer_expected_price
+  title: Get featured offer expected price
+  fields:
+  - name: skus
+    label: SKUs
+    widget_type: json
+    required: true
+- operation_id: set_price
+  title: Set a price
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+  - name: product_type
+    label: Amazon product type
+    widget_type: text
+    required: true
+  - name: price
+    label: Price
+    widget_type: text
+    required: true
+  - name: currency_code
+    label: Currency
+    widget_type: text
+    required: true
+  - name: business_price
+    label: Business price
+    widget_type: text
+    required: false
+  - name: issue_locale
+    label: Issue language
+    widget_type: text
+    required: false
+- operation_id: get_fba_inventory
+  title: Get FBA inventory
+  fields:
+  - name: seller_skus
+    label: SKUs
+    widget_type: json
+    required: false
+  - name: start_date_time
+    label: Changed since
+    widget_type: text
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: get_fbm_quantity
+  title: Get merchant quantity
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+- operation_id: set_fbm_quantity
+  title: Set merchant quantity
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+  - name: product_type
+    label: Amazon product type
+    widget_type: text
+    required: true
+  - name: quantity
+    label: Quantity
+    widget_type: number
+    required: true
+  - name: issue_locale
+    label: Issue language
+    widget_type: text
+    required: false
+- operation_id: upload_feed_document
+  title: Upload a feed document
+  fields:
+  - name: feed_type
+    label: Feed type
+    widget_type: text
+    required: true
+  - name: content
+    label: Feed content
+    widget_type: json
+    required: false
+  - name: content_file
+    label: Feed file
+    widget_type: json
+    required: false
+- operation_id: create_feed
+  title: Submit a feed
+  fields:
+  - name: feed_type
+    label: Feed type
+    widget_type: text
+    required: true
+  - name: feed_document_id
+    label: Feed document ID
+    widget_type: text
+    required: true
+- operation_id: get_feed
+  title: Get feed status
+  fields:
+  - name: feed_id
+    label: Feed ID
+    widget_type: text
+    required: true
+- operation_id: search_feeds
+  title: Find feeds
+  fields:
+  - name: feed_types
+    label: Feed types
+    widget_type: json
+    required: true
+  - name: processing_statuses
+    label: Processing statuses
+    widget_type: json
+    required: false
+  - name: created_since
+    label: Created since
+    widget_type: text
+    required: false
+  - name: created_until
+    label: Created until
+    widget_type: text
+    required: false
+  - name: page_size
+    label: Page size
+    widget_type: number
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: get_feed_result
+  title: Get feed result
+  fields:
+  - name: feed_id
+    label: Feed ID
+    widget_type: text
+    required: true
+  - name: save_report_file
+    label: Save the report as a file
+    widget_type: boolean
+    required: false
+- operation_id: list_financial_records
+  title: List financial records
+  fields:
+  - name: api_version
+    label: Amazon API version
+    widget_type: text
+    required: false
+  - name: posted_after
+    label: Posted after
+    widget_type: text
+    required: false
+  - name: posted_before
+    label: Posted before
+    widget_type: text
+    required: false
+  - name: transaction_status
+    label: Transaction status (2024-06-19)
+    widget_type: text
+    required: false
+  - name: omit_marketplace_filter
+    label: Do not filter by marketplace (2024-06-19)
+    widget_type: boolean
+    required: false
+  - name: max_results
+    label: Page size (v0)
+    widget_type: number
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: list_financial_records_for_order
+  title: List financial records of an order
+  fields:
+  - name: order_id
+    label: Amazon order ID
+    widget_type: text
+    required: true
+  - name: api_version
+    label: Amazon API version
+    widget_type: text
+    required: false
+  - name: transaction_status
+    label: Transaction status (2024-06-19)
+    widget_type: text
+    required: false
+  - name: omit_marketplace_filter
+    label: Do not filter by marketplace (2024-06-19)
+    widget_type: boolean
+    required: false
+  - name: max_results
+    label: Page size (v0)
+    widget_type: number
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: list_financial_event_groups
+  title: List financial event groups
+  fields:
+  - name: started_after
+    label: Started after
+    widget_type: text
+    required: false
+  - name: started_before
+    label: Started before
+    widget_type: text
+    required: false
+  - name: max_results
+    label: Page size
+    widget_type: number
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: list_financial_events_by_group
+  title: List financial records of a group
+  fields:
+  - name: group_id
+    label: Financial event group ID
+    widget_type: text
+    required: true
+  - name: api_version
+    label: Amazon API version
+    widget_type: text
+    required: false
+  - name: posted_after
+    label: Posted after
+    widget_type: text
+    required: false
+  - name: posted_before
+    label: Posted before
+    widget_type: text
+    required: false
+  - name: transaction_status
+    label: Transaction status (2024-06-19)
+    widget_type: text
+    required: false
+  - name: omit_marketplace_filter
+    label: Do not filter by marketplace (2024-06-19)
+    widget_type: boolean
+    required: false
+  - name: max_results
+    label: Page size (v0)
+    widget_type: number
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: search_reports
+  title: Find reports
+  fields:
+  - name: report_types
+    label: Report types
+    widget_type: json
+    required: true
+  - name: processing_statuses
+    label: Processing statuses
+    widget_type: json
+    required: false
+  - name: created_since
+    label: Created since
+    widget_type: text
+    required: false
+  - name: created_until
+    label: Created until
+    widget_type: text
+    required: false
+  - name: page_size
+    label: Page size
+    widget_type: number
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: create_report
+  title: Request a report
+  fields:
+  - name: report_type
+    label: Report type
+    widget_type: text
+    required: true
+  - name: data_start_time
+    label: Data start
+    widget_type: text
+    required: false
+  - name: data_end_time
+    label: Data end
+    widget_type: text
+    required: false
+- operation_id: get_report
+  title: Get report status
+  fields:
+  - name: report_id
+    label: Report ID
+    widget_type: text
+    required: true
+- operation_id: download_report
+  title: Download a report
+  fields:
+  - name: report_id
+    label: Report ID
+    widget_type: text
+    required: false
+  - name: report_document_id
+    label: Report document ID
+    widget_type: text
+    required: false
+  - name: report_type
+    label: Report type
+    widget_type: text
+    required: false
