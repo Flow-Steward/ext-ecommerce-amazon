@@ -1,0 +1,36 @@
+page_id: connection
+title: Connection
+description: Add and manage Amazon connections — one per seller account and marketplace.
+project_scoped: true
+components:
+  - component_id: amazon_seller_connections
+    type: connection_form
+    title: Amazon seller accounts
+    description: Add a connection by importing the refresh token from the seller's self-authorization, with the Seller ID and the marketplace.
+    data:
+      oauth_provider_id: amazon_lwa
+      connection_type: amazon_seller
+      test_action: test_connection
+  - component_id: connection_notes
+    type: markdown
+    title: How an Amazon connection works
+    body: |
+      Read the **Setup Guide** first if the SP-API application is not registered yet.
+
+      **The refresh token is kept by Flow Steward, not by the extension.** When you
+      import it, Flow Steward exchanges it once at Amazon to prove it works, stores
+      it encrypted and renews the one-hour access tokens itself. Workflow steps only
+      ever receive the current access token, and never show it.
+
+      **The Seller ID you type is checked.** After the import, the extension asks
+      Amazon whether the seller sells in the chosen marketplace and whether the
+      token may act for that Seller ID. If either check fails, the connection is
+      marked as needing attention and **Test the connection** says which check
+      failed.
+
+      **One connection is one marketplace.** Every method runs in the connection's
+      marketplace and region; a workflow cannot point a step at another one. Use a
+      second connection for a second marketplace.
+
+      **Replacing the token** (after a new self-authorization, for example when a
+      role was added) keeps the connection and every workflow that uses it.

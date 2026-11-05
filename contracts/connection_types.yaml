@@ -1,0 +1,34 @@
+connection_types:
+  - connection_type_id: amazon_seller
+    display_name: Amazon seller account (one marketplace)
+    description: One seller account in one Amazon marketplace, connected with a refresh token from the seller's self-authorization. Create one connection per marketplace, for example Amazon UK and Amazon US.
+    auth:
+      type: oauth2
+      provider_id: amazon_lwa
+      # SP-API has no OAuth scopes: what an application may call is set by its
+      # roles in the Solution Provider Portal, not by the grant.
+      scopes:
+        required: []
+        optional: []
+    config_schema:
+      type: object
+      additionalProperties: false
+      required: [seller_id, marketplace]
+      properties:
+        seller_id:
+          type: string
+          title: Seller ID
+          description: The merchant token from Seller Central (Settings > Account Info > Merchant Token). Checked against Amazon when the connection is created.
+          minLength: 8
+          maxLength: 20
+        marketplace:
+          type: string
+          title: Marketplace
+          description: "The Amazon store this connection sells in. The API region follows from it. CA = Canada; US = United States; MX = Mexico; BR = Brazil; IE = Ireland; ES = Spain; UK = United Kingdom; FR = France; BE = Belgium; NL = Netherlands; DE = Germany; IT = Italy; SE = Sweden; ZA = South Africa; PL = Poland; EG = Egypt; TR = Turkey; SA = Saudi Arabia; AE = United Arab Emirates; IN = India; SG = Singapore; AU = Australia; JP = Japan."
+          enum: [CA, US, MX, BR, IE, ES, UK, FR, BE, NL, DE, IT, SE, ZA, PL, EG, TR, SA, AE, IN, SG, AU, JP]
+    secret_schema:
+      type: object
+      additionalProperties: false
+      properties: {access_token: {type: string}}
+    capabilities:
+      test_connection: true

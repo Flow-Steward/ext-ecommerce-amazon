@@ -1,0 +1,3 @@
+# Generated from the closed runtime registry in runtime/catalog.py.
+# Extension-owned parity tests fail if this file and the registry disagree.
+artifact_policies: []

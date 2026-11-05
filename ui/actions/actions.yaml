@@ -1,0 +1,295 @@
+# Generated from the closed runtime registry in runtime/catalog.py.
+# Extension-owned parity tests fail if this file and the registry disagree.
+actions:
+- action_id: test_connection
+  title: Test the connection
+  description: Checks that the token works, that the seller sells in the connection's marketplace, and that Amazon accepts the connection's Seller ID. Reports each check separately.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  result_fields:
+  - ok
+  - seller_id
+  - seller_id_confirmed
+  - marketplace
+  - marketplace_id
+  - region
+  - store_name
+  - default_currency_code
+  - checks
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: verify_connection
+  title: Verify the connection
+  description: Runs after a refresh token is imported and confirms the seller and marketplace.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: false
+  parameters: []
+  result_fields:
+  - subject
+  - health
+  - error_code
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- action_id: search_orders
+  title: Find orders
+  description: Returns one page of the connection's orders created or updated in a time window. Pass next_token from the result to get the next page.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: api_version
+    type: string
+    required: false
+  - name: created_after
+    type: string
+    required: false
+  - name: created_before
+    type: string
+    required: false
+  - name: last_updated_after
+    type: string
+    required: false
+  - name: last_updated_before
+    type: string
+    required: false
+  - name: statuses
+    type: array
+    required: false
+  - name: fulfilled_by
+    type: array
+    required: false
+  - name: max_results
+    type: integer
+    required: false
+  - name: included_data
+    type: array
+    required: false
+  - name: amazon_order_ids
+    type: array
+    required: false
+  - name: seller_order_id
+    type: string
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - orders
+  - count
+  - next_token
+  - api_version
+  - amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- action_id: get_order
+  title: Get an order
+  description: Returns one order by its Amazon order ID.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: order_id
+    type: string
+    required: true
+  - name: api_version
+    type: string
+    required: false
+  - name: included_data
+    type: array
+    required: false
+  result_fields:
+  - order
+  - api_version
+  - amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+- action_id: get_order_items
+  title: Get order items
+  description: Returns the items of one order. v0 pages them; 2026-01-01 returns them all.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: order_id
+    type: string
+    required: true
+  - name: api_version
+    type: string
+    required: false
+  - name: next_token
+    type: string
+    required: false
+  result_fields:
+  - order_id
+  - items
+  - count
+  - next_token
+  - api_version
+  - amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- action_id: get_order_buyer_info
+  title: Get buyer and shipping address
+  description: Returns the buyer and the shipping address of one order, as far as the application's Amazon roles allow. Contains personal data.
+  required_scopes:
+  - extension:invoke
+  handler:
+    mode: extension
+  mutates_platform: false
+  workflow_visible: true
+  parameters:
+  - name: connection_ref
+    type: connection_ref
+    required: true
+  - name: order_id
+    type: string
+    required: true
+  - name: api_version
+    type: string
+    required: false
+  result_fields:
+  - order_id
+  - buyer
+  - shipping_address
+  - api_version
+  - amazon_operation
+  - amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error

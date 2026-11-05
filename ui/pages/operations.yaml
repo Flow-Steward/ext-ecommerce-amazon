@@ -1,0 +1,72 @@
+page_id: operations
+title: How the methods behave
+description: API versions, paging, asynchronous changes, limits and personal data.
+components:
+  - component_id: versions
+    type: markdown
+    title: Two API versions for Orders and Finances
+    body: |
+      Amazon has a current and a legacy version of the Orders and Finances APIs, and
+      both are supported. Each orders and finances method takes **API version**:
+
+      | Area | Current (default) | Legacy | Amazon removes the legacy reads |
+      |---|---|---|---|
+      | Orders | `2026-01-01` | `v0` | 27 March 2027 |
+      | Finances | `2024-06-19` (transactions) | `v0` (financial events) | 27 August 2027 |
+
+      The same method, inputs and normalized output work for both versions. A
+      filter that exists in one version only is refused with
+      `unsupported_filter` when sent to the other, never silently dropped. Nothing
+      falls back from one version to the other on an error.
+
+      Confirming an FBM shipment and the financial event groups exist only in the
+      legacy APIs and are not scheduled for removal.
+
+      **Finance data of the two versions is not interchangeable.** Legacy
+      financial events and current transactions have no common identifier. Every
+      record says which version and Amazon operation it came from; do not mix the
+      two when deduplicating. Amazon may post financial events up to 48 hours
+      late, so re-read recent days.
+
+  - component_id: paging
+    type: markdown
+    title: Paging
+    body: |
+      A search returns one page and a `next_token`. To get the next page, run the
+      same method again with the same inputs and that `next_token`, for example in
+      a loop step. A token works only with the same connection, API version and
+      filters; anything else is refused with `continuation_token_invalid`. Amazon
+      tokens also expire.
+
+  - component_id: async
+    type: markdown
+    title: Submitted is not applied
+    body: |
+      Creating or changing a listing, changing a price or an FBM quantity, and
+      submitting a feed only **submit** the change. Amazon processes it later. The
+      result says `accepted` and `applied: false`. Read the listing (or the feed
+      result) afterwards to see what Amazon actually applied. The methods never wait
+      in a hidden loop.
+
+  - component_id: limits
+    type: markdown
+    title: Retries and rate limits
+    body: |
+      Each call retries a few times, with backoff and jitter, when Amazon throttles
+      it or fails temporarily. A change is retried only when Amazon throttled it
+      (HTTP 429): after any other failure its outcome is unknown, the method returns
+      `outcome_unknown`, and you should read the current state before trying again.
+
+      Amazon's rate limits are counted per seller, application and operation in a
+      region, and are shared by every connection of that seller in the region.
+      Flow Steward has no cross-workflow limiter for them: limit how many Amazon
+      steps run at the same time.
+
+  - component_id: pii
+    type: markdown
+    title: Personal data
+    body: |
+      **Get buyer and shipping address** and some reports return personal data, and
+      only when the application has Amazon's restricted role for it. Flow Steward's
+      PII protection applies to these results like to any other. Keep such data in
+      workflow outputs only as long as you need it.

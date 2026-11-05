@@ -1,0 +1,621 @@
+# Generated from the closed runtime registry in runtime/catalog.py.
+# Extension-owned parity tests fail if this file and the registry disagree.
+operations:
+- operation_id: test_connection
+  display_name: Test the connection
+  description: Checks that the token works, that the seller sells in the connection's marketplace, and that Amazon accepts the connection's Seller ID. Reports each check separately.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  outputs:
+  - name: ok
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: seller_id
+    value_type: text
+    schema:
+      type: string
+  - name: seller_id_confirmed
+    value_type: boolean
+    schema:
+      type: boolean
+  - name: marketplace
+    value_type: text
+    schema:
+      type: string
+  - name: marketplace_id
+    value_type: text
+    schema:
+      type: string
+  - name: region
+    value_type: text
+    schema:
+      type: string
+  - name: store_name
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: default_currency_code
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: checks
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  result_fields:
+  - result.ok
+  - result.seller_id
+  - result.seller_id_confirmed
+  - result.marketplace
+  - result.marketplace_id
+  - result.region
+  - result.store_name
+  - result.default_currency_code
+  - result.checks
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: verify_connection
+  display_name: Verify the connection
+  description: Runs after a refresh token is imported and confirms the seller and marketplace.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: false
+  required_oauth_scopes: []
+  inputs: []
+  outputs:
+  - name: subject
+    value_type: text
+    schema:
+      type: string
+  - name: health
+    value_type: text
+    schema:
+      type: string
+  - name: error_code
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  result_fields:
+  - result.subject
+  - result.health
+  - result.error_code
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+- operation_id: search_orders
+  display_name: Find orders
+  description: Returns one page of the connection's orders created or updated in a time window. Pass next_token from the result to get the next page.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: api_version
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon API version
+      description: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
+      enum:
+      - '2026-01-01'
+      - v0
+  - name: created_after
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Created after
+      description: Orders created at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: created_before
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Created before
+      description: Orders created before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: last_updated_after
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Updated after
+      description: Orders updated at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: last_updated_before
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Updated before
+      description: Orders updated before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z.
+      minLength: 1
+      maxLength: 40
+  - name: statuses
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Statuses
+      description: Only orders in these statuses. INVOICE_UNCONFIRMED is v0 only.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - PENDING_AVAILABILITY
+        - PENDING
+        - UNSHIPPED
+        - PARTIALLY_SHIPPED
+        - SHIPPED
+        - CANCELLED
+        - UNFULFILLABLE
+        - INVOICE_UNCONFIRMED
+      maxItems: 8
+  - name: fulfilled_by
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Fulfilled by
+      description: MERCHANT (FBM) or AMAZON (FBA).
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - MERCHANT
+        - AMAZON
+      maxItems: 2
+  - name: max_results
+    value_type: integer
+    required: false
+    schema:
+      type: integer
+      title: Page size
+      description: Orders per page, 1 to 100.
+      minimum: 1
+      maximum: 100
+  - name: included_data
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Included data (2026-01-01)
+      description: Extra order sections to return.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - BUYER
+        - RECIPIENT
+        - PROCEEDS
+        - EXPENSE
+        - PROMOTION
+        - CANCELLATION
+        - FULFILLMENT
+        - PACKAGES
+        - TAX
+        - PAYMENT
+        - FULFILLMENT_ORDERS
+      maxItems: 11
+  - name: amazon_order_ids
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Amazon order IDs (v0)
+      description: Up to 50 order IDs.
+      minItems: 1
+      maxItems: 50
+      items:
+        type: string
+        minLength: 1
+        maxLength: 64
+  - name: seller_order_id
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Seller order ID (v0)
+      description: Your own order identifier.
+      minLength: 1
+      maxLength: 64
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: orders
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: api_version
+    value_type: text
+    schema:
+      type: string
+  - name: amazon_operation
+    value_type: text
+    schema:
+      type: string
+  result_fields:
+  - result.orders
+  - result.count
+  - result.next_token
+  - result.api_version
+  - result.amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- operation_id: get_order
+  display_name: Get an order
+  description: Returns one order by its Amazon order ID.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: order_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon order ID
+      description: The Amazon order ID, for example 123-1234567-1234567.
+      minLength: 1
+      maxLength: 64
+  - name: api_version
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon API version
+      description: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
+      enum:
+      - '2026-01-01'
+      - v0
+  - name: included_data
+    value_type: array
+    required: false
+    schema:
+      type: array
+      title: Included data (2026-01-01)
+      description: Extra order sections to return.
+      minItems: 1
+      items:
+        type: string
+        enum:
+        - BUYER
+        - RECIPIENT
+        - PROCEEDS
+        - EXPENSE
+        - PROMOTION
+        - CANCELLATION
+        - FULFILLMENT
+        - PACKAGES
+        - TAX
+        - PAYMENT
+        - FULFILLMENT_ORDERS
+      maxItems: 11
+  outputs:
+  - name: order
+    value_type: object
+    schema:
+      type: object
+  - name: api_version
+    value_type: text
+    schema:
+      type: string
+  - name: amazon_operation
+    value_type: text
+    schema:
+      type: string
+  result_fields:
+  - result.order
+  - result.api_version
+  - result.amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+- operation_id: get_order_items
+  display_name: Get order items
+  description: Returns the items of one order. v0 pages them; 2026-01-01 returns them all.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: order_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon order ID
+      description: The Amazon order ID, for example 123-1234567-1234567.
+      minLength: 1
+      maxLength: 64
+  - name: api_version
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon API version
+      description: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
+      enum:
+      - '2026-01-01'
+      - v0
+  - name: next_token
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Continuation token
+      description: next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page.
+      minLength: 1
+      maxLength: 4096
+  outputs:
+  - name: order_id
+    value_type: text
+    schema:
+      type: string
+  - name: items
+    value_type: array
+    schema:
+      type: array
+      items:
+        type: object
+  - name: count
+    value_type: integer
+    schema:
+      type: integer
+  - name: next_token
+    value_type: text
+    schema:
+      type:
+      - string
+      - 'null'
+  - name: api_version
+    value_type: text
+    schema:
+      type: string
+  - name: amazon_operation
+    value_type: text
+    schema:
+      type: string
+  result_fields:
+  - result.order_id
+  - result.items
+  - result.count
+  - result.next_token
+  - result.api_version
+  - result.amazon_operation
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error
+  - unsupported_filter
+  - continuation_token_invalid
+- operation_id: get_order_buyer_info
+  display_name: Get buyer and shipping address
+  description: Returns the buyer and the shipping address of one order, as far as the application's Amazon roles allow. Contains personal data.
+  operation_kind: source
+  category: ecommerce
+  connection_type_ids:
+  - amazon_seller
+  workflow_visible: true
+  required_oauth_scopes: []
+  inputs:
+  - name: connection_ref
+    value_type: connection_ref
+    required: true
+  - name: order_id
+    value_type: text
+    required: true
+    schema:
+      type: string
+      title: Amazon order ID
+      description: The Amazon order ID, for example 123-1234567-1234567.
+      minLength: 1
+      maxLength: 64
+  - name: api_version
+    value_type: text
+    required: false
+    schema:
+      type: string
+      title: Amazon API version
+      description: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
+      enum:
+      - '2026-01-01'
+      - v0
+  outputs:
+  - name: order_id
+    value_type: text
+    schema:
+      type: string
+  - name: buyer
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  - name: shipping_address
+    value_type: object
+    schema:
+      type:
+      - object
+      - 'null'
+  - name: api_version
+    value_type: text
+    schema:
+      type: string
+  - name: amazon_operation
+    value_type: text
+    schema:
+      type: string
+  - name: amazon
+    value_type: object
+    schema:
+      type: object
+  result_fields:
+  - result.order_id
+  - result.buyer
+  - result.shipping_address
+  - result.api_version
+  - result.amazon_operation
+  - result.amazon
+  error_codes:
+  - invalid_payload
+  - invalid_configuration
+  - invalid_connection
+  - reauthorization_required
+  - unsupported_operation
+  - authentication_failed
+  - access_denied
+  - not_found
+  - rate_limited
+  - upstream_validation_failed
+  - upstream_failure
+  - invalid_json_response
+  - response_too_large
+  - timeout
+  - connection_failed
+  - redirect_rejected
+  - blocked_address
+  - internal_error

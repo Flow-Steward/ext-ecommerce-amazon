@@ -1,0 +1,86 @@
+page_id: setup-guide
+title: Setup Guide
+description: Register a private SP-API application once, then connect each seller account and marketplace with its refresh token.
+# The OAuth configuration belongs to one project, so this page needs a project.
+project_scoped: true
+components:
+  - component_id: setup_application
+    type: markdown
+    title: 1. Register a private SP-API application
+    body: |
+      This extension uses a **private** Selling Partner API application: one you
+      register for your own seller account(s). Public applications listed in the
+      Amazon Appstore, with Amazon's website authorization flow, are not supported
+      by this version.
+
+      1. In Seller Central open **Apps and Services > Develop Apps** (Solution
+         Provider Portal). If you have no developer profile yet, Amazon asks you to
+         register one and reviews it; that review can take days.
+      2. **Add new app client.** Choose the API type *SP API*.
+      3. Select the **roles** for what your workflows will do. The Operation matrix
+         page lists the role each method needs. Typical choices: *Product Listing*,
+         *Pricing*, *Inventory and Order Tracking*, *Amazon Fulfillment*, *Finance
+         and Accounting*. Buyer names and addresses need the restricted
+         *Direct-to-Consumer Shipping* role, which Amazon approves separately.
+      4. Save. Amazon assigns the app an **LWA Client ID** and **Client Secret**
+         (View under *LWA credentials*).
+
+  - component_id: app-credentials
+    anchor_id: app-credentials
+    type: markdown
+    title: 2. Enter the application credentials
+    body: |
+      Below, create one configuration for the application and enter its **LWA
+      Client ID** and **LWA Client Secret**. Flow Steward stores both encrypted;
+      the extension never receives them.
+
+      Amazon makes you **rotate the client secret** periodically. When you
+      generate a new secret in Developer Central, paste it into the configuration
+      here; existing connections keep working with the new secret.
+
+  - component_id: refresh-token
+    anchor_id: refresh-token
+    type: markdown
+    title: 3. Authorize the application and copy the refresh token
+    body: |
+      Self-authorization must be done by the **primary user** of the Seller Central
+      account.
+
+      1. In **Develop Apps**, open the arrow next to *Edit App* and choose
+         **Authorize app**.
+      2. Amazon shows a **refresh token** (it starts with `Atzr|`). Copy it now; it
+         is shown once. Generating a new one does not invalidate the old ones.
+      3. A refresh token belongs to one seller account in one selling region
+         (North America, Europe or Far East). For a seller in the UK and the US you
+         authorize twice, once per region account, and get two tokens.
+
+      If you add a role to the application later, authorize it again and import
+      the new token: an old token does not pick up new roles.
+
+  - component_id: seller-id
+    anchor_id: seller-id
+    type: markdown
+    title: 4. Find the Seller ID
+    body: |
+      Seller Central > **Settings > Account Info > Merchant Token**. It is a string
+      of capital letters and digits. Flow Steward checks it against Amazon when the
+      connection is created: the check confirms that this token may act for this
+      Seller ID in the chosen marketplace.
+
+  - component_id: connect
+    type: markdown
+    title: 5. Create the connections
+    body: |
+      Open the **Connection** page. For every seller account and marketplace, add a
+      connection with a name (for example *Amazon UK*), the refresh token, the
+      Seller ID and the marketplace. The API region (NA, EU or FE) is chosen
+      automatically from the marketplace.
+
+      | Example connection | Marketplace | API region |
+      |---|---|---|
+      | Amazon UK | United Kingdom | EU |
+      | Amazon US | United States | NA |
+
+      Two connections of the same seller in one region (for example UK and
+      Germany) may use the same refresh token. Amazon's rate limits are shared by
+      them.

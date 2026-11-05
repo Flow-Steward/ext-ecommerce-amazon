@@ -1,0 +1,101 @@
+# Generated from the closed runtime registry in runtime/catalog.py.
+# Extension-owned parity tests fail if this file and the registry disagree.
+forms:
+- operation_id: test_connection
+  title: Test the connection
+  fields: []
+- operation_id: verify_connection
+  title: Verify the connection
+  fields: []
+- operation_id: search_orders
+  title: Find orders
+  fields:
+  - name: api_version
+    label: Amazon API version
+    widget_type: text
+    required: false
+  - name: created_after
+    label: Created after
+    widget_type: text
+    required: false
+  - name: created_before
+    label: Created before
+    widget_type: text
+    required: false
+  - name: last_updated_after
+    label: Updated after
+    widget_type: text
+    required: false
+  - name: last_updated_before
+    label: Updated before
+    widget_type: text
+    required: false
+  - name: statuses
+    label: Statuses
+    widget_type: json
+    required: false
+  - name: fulfilled_by
+    label: Fulfilled by
+    widget_type: json
+    required: false
+  - name: max_results
+    label: Page size
+    widget_type: number
+    required: false
+  - name: included_data
+    label: Included data (2026-01-01)
+    widget_type: json
+    required: false
+  - name: amazon_order_ids
+    label: Amazon order IDs (v0)
+    widget_type: json
+    required: false
+  - name: seller_order_id
+    label: Seller order ID (v0)
+    widget_type: text
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: get_order
+  title: Get an order
+  fields:
+  - name: order_id
+    label: Amazon order ID
+    widget_type: text
+    required: true
+  - name: api_version
+    label: Amazon API version
+    widget_type: text
+    required: false
+  - name: included_data
+    label: Included data (2026-01-01)
+    widget_type: json
+    required: false
+- operation_id: get_order_items
+  title: Get order items
+  fields:
+  - name: order_id
+    label: Amazon order ID
+    widget_type: text
+    required: true
+  - name: api_version
+    label: Amazon API version
+    widget_type: text
+    required: false
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+- operation_id: get_order_buyer_info
+  title: Get buyer and shipping address
+  fields:
+  - name: order_id
+    label: Amazon order ID
+    widget_type: text
+    required: true
+  - name: api_version
+    label: Amazon API version
+    widget_type: text
+    required: false

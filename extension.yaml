@@ -1,0 +1,62 @@
+manifest_version: 2
+lifecycle: {data_schema_version: 1, data_migrations: []}
+extension_id: flowsteward.amazon_sp_api
+kind: tool_provider
+version: 0.1.0
+release_stage: active
+billing_mode: free
+display_name: Amazon Selling Partner API
+description: Atomic Amazon SP-API methods for orders, FBM shipping, catalog, listings, prices, stock, feeds, finances and reports. One connection is one seller account in one marketplace; Orders and Finances are available in both the current and the legacy API version.
+vendor:
+  name: Flow Steward
+  support_url: https://github.com/Flow-Steward/ext-ecommerce-amazon/issues
+  website_url: https://github.com/Flow-Steward/ext-ecommerce-amazon
+listing:
+  category: ecommerce
+  tags: [amazon, sp-api, seller-central, orders, listings, pricing, inventory, fba, fbm, feeds, finances, reports, ecommerce]
+  summary: Read and change Amazon orders, listings, prices and stock, submit listing feeds and download finance and settlement reports from your workflows.
+features: [tool, action]
+required_scopes: [extension:invoke, artifact:read, artifact:write]
+account_scope:
+  scope_type: project
+  description: Each Amazon connection and the refresh token behind it belong to one project. A project may hold several independent connections, one per seller account and marketplace.
+egress:
+  hosts:
+    - api.amazon.com
+    - sellingpartnerapi-na.amazon.com
+    - sellingpartnerapi-eu.amazon.com
+    - sellingpartnerapi-fe.amazon.com
+    - "*.amazonaws.com"
+external_effects: []
+runtime:
+  contract_version: extension_host_v2
+  extension_contract_v2:
+    oauth_providers:
+      - provider_id: amazon_lwa
+        display_name: Amazon SP-API application
+        description: The LWA credentials of your private Selling Partner API application. Each seller account is connected by importing the refresh token from its self-authorization.
+        setup_page_id: setup-guide
+        help_page_id: setup-guide
+        error_help_anchors:
+          invalid_client: app-credentials
+          authorization_required: refresh-token
+        # A private SP-API application is authorized by the seller in Seller
+        # Central, which shows the refresh token once. There is no redirect and
+        # no callback; the platform exchanges the pasted token at LWA and keeps
+        # it. The extension only ever receives access tokens.
+        flow: {type: refresh_token_import}
+        credential_fields:
+          - {field_id: client_id, value_type: text, required: true, secret: false, change_policy: reauthorization_required, label: LWA Client ID, help_text: "Solution Provider Portal > Developer Central > your app > View (LWA credentials). Starts with amzn1.application-oa2-client.", autocomplete: username, validation: {min_length: 1, max_length: 512}}
+          - {field_id: client_secret, value_type: secret, required: true, secret: true, change_policy: runtime_revalidate, label: LWA Client Secret, help_text: "The client secret shown next to the Client ID. Amazon makes you rotate it periodically; paste the new one here when you do.", autocomplete: current-password, validation: {min_length: 1, max_length: 4096}}
+        token_endpoint: {url: https://api.amazon.com/auth/o2/token, client_auth_method: client_secret_post}
+        post_connect_action_id: verify_connection
+    connection_types: contracts/connection_types.yaml
+    operation_manifest: contracts/operation_manifest.yaml
+    step_ui_manifest: contracts/step_ui_manifest.yaml
+    artifact_policies: contracts/artifact_policies.yaml
+artifact_policies: []
+entrypoint: {mode: subprocess, command: [python3, main.py], timeout_seconds: 180}
+health: {command: [python3, health.py], timeout_seconds: 5}
+ui_manifest: ui/ui_manifest.yaml
+action_manifest: ui/actions/actions.yaml
+python_requirements: []
