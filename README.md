@@ -15,7 +15,7 @@ product type requirements, prices, FBA/FBM stock, listing feeds, finances and re
   awaited; unsupported filters are errors; retries are bounded and a change is not
   repeated after an unknown outcome.
 
-See `docs/operation-matrix.md` for every method, the Amazon operations it calls,
+See `docs/live-verification.md` for what still needs a live seller account, and `docs/operation-matrix.md` for every method, the Amazon operations it calls,
 the roles it needs and its external effect, and the extension's UI pages
 (Setup Guide, Connection, How the methods behave) for setup and behaviour.
 
