@@ -70,3 +70,50 @@ def test_existing_report_allowlist_is_unchanged():
     from runtime.sections import reports
 
     assert len(reports.REPORT_TYPES) == 9
+
+
+def test_no_spec_built_method_lets_input_choose_seller_marketplace_or_headers():
+    for row in OPERATIONS:
+        if not row.api_version:
+            continue
+        exposed = [
+            name
+            for name in row.properties
+            if any(part in name for part in ("marketplace", "seller", "business", "idempotency"))
+        ]
+        assert exposed == [], (row.operation_id, exposed)
+
+
+def test_an_oversized_label_is_refused_before_it_is_stored(amazon, run):
+    import base64
+
+    from runtime.sections.shipping_v2 import MAX_DOCUMENT_BYTES
+
+    big = b"%PDF" + b"0" * MAX_DOCUMENT_BYTES
+    amazon.reply(
+        "GET",
+        "/shipping/v2/shipments/SHIP-1/documents",
+        {
+            "payload": {
+                "shipmentId": "SHIP-1",
+                "packageDocumentDetail": {
+                    "packageClientReferenceId": "pkg-1",
+                    "packageDocuments": [
+                        {
+                            "type": "LABEL",
+                            "format": "PDF",
+                            "contents": base64.b64encode(big).decode(),
+                        }
+                    ],
+                },
+            }
+        },
+    )
+    calls: list[bytes] = []
+    response = run(
+        "get_shipping_documents",
+        {"shipment_id": "SHIP-1", "package_client_reference_id": "pkg-1"},
+        artifact_writer=lambda payload, body, **kw: calls.append(body) or {},
+    )
+    assert response["error_code"] in {"response_too_large"}
+    assert calls == []
