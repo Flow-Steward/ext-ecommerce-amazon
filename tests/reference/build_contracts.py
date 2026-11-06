@@ -173,6 +173,20 @@ def _help(spec: Mapping[str, Any]) -> str:
     return " ".join(part for part in parts if part)
 
 
+def _options(spec: Mapping[str, Any]) -> list[dict[str, str]]:
+    """The choices of a select or multi_select field, from the schema's enum.
+
+    The builder renders a select from ``options`` (value and label), not from the
+    schema; without them an enum field is a free text box.
+    """
+    values = spec.get("enum")
+    if values is None and isinstance(spec.get("items"), Mapping):
+        values = spec["items"].get("enum")
+    if not isinstance(values, list):
+        return []
+    return [{"value": str(value), "label": str(value)} for value in values if value is not None]
+
+
 def step_ui_manifest() -> dict[str, Any]:
     forms: list[dict[str, Any]] = []
     for row in OPERATIONS:
@@ -192,6 +206,9 @@ def step_ui_manifest() -> dict[str, Any]:
             placeholder = _placeholder(spec)
             if placeholder:
                 field["placeholder"] = placeholder
+            options = _options(spec)
+            if options:
+                field["options"] = options
             fields.append(field)
         forms.append(
             {"operation_id": row.operation_id, "title": row.display_name, "fields": fields}
@@ -410,11 +427,14 @@ def matrix_page() -> dict[str, Any]:
             "type": "markdown",
             "title": "How to read this page",
             "body": (
-                "Every method is one Amazon call on one connection (one seller account in one "
-                "marketplace). Scope says what the call can reach: searches and creations name "
-                "the connection's marketplace; a method that addresses an order, plan, shipment, "
-                "feed or report by its Amazon ID reaches it in any marketplace of the same seller "
-                "in the connection's region, because Amazon's IDs are region-wide. Per method: the "
+                "Every method performs one explicit action on one connection (one seller account "
+                "in one marketplace). Most are one Amazon call; a few add technical calls listed "
+                "with them (a restricted data token, a presigned document download). Scope says "
+                "what the call can reach: a method marked marketplace names the connection's "
+                "marketplace; a method marked seller region addresses an order, plan, shipment, "
+                "feed or report by its Amazon ID, or reads seller-wide data such as "
+                "fba_list_inbound_plans or v0 financial events, and reaches any marketplace of the "
+                "same seller in the connection's region. Per method: the "
                 "Amazon operation and API version, the roles the "
                 "application needs, where it works, whether it changes something on Amazon (an "
                 "external effect, suppressed in test runs), whether its result holds personal "

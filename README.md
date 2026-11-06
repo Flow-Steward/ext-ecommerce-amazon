@@ -14,8 +14,9 @@ workflows are shipped.
   Requires Flow Steward with the `refresh_token_import` OAuth flow (ADR 0058).
 - **Two API versions.** Orders (`2026-01-01` / `v0`) and Finances (`2024-06-19` /
   `v0`) take an explicit `api_version`; current is the default.
-- **No hidden behaviour.** One call returns one page; changes are submitted, not
-  awaited; unsupported filters are errors; retries are bounded and a change is not
+- **No hidden behaviour.** Each method performs one explicit action (most are one
+  Amazon call; the few technical extra calls are listed in the matrix). A list
+  returns one page; changes are submitted, not awaited; unsupported filters are errors; retries are bounded and a change is not
   repeated after an unknown outcome.
 
 - **Where methods work.** Every method declares its marketplaces; Amazon Shipping

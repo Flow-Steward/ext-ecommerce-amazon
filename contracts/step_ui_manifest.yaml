@@ -15,6 +15,11 @@ forms:
     widget_type: select
     required: false
     help_text: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
+    options:
+    - value: '2026-01-01'
+      label: '2026-01-01'
+    - value: v0
+      label: v0
   - name: created_after
     label: Created after
     widget_type: text
@@ -40,11 +45,33 @@ forms:
     widget_type: multi_select
     required: false
     help_text: 'Only orders in these statuses. INVOICE_UNCONFIRMED is v0 only. Allowed: up to 8 entries.'
+    options:
+    - value: PENDING_AVAILABILITY
+      label: PENDING_AVAILABILITY
+    - value: PENDING
+      label: PENDING
+    - value: UNSHIPPED
+      label: UNSHIPPED
+    - value: PARTIALLY_SHIPPED
+      label: PARTIALLY_SHIPPED
+    - value: SHIPPED
+      label: SHIPPED
+    - value: CANCELLED
+      label: CANCELLED
+    - value: UNFULFILLABLE
+      label: UNFULFILLABLE
+    - value: INVOICE_UNCONFIRMED
+      label: INVOICE_UNCONFIRMED
   - name: fulfilled_by
     label: Fulfilled by
     widget_type: multi_select
     required: false
     help_text: 'MERCHANT (FBM) or AMAZON (FBA). Allowed: up to 2 entries.'
+    options:
+    - value: MERCHANT
+      label: MERCHANT
+    - value: AMAZON
+      label: AMAZON
   - name: max_results
     label: Page size
     widget_type: integer
@@ -55,6 +82,29 @@ forms:
     widget_type: multi_select
     required: false
     help_text: 'Extra order sections to return. FULFILLMENT and PROCEEDS are always included. Allowed: up to 11 entries.'
+    options:
+    - value: BUYER
+      label: BUYER
+    - value: RECIPIENT
+      label: RECIPIENT
+    - value: PROCEEDS
+      label: PROCEEDS
+    - value: EXPENSE
+      label: EXPENSE
+    - value: PROMOTION
+      label: PROMOTION
+    - value: CANCELLATION
+      label: CANCELLATION
+    - value: FULFILLMENT
+      label: FULFILLMENT
+    - value: PACKAGES
+      label: PACKAGES
+    - value: TAX
+      label: TAX
+    - value: PAYMENT
+      label: PAYMENT
+    - value: FULFILLMENT_ORDERS
+      label: FULFILLMENT_ORDERS
   - name: amazon_order_ids
     label: Amazon order IDs (v0)
     widget_type: json
@@ -83,11 +133,39 @@ forms:
     widget_type: select
     required: false
     help_text: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
+    options:
+    - value: '2026-01-01'
+      label: '2026-01-01'
+    - value: v0
+      label: v0
   - name: included_data
     label: Included data (2026-01-01)
     widget_type: multi_select
     required: false
     help_text: 'Extra order sections to return. FULFILLMENT and PROCEEDS are always included. Allowed: up to 11 entries.'
+    options:
+    - value: BUYER
+      label: BUYER
+    - value: RECIPIENT
+      label: RECIPIENT
+    - value: PROCEEDS
+      label: PROCEEDS
+    - value: EXPENSE
+      label: EXPENSE
+    - value: PROMOTION
+      label: PROMOTION
+    - value: CANCELLATION
+      label: CANCELLATION
+    - value: FULFILLMENT
+      label: FULFILLMENT
+    - value: PACKAGES
+      label: PACKAGES
+    - value: TAX
+      label: TAX
+    - value: PAYMENT
+      label: PAYMENT
+    - value: FULFILLMENT_ORDERS
+      label: FULFILLMENT_ORDERS
 - operation_id: get_order_items
   title: Get order items
   fields:
@@ -101,6 +179,11 @@ forms:
     widget_type: select
     required: false
     help_text: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
+    options:
+    - value: '2026-01-01'
+      label: '2026-01-01'
+    - value: v0
+      label: v0
   - name: next_token
     label: Continuation token
     widget_type: text
@@ -119,6 +202,11 @@ forms:
     widget_type: select
     required: false
     help_text: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
+    options:
+    - value: '2026-01-01'
+      label: '2026-01-01'
+    - value: v0
+      label: v0
 - operation_id: confirm_shipment
   title: Confirm a shipment
   fields:
@@ -172,6 +260,9 @@ forms:
     widget_type: select
     required: false
     help_text: Cash-on-delivery collection method (Japan only).
+    options:
+    - value: DirectPayment
+      label: DirectPayment
 - operation_id: update_shipment_status
   title: Update shipment status
   fields:
@@ -185,6 +276,13 @@ forms:
     widget_type: select
     required: true
     help_text: The status to apply.
+    options:
+    - value: ReadyForPickup
+      label: ReadyForPickup
+    - value: PickedUp
+      label: PickedUp
+    - value: RefusedPickup
+      label: RefusedPickup
   - name: items
     label: Order items
     widget_type: json
@@ -304,6 +402,15 @@ forms:
     widget_type: select
     required: false
     help_text: Which document of the package to store. Default LABEL.
+    options:
+    - value: LABEL
+      label: LABEL
+    - value: PACKSLIP
+      label: PACKSLIP
+    - value: RECEIPT
+      label: RECEIPT
+    - value: CUSTOM_FORM
+      label: CUSTOM_FORM
 - operation_id: get_shipping_tracking
   title: Get shipment tracking
   fields:
@@ -338,6 +445,23 @@ forms:
     widget_type: select
     required: false
     help_text: The type of every value in identifiers.
+    options:
+    - value: ASIN
+      label: ASIN
+    - value: EAN
+      label: EAN
+    - value: GTIN
+      label: GTIN
+    - value: ISBN
+      label: ISBN
+    - value: JAN
+      label: JAN
+    - value: MINSAN
+      label: MINSAN
+    - value: SKU
+      label: SKU
+    - value: UPC
+      label: UPC
   - name: keywords
     label: Keywords
     widget_type: json
@@ -363,6 +487,27 @@ forms:
     widget_type: multi_select
     required: false
     help_text: 'Catalog data sets to return (Amazon default: summaries). relationships gives variation parents and children; vendorDetails needs a vendor account. Allowed: up to 10 entries.'
+    options:
+    - value: attributes
+      label: attributes
+    - value: classifications
+      label: classifications
+    - value: dimensions
+      label: dimensions
+    - value: identifiers
+      label: identifiers
+    - value: images
+      label: images
+    - value: productTypes
+      label: productTypes
+    - value: relationships
+      label: relationships
+    - value: salesRanks
+      label: salesRanks
+    - value: summaries
+      label: summaries
+    - value: vendorDetails
+      label: vendorDetails
   - name: locale
     label: Locale
     widget_type: text
@@ -391,6 +536,27 @@ forms:
     widget_type: multi_select
     required: false
     help_text: 'Catalog data sets to return (Amazon default: summaries). relationships gives variation parents and children; vendorDetails needs a vendor account. Allowed: up to 10 entries.'
+    options:
+    - value: attributes
+      label: attributes
+    - value: classifications
+      label: classifications
+    - value: dimensions
+      label: dimensions
+    - value: identifiers
+      label: identifiers
+    - value: images
+      label: images
+    - value: productTypes
+      label: productTypes
+    - value: relationships
+      label: relationships
+    - value: salesRanks
+      label: salesRanks
+    - value: summaries
+      label: summaries
+    - value: vendorDetails
+      label: vendorDetails
   - name: locale
     label: Locale
     widget_type: text
@@ -409,6 +575,25 @@ forms:
     widget_type: select
     required: false
     help_text: The type of every value in identifiers.
+    options:
+    - value: ASIN
+      label: ASIN
+    - value: EAN
+      label: EAN
+    - value: FNSKU
+      label: FNSKU
+    - value: GTIN
+      label: GTIN
+    - value: ISBN
+      label: ISBN
+    - value: JAN
+      label: JAN
+    - value: MINSAN
+      label: MINSAN
+    - value: SKU
+      label: SKU
+    - value: UPC
+      label: UPC
   - name: variation_parent_sku
     label: Variation parent SKU
     widget_type: text
@@ -444,31 +629,75 @@ forms:
     widget_type: multi_select
     required: false
     help_text: 'Only listings with issues of these severities. Allowed: up to 2 entries.'
+    options:
+    - value: WARNING
+      label: WARNING
+    - value: ERROR
+      label: ERROR
   - name: with_status
     label: With status
     widget_type: multi_select
     required: false
     help_text: 'Only listings with these statuses. Allowed: up to 2 entries.'
+    options:
+    - value: BUYABLE
+      label: BUYABLE
+    - value: DISCOVERABLE
+      label: DISCOVERABLE
   - name: without_status
     label: Without status
     widget_type: multi_select
     required: false
     help_text: 'Only listings without these statuses. Allowed: up to 2 entries.'
+    options:
+    - value: BUYABLE
+      label: BUYABLE
+    - value: DISCOVERABLE
+      label: DISCOVERABLE
   - name: sort_by
     label: Sort by
     widget_type: select
     required: false
     help_text: Sort field (Amazon default lastUpdatedDate).
+    options:
+    - value: sku
+      label: sku
+    - value: createdDate
+      label: createdDate
+    - value: lastUpdatedDate
+      label: lastUpdatedDate
   - name: sort_order
     label: Sort order
     widget_type: select
     required: false
     help_text: ASC or DESC (Amazon default DESC).
+    options:
+    - value: ASC
+      label: ASC
+    - value: DESC
+      label: DESC
   - name: included_data
     label: Included data
     widget_type: multi_select
     required: false
     help_text: 'Listing data sets to return. Default for get_listing: summaries, attributes, issues, offers, fulfillmentAvailability; for search_listings Amazon''s default is summaries. Allowed: up to 8 entries.'
+    options:
+    - value: summaries
+      label: summaries
+    - value: attributes
+      label: attributes
+    - value: issues
+      label: issues
+    - value: offers
+      label: offers
+    - value: fulfillmentAvailability
+      label: fulfillmentAvailability
+    - value: procurement
+      label: procurement
+    - value: relationships
+      label: relationships
+    - value: productTypes
+      label: productTypes
   - name: issue_locale
     label: Issue language
     widget_type: text
@@ -497,6 +726,23 @@ forms:
     widget_type: multi_select
     required: false
     help_text: 'Listing data sets to return. Default for get_listing: summaries, attributes, issues, offers, fulfillmentAvailability; for search_listings Amazon''s default is summaries. Allowed: up to 8 entries.'
+    options:
+    - value: summaries
+      label: summaries
+    - value: attributes
+      label: attributes
+    - value: issues
+      label: issues
+    - value: offers
+      label: offers
+    - value: fulfillmentAvailability
+      label: fulfillmentAvailability
+    - value: procurement
+      label: procurement
+    - value: relationships
+      label: relationships
+    - value: productTypes
+      label: productTypes
   - name: issue_locale
     label: Issue language
     widget_type: text
@@ -528,6 +774,11 @@ forms:
     widget_type: select
     required: true
     help_text: 'offer_on_existing_asin: sell an existing Amazon catalog product (offer only). new_product: create the product and the offer (Amazon may refuse to create a new ASIN without brand registry or GTIN approval).'
+    options:
+    - value: offer_on_existing_asin
+      label: offer_on_existing_asin
+    - value: new_product
+      label: new_product
   - name: asin
     label: ASIN
     widget_type: text
@@ -538,6 +789,33 @@ forms:
     widget_type: select
     required: false
     help_text: The item condition of the offer.
+    options:
+    - value: new_new
+      label: new_new
+    - value: new_open_box
+      label: new_open_box
+    - value: new_oem
+      label: new_oem
+    - value: refurbished_refurbished
+      label: refurbished_refurbished
+    - value: used_like_new
+      label: used_like_new
+    - value: used_very_good
+      label: used_very_good
+    - value: used_good
+      label: used_good
+    - value: used_acceptable
+      label: used_acceptable
+    - value: collectible_like_new
+      label: collectible_like_new
+    - value: collectible_very_good
+      label: collectible_very_good
+    - value: collectible_good
+      label: collectible_good
+    - value: collectible_acceptable
+      label: collectible_acceptable
+    - value: club_club
+      label: club_club
   - name: product_type
     label: Amazon product type
     widget_type: text
@@ -625,16 +903,105 @@ forms:
     widget_type: select
     required: false
     help_text: Requirement set (Amazon default LISTING).
+    options:
+    - value: LISTING
+      label: LISTING
+    - value: LISTING_PRODUCT_ONLY
+      label: LISTING_PRODUCT_ONLY
+    - value: LISTING_OFFER_ONLY
+      label: LISTING_OFFER_ONLY
   - name: requirements_enforced
     label: Requirements enforced
     widget_type: select
     required: false
     help_text: NOT_ENFORCED checks attribute structure without requiring every attribute (for partial updates).
+    options:
+    - value: ENFORCED
+      label: ENFORCED
+    - value: NOT_ENFORCED
+      label: NOT_ENFORCED
   - name: locale
     label: Locale
     widget_type: select
     required: false
     help_text: Language of labels in the definition.
+    options:
+    - value: DEFAULT
+      label: DEFAULT
+    - value: ar
+      label: ar
+    - value: ar_AE
+      label: ar_AE
+    - value: de
+      label: de
+    - value: de_DE
+      label: de_DE
+    - value: en
+      label: en
+    - value: en_AE
+      label: en_AE
+    - value: en_AU
+      label: en_AU
+    - value: en_CA
+      label: en_CA
+    - value: en_GB
+      label: en_GB
+    - value: en_IN
+      label: en_IN
+    - value: en_SG
+      label: en_SG
+    - value: en_US
+      label: en_US
+    - value: es
+      label: es
+    - value: es_ES
+      label: es_ES
+    - value: es_MX
+      label: es_MX
+    - value: es_US
+      label: es_US
+    - value: fr
+      label: fr
+    - value: fr_CA
+      label: fr_CA
+    - value: fr_FR
+      label: fr_FR
+    - value: it
+      label: it
+    - value: it_IT
+      label: it_IT
+    - value: ja
+      label: ja
+    - value: ja_JP
+      label: ja_JP
+    - value: nl
+      label: nl
+    - value: nl_NL
+      label: nl_NL
+    - value: pl
+      label: pl
+    - value: pl_PL
+      label: pl_PL
+    - value: pt
+      label: pt
+    - value: pt_BR
+      label: pt_BR
+    - value: pt_PT
+      label: pt_PT
+    - value: sv
+      label: sv
+    - value: sv_SE
+      label: sv_SE
+    - value: tr
+      label: tr
+    - value: tr_TR
+      label: tr_TR
+    - value: zh
+      label: zh
+    - value: zh_CN
+      label: zh_CN
+    - value: zh_TW
+      label: zh_TW
   - name: product_type_version
     label: Product type version
     widget_type: text
@@ -645,6 +1012,13 @@ forms:
     widget_type: select
     required: false
     help_text: Resolve the schema for this variation level.
+    options:
+    - value: NONE
+      label: NONE
+    - value: CHILD
+      label: CHILD
+    - value: PARENT
+      label: PARENT
   - name: seller_specific
     label: Seller-specific values
     widget_type: boolean
@@ -668,6 +1042,33 @@ forms:
     widget_type: select
     required: false
     help_text: The item condition of the offer.
+    options:
+    - value: new_new
+      label: new_new
+    - value: new_open_box
+      label: new_open_box
+    - value: new_oem
+      label: new_oem
+    - value: refurbished_refurbished
+      label: refurbished_refurbished
+    - value: used_like_new
+      label: used_like_new
+    - value: used_very_good
+      label: used_very_good
+    - value: used_good
+      label: used_good
+    - value: used_acceptable
+      label: used_acceptable
+    - value: collectible_like_new
+      label: collectible_like_new
+    - value: collectible_very_good
+      label: collectible_very_good
+    - value: collectible_good
+      label: collectible_good
+    - value: collectible_acceptable
+      label: collectible_acceptable
+    - value: club_club
+      label: club_club
   - name: product_type
     label: Amazon product type
     widget_type: text
@@ -691,11 +1092,21 @@ forms:
     widget_type: select
     required: true
     help_text: put = create_listing, patch = update_listing_attributes.
+    options:
+    - value: put
+      label: put
+    - value: patch
+      label: patch
   - name: listing_kind
     label: Listing kind
     widget_type: select
     required: false
     help_text: 'offer_on_existing_asin: sell an existing Amazon catalog product (offer only). new_product: create the product and the offer (Amazon may refuse to create a new ASIN without brand registry or GTIN approval).'
+    options:
+    - value: offer_on_existing_asin
+      label: offer_on_existing_asin
+    - value: new_product
+      label: new_product
   - name: asin
     label: ASIN
     widget_type: text
@@ -706,6 +1117,33 @@ forms:
     widget_type: select
     required: false
     help_text: The item condition of the offer.
+    options:
+    - value: new_new
+      label: new_new
+    - value: new_open_box
+      label: new_open_box
+    - value: new_oem
+      label: new_oem
+    - value: refurbished_refurbished
+      label: refurbished_refurbished
+    - value: used_like_new
+      label: used_like_new
+    - value: used_very_good
+      label: used_very_good
+    - value: used_good
+      label: used_good
+    - value: used_acceptable
+      label: used_acceptable
+    - value: collectible_like_new
+      label: collectible_like_new
+    - value: collectible_very_good
+      label: collectible_very_good
+    - value: collectible_good
+      label: collectible_good
+    - value: collectible_acceptable
+      label: collectible_acceptable
+    - value: club_club
+      label: club_club
   - name: product_type
     label: Amazon product type
     widget_type: text
@@ -747,11 +1185,27 @@ forms:
     widget_type: select
     required: true
     help_text: The condition of the offers to return.
+    options:
+    - value: New
+      label: New
+    - value: Used
+      label: Used
+    - value: Collectible
+      label: Collectible
+    - value: Refurbished
+      label: Refurbished
+    - value: Club
+      label: Club
   - name: customer_type
     label: Customer type
     widget_type: select
     required: false
     help_text: Consumer (default) or Business offers.
+    options:
+    - value: Consumer
+      label: Consumer
+    - value: Business
+      label: Business
 - operation_id: get_item_offers
   title: Get offers on an ASIN
   fields:
@@ -765,11 +1219,27 @@ forms:
     widget_type: select
     required: true
     help_text: The condition of the offers to return.
+    options:
+    - value: New
+      label: New
+    - value: Used
+      label: Used
+    - value: Collectible
+      label: Collectible
+    - value: Refurbished
+      label: Refurbished
+    - value: Club
+      label: Club
   - name: customer_type
     label: Customer type
     widget_type: select
     required: false
     help_text: Consumer (default) or Business offers.
+    options:
+    - value: Consumer
+      label: Consumer
+    - value: Business
+      label: Business
 - operation_id: get_competitive_summary
   title: Get competitive summary
   fields:
@@ -783,11 +1253,31 @@ forms:
     widget_type: multi_select
     required: true
     help_text: 'The data sets to return. Allowed: up to 4 entries.'
+    options:
+    - value: featuredBuyingOptions
+      label: featuredBuyingOptions
+    - value: referencePrices
+      label: referencePrices
+    - value: lowestPricedOffers
+      label: lowestPricedOffers
+    - value: similarItems
+      label: similarItems
   - name: lowest_priced_offers_conditions
     label: Lowest priced offer conditions
     widget_type: multi_select
     required: false
     help_text: 'With lowestPricedOffers: the conditions to return the lowest consumer offers for (up to 5). Allowed: up to 5 entries.'
+    options:
+    - value: New
+      label: New
+    - value: Used
+      label: Used
+    - value: Collectible
+      label: Collectible
+    - value: Refurbished
+      label: Refurbished
+    - value: Club
+      label: Club
 - operation_id: get_featured_offer_expected_price
   title: Get featured offer expected price
   fields:
@@ -910,6 +1400,11 @@ forms:
     required: true
     help_text: 'Indicates the type of print type for a given label. Values: STANDARD_FORMAT: -; THERMAL_PRINTING: -.'
     placeholder: STANDARD_FORMAT
+    options:
+    - value: STANDARD_FORMAT
+      label: STANDARD_FORMAT
+    - value: THERMAL_PRINTING
+      label: THERMAL_PRINTING
   - name: locale_code
     label: Locale code
     widget_type: text
@@ -927,6 +1422,29 @@ forms:
     required: false
     help_text: 'The page type to use to print the labels. Possible values: ''A4_21'', ''A4_24'', ''A4_24_64x33'', ''A4_24_66x35'', ''A4_24_70x36'', ''A4_24_70x37'', ''A4_24i'', ''A4_27'', ''A4_40_52x29'', ''A4_44_48x25'', ''Letter_30''. Values: A4_21: -; A4_24: -; A4_24_64x33: -; A4_24_66x35: -; A4_24_70x36: -; A4_24_70x37: -; A4_24i: -; A4_27: -; A4_40_52x29: -; A4_44_48x25: -; Letter_30: -.'
     placeholder: A4_21
+    options:
+    - value: A4_21
+      label: A4_21
+    - value: A4_24
+      label: A4_24
+    - value: A4_24_64x33
+      label: A4_24_64x33
+    - value: A4_24_66x35
+      label: A4_24_66x35
+    - value: A4_24_70x36
+      label: A4_24_70x36
+    - value: A4_24_70x37
+      label: A4_24_70x37
+    - value: A4_24i
+      label: A4_24i
+    - value: A4_27
+      label: A4_27
+    - value: A4_40_52x29
+      label: A4_40_52x29
+    - value: A4_44_48x25
+      label: A4_44_48x25
+    - value: Letter_30
+      label: Letter_30
   - name: width
     label: Label width (mm)
     widget_type: number
@@ -964,16 +1482,33 @@ forms:
     widget_type: select
     required: false
     help_text: 'The status of an inbound plan. Values: ACTIVE: An inbound plan that is being worked on; VOIDED: An inbound plan with all shipment cancelled and can no longer be modified; SHIPPED: A completed inbound plan. Only minor modifications can be made at this time.'
+    options:
+    - value: ACTIVE
+      label: ACTIVE
+    - value: VOIDED
+      label: VOIDED
+    - value: SHIPPED
+      label: SHIPPED
   - name: sort_by
     label: Sort by
     widget_type: select
     required: false
     help_text: 'Sort by field. Values: LAST_UPDATED_TIME: Last updated time of the inbound plan; CREATION_TIME: Inbound plan creation time.'
+    options:
+    - value: LAST_UPDATED_TIME
+      label: LAST_UPDATED_TIME
+    - value: CREATION_TIME
+      label: CREATION_TIME
   - name: sort_order
     label: Sort order
     widget_type: select
     required: false
     help_text: 'The sort order. Values: ASC: Ascending order; DESC: Descending order.'
+    options:
+    - value: ASC
+      label: ASC
+    - value: DESC
+      label: DESC
   - name: next_token
     label: Continuation token
     widget_type: text
@@ -1477,6 +2012,11 @@ forms:
     widget_type: select
     required: true
     help_text: The program that you want to check eligibility against.
+    options:
+    - value: INBOUND
+      label: INBOUND
+    - value: COMMINGLING
+      label: COMMINGLING
 - operation_id: fba_get_labels
   title: 'FBA: get box or pallet labels'
   fields:
@@ -1491,11 +2031,43 @@ forms:
     widget_type: select
     required: true
     help_text: 'The page type to use to print the labels. Submitting a PageType value that is not supported in your marketplace returns an error. Values: PackageLabel_Letter_2: Two labels per US Letter label sheet. This is the only valid value for Amazon-partnered shipments in the US that use United Parcel Service (UPS) as the carrier. Supported in Canada and the US; PackageLabel_Letter_4: Four labels per US Letter label sheet. This is the only valid value for non-Amazon-partnered shipments in the US. Supported in Canada and the US; PackageLabel_Letter_6: Six labels per US Letter label sheet. This is the only valid value for non-Amazon-partnered shipments in the US. Supported in Canada and the US; PackageLabel_Letter_6_CarrierLeft: PackageLabel_Letter_6_CarrierLeft; PackageLabel_A4_2: Two labels per A4 label sheet; PackageLabel_A4_4: Four labels per A4 label sheet; PackageLabel_Plain_Paper: One label per sheet of US Letter paper. Only for non-Amazon-partnered shipments; PackageLabel_Plain_Paper_CarrierBottom: PackageLabel_Plain_Paper_CarrierBottom; PackageLabel_Thermal: For use of a thermal printer. Supports Amazon-partnered shipments with UPS; PackageLabel_Thermal_Unified: For use of a thermal p…'
+    options:
+    - value: PackageLabel_Letter_2
+      label: PackageLabel_Letter_2
+    - value: PackageLabel_Letter_4
+      label: PackageLabel_Letter_4
+    - value: PackageLabel_Letter_6
+      label: PackageLabel_Letter_6
+    - value: PackageLabel_Letter_6_CarrierLeft
+      label: PackageLabel_Letter_6_CarrierLeft
+    - value: PackageLabel_A4_2
+      label: PackageLabel_A4_2
+    - value: PackageLabel_A4_4
+      label: PackageLabel_A4_4
+    - value: PackageLabel_Plain_Paper
+      label: PackageLabel_Plain_Paper
+    - value: PackageLabel_Plain_Paper_CarrierBottom
+      label: PackageLabel_Plain_Paper_CarrierBottom
+    - value: PackageLabel_Thermal
+      label: PackageLabel_Thermal
+    - value: PackageLabel_Thermal_Unified
+      label: PackageLabel_Thermal_Unified
+    - value: PackageLabel_Thermal_NonPCP
+      label: PackageLabel_Thermal_NonPCP
+    - value: PackageLabel_Thermal_No_Carrier_Rotation
+      label: PackageLabel_Thermal_No_Carrier_Rotation
   - name: label_type
     label: Label type
     widget_type: select
     required: true
     help_text: 'The type of labels requested. Values: BARCODE_2D: This option is provided only for shipments where 2D Barcodes will be applied to all packages. Amazon strongly recommends using the UNIQUE option to get package labels instead of the BARCODE_2D option; UNIQUE: Document data for printing unique shipping labels and carrier labels for an inbound shipment; PALLET: Document data for printing pallet labels for a Less Than Truckload/Full Truckload (LTL/FTL) inbound shipment.'
+    options:
+    - value: BARCODE_2D
+      label: BARCODE_2D
+    - value: UNIQUE
+      label: UNIQUE
+    - value: PALLET
+      label: PALLET
   - name: number_of_packages
     label: Number of packages
     widget_type: integer
@@ -1622,6 +2194,25 @@ forms:
     widget_type: select
     required: false
     help_text: 'Reason for cancelling or rescheduling a self-ship appointment. Values: APPOINTMENT_REQUESTED_BY_MISTAKE: -; VEHICLE_DELAY: -; SLOT_NOT_SUITABLE: -; OUTSIDE_CARRIER_BUSINESS_HOURS: -; UNFAVOURABLE_EXTERNAL_CONDITIONS: -; PROCUREMENT_DELAY: -; SHIPPING_PLAN_CHANGED: -; INCREASED_QUANTITY: -; OTHER: -.'
+    options:
+    - value: APPOINTMENT_REQUESTED_BY_MISTAKE
+      label: APPOINTMENT_REQUESTED_BY_MISTAKE
+    - value: VEHICLE_DELAY
+      label: VEHICLE_DELAY
+    - value: SLOT_NOT_SUITABLE
+      label: SLOT_NOT_SUITABLE
+    - value: OUTSIDE_CARRIER_BUSINESS_HOURS
+      label: OUTSIDE_CARRIER_BUSINESS_HOURS
+    - value: UNFAVOURABLE_EXTERNAL_CONDITIONS
+      label: UNFAVOURABLE_EXTERNAL_CONDITIONS
+    - value: PROCUREMENT_DELAY
+      label: PROCUREMENT_DELAY
+    - value: SHIPPING_PLAN_CHANGED
+      label: SHIPPING_PLAN_CHANGED
+    - value: INCREASED_QUANTITY
+      label: INCREASED_QUANTITY
+    - value: OTHER
+      label: OTHER
 - operation_id: fba_cancel_self_ship_appointment
   title: 'FBA: cancel appointment'
   fields:
@@ -1640,6 +2231,25 @@ forms:
     widget_type: select
     required: false
     help_text: 'Reason for cancelling or rescheduling a self-ship appointment. Values: APPOINTMENT_REQUESTED_BY_MISTAKE: -; VEHICLE_DELAY: -; SLOT_NOT_SUITABLE: -; OUTSIDE_CARRIER_BUSINESS_HOURS: -; UNFAVOURABLE_EXTERNAL_CONDITIONS: -; PROCUREMENT_DELAY: -; SHIPPING_PLAN_CHANGED: -; INCREASED_QUANTITY: -; OTHER: -.'
+    options:
+    - value: APPOINTMENT_REQUESTED_BY_MISTAKE
+      label: APPOINTMENT_REQUESTED_BY_MISTAKE
+    - value: VEHICLE_DELAY
+      label: VEHICLE_DELAY
+    - value: SLOT_NOT_SUITABLE
+      label: SLOT_NOT_SUITABLE
+    - value: OUTSIDE_CARRIER_BUSINESS_HOURS
+      label: OUTSIDE_CARRIER_BUSINESS_HOURS
+    - value: UNFAVOURABLE_EXTERNAL_CONDITIONS
+      label: UNFAVOURABLE_EXTERNAL_CONDITIONS
+    - value: PROCUREMENT_DELAY
+      label: PROCUREMENT_DELAY
+    - value: SHIPPING_PLAN_CHANGED
+      label: SHIPPING_PLAN_CHANGED
+    - value: INCREASED_QUANTITY
+      label: INCREASED_QUANTITY
+    - value: OTHER
+      label: OTHER
 - operation_id: fba_get_delivery_challan_document
   title: 'FBA India: get delivery challan'
   fields:
@@ -1661,6 +2271,9 @@ forms:
     widget_type: select
     required: true
     help_text: The Amazon feed type. Only JSON_LISTINGS_FEED is supported.
+    options:
+    - value: JSON_LISTINGS_FEED
+      label: JSON_LISTINGS_FEED
   - name: content
     label: Feed content
     widget_type: json
@@ -1679,6 +2292,9 @@ forms:
     widget_type: select
     required: true
     help_text: The Amazon feed type. Only JSON_LISTINGS_FEED is supported.
+    options:
+    - value: JSON_LISTINGS_FEED
+      label: JSON_LISTINGS_FEED
   - name: feed_document_id
     label: Feed document ID
     widget_type: text
@@ -1700,11 +2316,25 @@ forms:
     widget_type: multi_select
     required: true
     help_text: 'Feed types to find. Allowed: up to 1 entries.'
+    options:
+    - value: JSON_LISTINGS_FEED
+      label: JSON_LISTINGS_FEED
   - name: processing_statuses
     label: Processing statuses
     widget_type: multi_select
     required: false
     help_text: 'Only feeds in these statuses. Allowed: up to 5 entries.'
+    options:
+    - value: CANCELLED
+      label: CANCELLED
+    - value: DONE
+      label: DONE
+    - value: FATAL
+      label: FATAL
+    - value: IN_PROGRESS
+      label: IN_PROGRESS
+    - value: IN_QUEUE
+      label: IN_QUEUE
   - name: created_since
     label: Created since
     widget_type: text
@@ -1754,6 +2384,11 @@ forms:
     widget_type: select
     required: false
     help_text: 2024-06-19 (listTransactions, default) or v0 (financial events; Amazon removes listFinancialEvents, listFinancialEventsByGroupId and listFinancialEventsByOrderId on 2027-08-27). The two versions return different records with no shared ID; do not mix them.
+    options:
+    - value: '2024-06-19'
+      label: '2024-06-19'
+    - value: v0
+      label: v0
   - name: posted_after
     label: Posted after
     widget_type: text
@@ -1769,6 +2404,13 @@ forms:
     widget_type: select
     required: false
     help_text: Only transactions in this status.
+    options:
+    - value: DEFERRED
+      label: DEFERRED
+    - value: RELEASED
+      label: RELEASED
+    - value: DEFERRED_RELEASED
+      label: DEFERRED_RELEASED
   - name: omit_marketplace_filter
     label: Do not filter by marketplace (2024-06-19)
     widget_type: boolean
@@ -1797,11 +2439,23 @@ forms:
     widget_type: select
     required: false
     help_text: 2024-06-19 (listTransactions, default) or v0 (financial events; Amazon removes listFinancialEvents, listFinancialEventsByGroupId and listFinancialEventsByOrderId on 2027-08-27). The two versions return different records with no shared ID; do not mix them.
+    options:
+    - value: '2024-06-19'
+      label: '2024-06-19'
+    - value: v0
+      label: v0
   - name: transaction_status
     label: Transaction status (2024-06-19)
     widget_type: select
     required: false
     help_text: Only transactions in this status.
+    options:
+    - value: DEFERRED
+      label: DEFERRED
+    - value: RELEASED
+      label: RELEASED
+    - value: DEFERRED_RELEASED
+      label: DEFERRED_RELEASED
   - name: omit_marketplace_filter
     label: Do not filter by marketplace (2024-06-19)
     widget_type: boolean
@@ -1853,6 +2507,11 @@ forms:
     widget_type: select
     required: false
     help_text: 2024-06-19 (listTransactions, default) or v0 (financial events; Amazon removes listFinancialEvents, listFinancialEventsByGroupId and listFinancialEventsByOrderId on 2027-08-27). The two versions return different records with no shared ID; do not mix them.
+    options:
+    - value: '2024-06-19'
+      label: '2024-06-19'
+    - value: v0
+      label: v0
   - name: posted_after
     label: Posted after
     widget_type: text
@@ -1868,6 +2527,13 @@ forms:
     widget_type: select
     required: false
     help_text: Only transactions in this status.
+    options:
+    - value: DEFERRED
+      label: DEFERRED
+    - value: RELEASED
+      label: RELEASED
+    - value: DEFERRED_RELEASED
+      label: DEFERRED_RELEASED
   - name: omit_marketplace_filter
     label: Do not filter by marketplace (2024-06-19)
     widget_type: boolean
@@ -1891,11 +2557,41 @@ forms:
     widget_type: multi_select
     required: true
     help_text: 'Report types to find. Allowed: up to 10 entries.'
+    options:
+    - value: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
+      label: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
+    - value: GET_MERCHANT_LISTINGS_ALL_DATA
+      label: GET_MERCHANT_LISTINGS_ALL_DATA
+    - value: GET_MERCHANT_LISTINGS_DATA
+      label: GET_MERCHANT_LISTINGS_DATA
+    - value: GET_FLAT_FILE_OPEN_LISTINGS_DATA
+      label: GET_FLAT_FILE_OPEN_LISTINGS_DATA
+    - value: GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL
+      label: GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL
+    - value: GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL
+      label: GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL
+    - value: GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA
+      label: GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA
+    - value: GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA
+      label: GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA
+    - value: GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE
+      label: GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE
   - name: processing_statuses
     label: Processing statuses
     widget_type: multi_select
     required: false
     help_text: 'Only reports in these statuses. Allowed: up to 5 entries.'
+    options:
+    - value: CANCELLED
+      label: CANCELLED
+    - value: DONE
+      label: DONE
+    - value: FATAL
+      label: FATAL
+    - value: IN_PROGRESS
+      label: IN_PROGRESS
+    - value: IN_QUEUE
+      label: IN_QUEUE
   - name: created_since
     label: Created since
     widget_type: text
@@ -1924,6 +2620,25 @@ forms:
     widget_type: select
     required: true
     help_text: 'Requestable: GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE. GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2 cannot be requested; Amazon generates it.'
+    options:
+    - value: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
+      label: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
+    - value: GET_MERCHANT_LISTINGS_ALL_DATA
+      label: GET_MERCHANT_LISTINGS_ALL_DATA
+    - value: GET_MERCHANT_LISTINGS_DATA
+      label: GET_MERCHANT_LISTINGS_DATA
+    - value: GET_FLAT_FILE_OPEN_LISTINGS_DATA
+      label: GET_FLAT_FILE_OPEN_LISTINGS_DATA
+    - value: GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL
+      label: GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL
+    - value: GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL
+      label: GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL
+    - value: GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA
+      label: GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA
+    - value: GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA
+      label: GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA
+    - value: GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE
+      label: GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE
   - name: data_start_time
     label: Data start
     widget_type: text

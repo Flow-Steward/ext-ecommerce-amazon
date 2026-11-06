@@ -124,9 +124,10 @@ components:
       fba_get_inbound_plan, fba_cancel_inbound_plan, get_order, get_report) acts on
       that resource even when it belongs to another marketplace of the same seller
       in the connection's region, and fba_list_inbound_plans lists the plans of all
-      of them. Results carry marketplace_ids; filter on them where a workflow must
-      stay in one marketplace. Searches and creations always name the connection's
-      marketplace. The Operation matrix shows the scope of every method.
+      of them, as do v0 financial events. Results carry marketplace_ids where Amazon
+      returns them; filter on them where a workflow must stay in one marketplace.
+      Methods marked marketplace in the Operation matrix name the connection's
+      marketplace in the request; the matrix shows the scope of every method.
 
   - component_id: async_inbound
     type: markdown

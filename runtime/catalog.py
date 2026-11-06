@@ -53,7 +53,9 @@ SECTIONS = (
 
 #: Hand-written methods that address a resource by its Amazon ID, or read
 #: seller-wide data, so Amazon answers for any marketplace of the seller in the
-#: connection's region (``registry.SCOPES``). Methods built from Amazon's specs
+#: connection's region (``registry.SCOPES``). ``list_financial_records`` is here
+#: because v0 financial events have no marketplace filter and 2024-06-19 drops it
+#: with ``omit_marketplace_filter``; its description says when it does filter. Methods built from Amazon's specs
 #: derive their scope from the request instead.
 SELLER_REGION_METHODS = frozenset(
     {
@@ -66,6 +68,7 @@ SELLER_REGION_METHODS = frozenset(
         "get_feed_result",
         "get_report",
         "download_report",
+        "list_financial_records",
         "list_financial_records_for_order",
         "list_financial_event_groups",
         "list_financial_events_by_group",

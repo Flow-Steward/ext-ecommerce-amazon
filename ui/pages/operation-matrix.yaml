@@ -7,7 +7,7 @@ components:
 - component_id: intro
   type: markdown
   title: How to read this page
-  body: 'Every method is one Amazon call on one connection (one seller account in one marketplace). Scope says what the call can reach: searches and creations name the connection''s marketplace; a method that addresses an order, plan, shipment, feed or report by its Amazon ID reaches it in any marketplace of the same seller in the connection''s region, because Amazon''s IDs are region-wide. Per method: the Amazon operation and API version, the roles the application needs, where it works, whether it changes something on Amazon (an external effect, suppressed in test runs), whether its result holds personal data, and whether it reads or writes a file.
+  body: 'Every method performs one explicit action on one connection (one seller account in one marketplace). Most are one Amazon call; a few add technical calls listed with them (a restricted data token, a presigned document download). Scope says what the call can reach: a method marked marketplace names the connection''s marketplace; a method marked seller region addresses an order, plan, shipment, feed or report by its Amazon ID, or reads seller-wide data such as fba_list_inbound_plans or v0 financial events, and reaches any marketplace of the same seller in the connection''s region. Per method: the Amazon operation and API version, the roles the application needs, where it works, whether it changes something on Amazon (an external effect, suppressed in test runs), whether its result holds personal data, and whether it reads or writes a file.
 
     '
 - component_id: matrix_account
@@ -225,7 +225,7 @@ components:
 - component_id: matrix_finances
   type: markdown
   title: Finances
-  body: '- **List financial records** (`list_financial_records`): Finances 2024-06-19 listTransactions; Finances v0 listFinancialEvents. Roles: Finance and Accounting. Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
+  body: '- **List financial records** (`list_financial_records`): Finances 2024-06-19 listTransactions; Finances v0 listFinancialEvents. Roles: Finance and Accounting. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
     - **List financial records of an order** (`list_financial_records_for_order`): Finances 2024-06-19 listTransactions (relatedIdentifierName=ORDER_ID); Finances v0 listFinancialEventsByOrderId. Roles: Finance and Accounting. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 

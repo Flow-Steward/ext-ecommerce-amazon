@@ -29,11 +29,12 @@ components:
       failed.
 
       **One connection is one marketplace.** Every call goes to the connection's
-      region, and searches and creations name the connection's marketplace; a
-      workflow cannot point a step at another seller or region. Amazon's order,
-      plan, shipment, feed and report IDs are region-wide, so a method that
-      addresses one by its ID reaches it in any marketplace of the same seller in
-      that region; the Operation matrix marks those methods. Use a second
+      region, and methods marked marketplace in the Operation matrix name the
+      connection's marketplace; a workflow cannot point a step at another seller
+      or region. Amazon's order, plan, shipment, feed and report IDs are
+      region-wide, so a method that addresses one by its ID, and a few seller-wide
+      reads, reach any marketplace of the same seller in that region; the
+      Operation matrix marks those methods as seller region. Use a second
       connection for a second marketplace.
 
       **Replacing the token** (after a new self-authorization, for example when a

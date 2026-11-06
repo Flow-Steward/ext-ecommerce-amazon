@@ -1,7 +1,8 @@
 # Platform gaps found while building the logistics methods
 
-Two gaps in Flow Steward Core affect personal data in this extension's results.
-Neither blocks the methods, and neither is worked around in the extension:
+Two gaps in Flow Steward Core affect personal data in this extension's results,
+and one builder behaviour was observed during the UI audit. None blocks the methods,
+and none is worked around in the extension:
 the fix belongs in Core, and each is bounded. They were found by reading Core at
 `claude/amazon-spapi-extension` (6eaec9c..d09bb7e); they are reported here, not
 fixed.
@@ -49,3 +50,16 @@ headers and are not affected in practice.
 **Bounded fix (Core).** Skip `preview_text` for outputs whose declared upload type
 is `application/octet-stream` (the type this extension uses for documents), or
 let an artifact policy opt out of previews.
+
+## 3. Observation: the builder keeps mappings when the action changes
+
+**Observed on the stand (independent UI audit, 2026-11-06).** After choosing
+`get_shipping_rates`, mapping `ship_from` and `amazon_order_id`, and then switching
+the same step to `fba_get_item_eligibility_preview`, the builder kept the old
+parameter mappings although the new action has no such inputs.
+
+**Impact here.** None at run time for correctly built workflows: the extension
+refuses unknown inputs (`invalid_payload`, nothing sent to Amazon). It is a
+builder usability issue: a stale mapping shows up as an error only when the step
+runs. Not investigated further and not part of this task; reported for Core.
+

@@ -93,7 +93,7 @@ Scope: `marketplace` = the request names the connection's marketplace; `seller_r
 | `search_feeds` | feeds | Feeds 2021-06-30 getFeeds | Product Listing | all 23 | marketplace | none (read) | no | no |
 | `get_feed_result` | feeds | Feeds 2021-06-30 getFeed<br>Feeds 2021-06-30 getFeedDocument + download from the presigned Amazon S3 URL | Product Listing | all 23 | seller_region | none (read) | no | writes a file |
 | `cancel_feed` | feeds | Feeds 2021-06-30 cancelFeed | Product Listing | all 23 | seller_region | `amazon_feed_cancellation` | no | no |
-| `list_financial_records` | finances | Finances 2024-06-19 listTransactions<br>Finances v0 listFinancialEvents | Finance and Accounting | all 23 | marketplace | none (read) | no | no |
+| `list_financial_records` | finances | Finances 2024-06-19 listTransactions<br>Finances v0 listFinancialEvents | Finance and Accounting | all 23 | seller_region | none (read) | no | no |
 | `list_financial_records_for_order` | finances | Finances 2024-06-19 listTransactions (relatedIdentifierName=ORDER_ID)<br>Finances v0 listFinancialEventsByOrderId | Finance and Accounting | all 23 | seller_region | none (read) | no | no |
 | `list_financial_event_groups` | finances | Finances v0 listFinancialEventGroups | Finance and Accounting | all 23 | seller_region | none (read) | no | no |
 | `list_financial_events_by_group` | finances | Finances 2024-06-19 listTransactions (relatedIdentifierName=FINANCIAL_EVENT_GROUP_ID)<br>Finances v0 listFinancialEventsByGroupId | Finance and Accounting | all 23 | seller_region | none (read) | no | no |

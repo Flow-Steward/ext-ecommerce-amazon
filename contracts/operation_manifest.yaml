@@ -13289,7 +13289,7 @@ operations:
   - outcome_unknown
 - operation_id: list_financial_records
   display_name: List financial records
-  description: 'Returns one page of financial records posted in a time window: 2024-06-19 transactions (default) or v0 financial events, flattened into one list. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile. Amazon may take up to 48 hours to post an event, so a window ending now is not complete yet.'
+  description: 'Returns one page of financial records posted in a time window: 2024-06-19 transactions (default) or v0 financial events, flattened into one list. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile. Amazon may take up to 48 hours to post an event, so a window ending now is not complete yet. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:

@@ -37,8 +37,11 @@ components:
     title: 2. Enter the application credentials
     body: |
       Below, create one configuration for the application and enter its **LWA
-      Client ID** and **LWA Client Secret**. Flow Steward stores both encrypted;
-      the extension never receives them.
+      Client ID** and **LWA Client Secret**. The Client ID is an identifier and is
+      kept as ordinary configuration; the Client Secret is stored encrypted, and so
+      is every imported refresh token. The extension receives neither the secret nor
+      a refresh token: Flow Steward renews the access token itself and hands each
+      step only that.
 
       Amazon makes you **rotate the client secret** periodically. When you
       generate a new secret in Developer Central, paste it into the configuration
@@ -110,9 +113,12 @@ components:
         United States and, through the Partnered Carrier Program, in India; in
         the EU, accept the carrier's and Amazon's terms in Seller Central before
         the first partnered shipment. Brazil is not supported.
-      - **India**: compliance details, fulfillment-centre appointments and the
-        delivery challan run only on an India connection; the application needs
-        Amazon Fulfillment and Product Listing.
+      - **India**: compliance details and the delivery challan run only on an
+        India connection; the application needs Amazon Fulfillment and Product
+        Listing. The self-ship appointment methods are offered on every
+        connection except Brazil, because Amazon requires appointments wherever
+        fulfillment centres mandate them (documented for India); elsewhere Amazon
+        may refuse them.
 
       If a role is added to the application later, authorize it again and import
       the new refresh token into the existing connection (Replace token on the

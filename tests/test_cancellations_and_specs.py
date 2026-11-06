@@ -154,3 +154,38 @@ def test_region_wide_methods_say_so_in_their_published_description():
     rows = {row["operation_id"]: row for row in operation_manifest()["operations"]}
     assert "any marketplace of the seller" in rows["fba_get_inbound_plan"]["description"]
     assert "Scope:" not in rows["fba_create_inbound_plan"]["description"]
+
+
+def test_every_select_field_carries_its_options():
+    """The builder draws a select from ``options``; an enum without them is a text box."""
+    from build_contracts import step_ui_manifest
+
+    from runtime.catalog import OPERATIONS_BY_ID
+
+    checked = 0
+    for form in step_ui_manifest()["forms"]:
+        row = OPERATIONS_BY_ID[form["operation_id"]]
+        for field in form["fields"]:
+            schema = row.properties[field["name"]]
+            enum = schema.get("enum")
+            if enum is None and isinstance(schema.get("items"), dict):
+                enum = schema["items"].get("enum")
+            if enum is None:
+                assert field["widget_type"] not in {"select", "multi_select"}, field
+                continue
+            assert field["widget_type"] in {"select", "multi_select"}, (form["operation_id"], field)
+            assert [option["value"] for option in field["options"]] == [
+                str(v) for v in enum if v is not None
+            ]
+            checked += 1
+    assert checked > 50
+    eligibility = next(
+        f
+        for f in step_ui_manifest()["forms"]
+        if f["operation_id"] == "fba_get_item_eligibility_preview"
+    )
+    program = next(field for field in eligibility["fields"] if field["name"] == "program")
+    assert program["options"] == [
+        {"value": "INBOUND", "label": "INBOUND"},
+        {"value": "COMMINGLING", "label": "COMMINGLING"},
+    ]
