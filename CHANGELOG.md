@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.8 — unreleased
+
+Sonar follow-up to 0.2.7, no behaviour change:
+- The AWS region pattern of the S3 host check writes its digits as `\d` under
+  `re.ASCII`, so it still takes ASCII digits only; the label check and
+  `fullmatch` are unchanged. New negative cases: hosts whose region uses Arabic-
+  Indic, fullwidth or mathematical digits are refused, and the region pattern
+  refuses them on its own.
+- Compound test assertions are split into one assertion each.
+- The bounded S3-host regression no longer catches `TimeoutExpired`: the child
+  process is still killed after 30 s and the test fails with that exception.
+
 ## 0.2.7 — unreleased
 
 Source-review follow-up to 0.2.6: an `outcome_unknown` caused by a partial

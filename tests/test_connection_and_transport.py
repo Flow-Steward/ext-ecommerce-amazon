@@ -21,7 +21,7 @@ from conftest import (
     make_payload,
 )
 
-from runtime import errors, operations
+from runtime import errors, operations, transport
 from runtime.connection import connection_from_payload
 from runtime.errors import ExtensionError
 from runtime.transport import assert_document_url, encode_query, is_amazon_s3_host
@@ -134,7 +134,8 @@ def _verified_name(amazon, *, seller_id=SELLER_ID, marketplace="UK", **entry) ->
     )
     amazon.reply("GET", f"/listings/2021-08-01/items/{seller_id}", {"items": []})
     result = _verify(amazon, seller_id=seller_id, marketplace=marketplace)
-    assert result["health"] == "ok" and result["error_code"] is None, result
+    assert result["health"] == "ok", result
+    assert result["error_code"] is None, result
     return result["verified_display_name"]
 
 
@@ -149,7 +150,8 @@ def test_verified_names_tell_one_store_in_two_marketplaces_apart():
 def test_verified_names_tell_two_sellers_with_one_store_name_apart():
     first = _verified_name(FakeAmazon(), seller_id="A1SELLER0TEST1")
     second = _verified_name(FakeAmazon(), seller_id="A2SELLER0TEST2")
-    assert first.endswith("· A1SELLER0TEST1") and second.endswith("· A2SELLER0TEST2")
+    assert first.endswith("· A1SELLER0TEST1")
+    assert second.endswith("· A2SELLER0TEST2")
     assert first != second
 
 
@@ -170,7 +172,8 @@ def test_a_long_unicode_store_name_is_cut_and_the_identity_suffix_kept(amazon):
     suffix = f" · Amazon UK · {SELLER_ID}"
     assert name.endswith(suffix)
     store = name.removesuffix(suffix)
-    assert store and set(store) == {"店"}
+    assert store
+    assert set(store) == {"店"}
     assert len(name.encode("utf-8")) <= 512
     # The cut keeps as much of the store name as fits on a character boundary.
     assert len(name.encode("utf-8")) > 512 - len("店".encode())
@@ -352,6 +355,10 @@ _NOT_S3_HOSTS = [
     "nots3.amazonaws.com",
     "s3.amazonaws.com.evil.example",
     "amazonaws.com",
+    # Digits of other scripts are not ASCII digits, in a region or anywhere else.
+    "bucket.s3.us-east-\u0661.amazonaws.com",
+    "s3-eu-west-\uff11.amazonaws.com",
+    "bucket.s3.dualstack.us-east-\U0001d7cf.amazonaws.com",
 ]
 
 
@@ -371,6 +378,13 @@ def test_other_amazonaws_hosts_are_refused_as_document_hosts(host, monkeypatch):
     with pytest.raises(ExtensionError) as raised:
         assert_document_url(f"https://{host}/doc")
     assert raised.value.code == errors.BLOCKED_ADDRESS
+
+
+@pytest.mark.parametrize("region", ["us-east-\u0661", "eu-west-\uff11", "us-east-\U0001d7cf"])
+def test_the_region_pattern_itself_takes_ascii_digits_only(region):
+    """The label check refuses these first; the region pattern refuses them on its own too."""
+    assert transport._AWS_REGION_RE.fullmatch("us-east-1")
+    assert transport._AWS_REGION_RE.fullmatch(region) is None
 
 
 def test_every_mutation_rehearses_with_the_effect_facts_only(amazon, run):
@@ -446,23 +460,21 @@ sys.exit(1 if any(is_amazon_s3_host(host) for host in hosts) else 0)
 def test_a_pathological_host_is_refused_within_a_bounded_time():
     """The S3 host check cannot backtrack (Sonar python:S5852 on the old regex).
 
-    It runs in a child process with a hard deadline, so a regression that hangs is
-    killed and reported instead of stalling the suite, and a busy scheduler cannot
-    fail a check that only needs to finish.
+    It runs in a child process with a hard deadline: a regression that hangs is
+    killed by ``subprocess.run`` and fails this test with ``TimeoutExpired``
+    instead of stalling the suite, and a busy scheduler cannot fail a check that
+    only needs to finish.
     """
     root = Path(__file__).resolve().parent.parent
     env = dict(os.environ, PYTHONPATH=os.pathsep.join(entry for entry in sys.path if entry))
-    try:
-        completed = subprocess.run(  # constant argv, no shell
-            [sys.executable, "-c", _HOST_CHECK_SCRIPT],
-            input=json.dumps(_PATHOLOGICAL_HOSTS),
-            cwd=root,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=_HOST_CHECK_DEADLINE_SECONDS,
-            check=False,
-        )
-    except subprocess.TimeoutExpired:
-        pytest.fail(f"the S3 host check did not finish within {_HOST_CHECK_DEADLINE_SECONDS} s")
+    completed = subprocess.run(  # constant argv, no shell
+        [sys.executable, "-c", _HOST_CHECK_SCRIPT],
+        input=json.dumps(_PATHOLOGICAL_HOSTS),
+        cwd=root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=_HOST_CHECK_DEADLINE_SECONDS,
+        check=False,
+    )
     assert completed.returncode == 0, completed.stderr

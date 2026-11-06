@@ -81,7 +81,8 @@ MAX_AMAZON_MESSAGE_LENGTH = 500
 _S3_SUFFIX = ".amazonaws.com"
 _MAX_HOST_LENGTH = 253
 _HOST_LABEL_RE = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?")
-_AWS_REGION_RE = re.compile(r"[a-z]{2}(?:-gov|-iso[a-z]?)?-[a-z]{2,10}-[0-9]{1,2}")
+#: ``re.ASCII``: ``\d`` is ``[0-9]`` only, never another script's digits.
+_AWS_REGION_RE = re.compile(r"[a-z]{2}(?:-gov|-iso[a-z]?)?-[a-z]{2,10}-\d{1,2}", re.ASCII)
 
 USER_AGENT = "FlowSteward-AmazonSPAPI/0.2 (Language=Python)"
 _HEADER_VALUE_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
