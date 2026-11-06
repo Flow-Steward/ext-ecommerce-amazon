@@ -15,6 +15,8 @@ branch on Amazon's issues list, which is the useful part of that answer.
 
 from __future__ import annotations
 
+from .. import amazon_api
+
 from typing import Any
 
 from .. import errors, listings_core, pagination, validation
@@ -36,6 +38,7 @@ from ..listings_core import (
     SUBMISSION_OUTPUTS,
 )
 from ..registry import (
+    BOOLEAN,
     ARRAY_OF_OBJECTS,
     CONNECTION_REF,
     INTEGER,
@@ -332,4 +335,56 @@ OPERATIONS: tuple[Operation, ...] = (
         effect_kind="amazon_listing_patch",
         extra_error_codes=_LISTING_ERRORS,
     ),
+)
+
+_DELETE_NOTE = (
+    "Amazon accepted the deletion (status ACCEPTED); it is not applied yet. Read the listing with "
+    "get_listing to see when it is gone. Deleting many SKUs at once is done with a "
+    "JSON_LISTINGS_FEED DELETE message (upload_feed_document, create_feed)."
+)
+
+
+def _delete_result(context, converted, _response):
+    return {
+        "sku": converted.get("sku") or context.input["sku"],
+        "status": converted.get("status"),
+        "submission_id": converted.get("submission_id"),
+        "issues": converted.get("issues") or [],
+        "applied": False,
+        "note": _DELETE_NOTE,
+    }
+
+
+OPERATIONS = OPERATIONS + amazon_api.operations(
+    (
+        amazon_api.Method(
+            operation_id="delete_listing",
+            display_name="Delete a listing",
+            description=(
+                "Deletes one SKU's listing in the connection's marketplace (Listings Items "
+                "deleteListingsItem). Amazon answers ACCEPTED and processes the deletion later; the "
+                "result never claims it was applied."
+            ),
+            section="listings",
+            namespace="listings_2021_08_01",
+            amazon_operation="deleteListingsItem",
+            roles=("Product Listing",),
+            mutating=True,
+            effect_kind="amazon_listing_deletion",
+            inputs={
+                "sku": {"title": "SKU", "description": "The seller SKU whose listing is deleted."}
+            },
+            read_back=("get_listing",),
+            result=_delete_result,
+            outputs=(
+                out("sku", TEXT),
+                out("status", {"type": ["string", "null"]}),
+                out("submission_id", {"type": ["string", "null"]}),
+                out("issues", {"type": "array", "items": {"type": "object"}}),
+                out("applied", BOOLEAN),
+                out("note", TEXT),
+            ),
+            pii=False,
+        ),
+    )
 )

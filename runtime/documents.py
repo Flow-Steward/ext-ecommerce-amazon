@@ -168,6 +168,114 @@ def write_artifact(context: Context, binding: ArtifactBinding, body: bytes) -> d
     }
 
 
+#: Display formats a stored document may be presented as (ADR 0045 allowlist).
+PRESENTED_TYPES = {
+    "PDF": ("application/pdf", ".pdf"),
+    "PNG": ("image/png", ".png"),
+    "ZPL": ("text/plain", ".zpl"),
+    "ZIP": ("application/zip", ".zip"),
+}
+_MAGIC = {
+    "PDF": (b"%PDF",),
+    "PNG": (b"\x89PNG\r\n\x1a\n",),
+    "ZIP": (b"PK\x03\x04",),
+}
+
+
+def detect_format(body: bytes, *, allowed: tuple[str, ...]) -> str:
+    """The document's format from its first bytes, among ``allowed``.
+
+    ZPL is text that starts with a ZPL command (``^XA`` or a ``~`` command),
+    possibly after whitespace. A document whose bytes match none of the allowed
+    formats is refused rather than stored under a wrong name.
+    """
+    for name in allowed:
+        if name == "ZPL":
+            head = body[:64].lstrip()
+            if head.startswith((b"^XA", b"~", b"^")) and _is_text(body[:4096]):
+                return name
+            continue
+        if any(body.startswith(prefix) for prefix in _MAGIC.get(name, ())):
+            return name
+    raise ExtensionError(
+        errors.DOCUMENT_UNAVAILABLE,
+        "Amazon returned a document in a format this method does not accept "
+        f"(expected {', '.join(allowed)})",
+    )
+
+
+def _is_text(sample: bytes) -> bool:
+    try:
+        sample.decode("ascii")
+    except UnicodeDecodeError:
+        return False
+    return True
+
+
+def save_document(
+    context: Context,
+    binding: ArtifactBinding,
+    body: bytes,
+    *,
+    document_format: str,
+    filename_stem: str,
+) -> dict[str, Any]:
+    """Store one document and return its presentation claim (ADR 0045).
+
+    The bytes are written unchanged under the binding's generic upload type; the
+    claim tells the platform the real file name and MIME, so the file downloads
+    as ``label-<id>.pdf`` / ``.png`` / ``.zpl``. The claim carries exactly the six
+    fields the platform checks against the stored file.
+    """
+    content_type, extension = PRESENTED_TYPES[document_format]
+    receipt = _write(context, binding, body)
+    stem = "".join(char if char.isalnum() or char in "-_" else "-" for char in filename_stem)
+    return {
+        "artifact_id": receipt["artifact_id"],
+        "binding_key": receipt["binding_key"],
+        "filename": f"{stem.strip('-')[:120] or 'amazon-document'}{extension}",
+        "content_type": content_type,
+        "size_bytes": receipt["size_bytes"],
+        "sha256": receipt["sha256"],
+    }
+
+
+def _write(context: Context, binding: ArtifactBinding, body: bytes) -> dict[str, Any]:
+    writer = context.artifact_writer
+    if writer is None:
+        raise ExtensionError(errors.ARTIFACT_OUTPUT_UNAVAILABLE, "No output file can be written")
+    if len(body) > binding.max_size_bytes:
+        raise _too_large()
+    try:
+        written = writer(
+            dict(context.payload),
+            body,
+            binding_key=binding.binding_key,
+            content_type=binding.content_type,
+        )
+    except ExtensionError:
+        raise
+    except Exception as exc:
+        raise ExtensionError(
+            errors.ARTIFACT_OUTPUT_UNAVAILABLE,
+            "The file could not be stored on the platform; the step needs an output file grant",
+        ) from exc
+    artifact_id = (
+        str((written or {}).get("artifact_id") or "") if isinstance(written, Mapping) else ""
+    )
+    sha256 = str(written.get("sha256") or "") if isinstance(written, Mapping) else ""
+    if not artifact_id or not sha256:
+        raise ExtensionError(
+            errors.ARTIFACT_OUTPUT_UNAVAILABLE, "The platform did not confirm the file"
+        )
+    return {
+        "artifact_id": artifact_id,
+        "binding_key": str(written.get("binding_key") or binding.binding_key),
+        "size_bytes": int(written.get("size_bytes") or len(body)),
+        "sha256": sha256,
+    }
+
+
 def _too_large() -> ExtensionError:
     return ExtensionError(
         errors.RESPONSE_TOO_LARGE, "The Amazon document is larger than this step's safe limit"
@@ -181,4 +289,12 @@ def _corrupt() -> ExtensionError:
     )
 
 
-__all__ = ["fetch_document", "gunzip_bounded", "read_artifact", "write_artifact"]
+__all__ = [
+    "PRESENTED_TYPES",
+    "detect_format",
+    "fetch_document",
+    "gunzip_bounded",
+    "read_artifact",
+    "save_document",
+    "write_artifact",
+]

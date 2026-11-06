@@ -24,6 +24,8 @@ The presigned document URLs Amazon returns never leave this extension.
 
 from __future__ import annotations
 
+from .. import amazon_api
+
 import hashlib
 import json
 from collections.abc import Mapping
@@ -687,4 +689,46 @@ OPERATIONS: tuple[Operation, ...] = (
         extra_error_codes=(errors.DOCUMENT_UNAVAILABLE, errors.ARTIFACT_OUTPUT_UNAVAILABLE),
         artifact_output=FEED_RESULT_OUTPUT,
     ),
+)
+
+_CANCEL_FEED_NOTE = (
+    "Amazon accepted the cancellation. Only a feed still IN_QUEUE can be cancelled; read it with "
+    "get_feed to see processing_status CANCELLED."
+)
+
+
+def _cancel_feed_result(context, _converted, _response):
+    return {
+        "feed_id": context.input["feed_id"],
+        "cancellation_requested": True,
+        "note": _CANCEL_FEED_NOTE,
+    }
+
+
+OPERATIONS = OPERATIONS + amazon_api.operations(
+    (
+        amazon_api.Method(
+            operation_id="cancel_feed",
+            display_name="Cancel a feed",
+            description=(
+                "Cancels a submitted feed that Amazon has not started processing (status IN_QUEUE). A feed "
+                "already IN_PROGRESS or DONE cannot be cancelled."
+            ),
+            section="feeds",
+            namespace="feeds_2021_06_30",
+            amazon_operation="cancelFeed",
+            roles=(_ROLE_LISTINGS,),
+            mutating=True,
+            effect_kind="amazon_feed_cancellation",
+            inputs={"feed_id": {"title": "Feed ID", "description": "feed_id from create_feed."}},
+            read_back=("get_feed",),
+            result=_cancel_feed_result,
+            outputs=(
+                out("feed_id", TEXT),
+                out("cancellation_requested", BOOLEAN),
+                out("note", TEXT),
+            ),
+            pii=False,
+        ),
+    )
 )

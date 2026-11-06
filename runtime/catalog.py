@@ -14,6 +14,8 @@ from .registry import Operation
 from .sections import (
     account,
     catalog_items,
+    fba_inbound,
+    fba_inbound_documents,
     feeds,
     finances,
     inventory,
@@ -23,6 +25,7 @@ from .sections import (
     reports,
     requirements,
     shipping,
+    shipping_v2,
 )
 from .validation import assert_executable
 
@@ -33,11 +36,14 @@ SECTIONS = (
     account,
     orders,
     shipping,
+    shipping_v2,
     catalog_items,
     listings,
     requirements,
     pricing,
     inventory,
+    fba_inbound,
+    fba_inbound_documents,
     feeds,
     finances,
     reports,

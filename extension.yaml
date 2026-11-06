@@ -30,11 +30,36 @@ egress:
 external_effects:
   - {operation_id: confirm_shipment, effect_kind: amazon_shipment_confirmation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: update_shipment_status, effect_kind: amazon_shipment_status_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: purchase_shipping_shipment, effect_kind: amazon_shipping_label_purchase, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: cancel_shipping_shipment, effect_kind: amazon_shipping_label_cancellation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: create_listing, effect_kind: amazon_listing_put, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: update_listing_attributes, effect_kind: amazon_listing_patch, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: delete_listing, effect_kind: amazon_listing_deletion, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: set_price, effect_kind: amazon_price_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: set_fbm_quantity, effect_kind: amazon_fbm_quantity_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_set_prep_details, effect_kind: amazon_fba_prep_details_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_create_inbound_plan, effect_kind: amazon_fba_inbound_plan_creation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_cancel_inbound_plan, effect_kind: amazon_fba_inbound_plan_cancellation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_update_inbound_plan_name, effect_kind: amazon_fba_inbound_plan_rename, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_generate_packing_options, effect_kind: amazon_fba_packing_options_generation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_confirm_packing_option, effect_kind: amazon_fba_packing_option_confirmation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_set_packing_information, effect_kind: amazon_fba_packing_information_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_generate_placement_options, effect_kind: amazon_fba_placement_options_generation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_confirm_placement_option, effect_kind: amazon_fba_placement_option_confirmation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_generate_transportation_options, effect_kind: amazon_fba_transportation_options_generation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_confirm_transportation_options, effect_kind: amazon_fba_transportation_confirmation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_generate_delivery_window_options, effect_kind: amazon_fba_delivery_windows_generation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_confirm_delivery_window_options, effect_kind: amazon_fba_delivery_window_confirmation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_update_shipment_name, effect_kind: amazon_fba_shipment_rename, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_update_shipment_source_address, effect_kind: amazon_fba_shipment_source_address_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_update_shipment_tracking_details, effect_kind: amazon_fba_shipment_tracking_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_update_item_compliance_details, effect_kind: amazon_fba_compliance_details_update, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_generate_self_ship_appointment_slots, effect_kind: amazon_fba_appointment_slots_generation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_schedule_self_ship_appointment, effect_kind: amazon_fba_appointment_scheduling, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: fba_cancel_self_ship_appointment, effect_kind: amazon_fba_appointment_cancellation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: create_feed, effect_kind: amazon_feed_submission, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: cancel_feed, effect_kind: amazon_feed_cancellation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: cancel_report, effect_kind: amazon_report_cancellation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
 runtime:
   contract_version: extension_host_v2
   extension_contract_v2:
@@ -62,6 +87,61 @@ runtime:
     step_ui_manifest: contracts/step_ui_manifest.yaml
     artifact_policies: contracts/artifact_policies.yaml
 artifact_policies:
+- operation_id: get_shipping_documents
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_shipping_document
+    filename: amazon-shipping-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation: {claim_output: document_file}
+- operation_id: fba_create_marketplace_item_labels
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_fba_document
+    filename: amazon-fba-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation: {claim_output: document_file}
+- operation_id: fba_get_labels
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_fba_document
+    filename: amazon-fba-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation: {claim_output: document_file}
+- operation_id: fba_get_bill_of_lading
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_fba_document
+    filename: amazon-fba-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation: {claim_output: document_file}
+- operation_id: fba_get_delivery_challan_document
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_fba_document
+    filename: amazon-fba-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation: {claim_output: document_file}
 - operation_id: upload_feed_document
   inputs:
   - {kind: artifact, value_type: artifact_handle, binding_key: amazon_feed_input, field: content_file, required: false, max_size_bytes: 10485760}

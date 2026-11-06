@@ -40,6 +40,9 @@ class ArtifactBinding:
     content_type: str = ""
     max_size_bytes: int = 104_857_600
     required: bool = False
+    #: The result field that carries this file's presentation claim (ADR 0045):
+    #: its real name and MIME, known only once the document has been read.
+    presentation_claim: str = ""
 
 
 @dataclass
@@ -77,7 +80,22 @@ class Operation:
     extra_error_codes: tuple[str, ...] = ()
     artifact_input: ArtifactBinding | None = None
     artifact_output: ArtifactBinding | None = None
+    #: Further output files, one per content type, when the file Amazon returns
+    #: has a format the caller chooses (a label as PDF, PNG or ZPL). The handler
+    #: writes exactly one binding per call.
+    extra_artifact_outputs: tuple[ArtifactBinding, ...] = ()
     pii: bool = False
+    #: The method(s) that read back the state this change affects, named in the
+    #: error result when its outcome is unknown.
+    read_back: tuple[str, ...] = ()
+    #: Marketplace codes where Amazon offers this method; empty means every
+    #: marketplace of the connection catalog.
+    marketplaces: tuple[str, ...] = ()
+    #: Shown in the operation matrix and the form: where and for which program
+    #: the method works.
+    availability: str = ""
+    #: Amazon's API version this method calls, for the matrix.
+    api_version: str = ""
     #: Inputs besides the common ones (next_token, page size, connection_ref)
     #: that may change between pages of one search without invalidating its
     #: continuation token; see ``runtime/pagination.py``.
@@ -93,6 +111,11 @@ class Operation:
         }
 
     @property
+    def artifact_outputs(self) -> tuple[ArtifactBinding, ...]:
+        first = (self.artifact_output,) if self.artifact_output is not None else ()
+        return first + self.extra_artifact_outputs
+
+    @property
     def result_fields(self) -> tuple[str, ...]:
         return tuple(output.name for output in self.outputs)
 
@@ -101,6 +124,8 @@ class Operation:
         codes = list(errors.TRANSPORT_ERROR_CODES)
         if self.mutating:
             codes += [errors.MISSING_IDEMPOTENCY_KEY, errors.OUTCOME_UNKNOWN]
+        if self.marketplaces:
+            codes.append(errors.UNSUPPORTED_MARKETPLACE)
         codes += list(self.extra_error_codes)
         return tuple(dict.fromkeys(codes))
 

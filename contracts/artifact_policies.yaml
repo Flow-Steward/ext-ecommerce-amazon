@@ -1,6 +1,66 @@
 # Generated from the closed runtime registry in runtime/catalog.py.
 # Extension-owned parity tests fail if this file and the registry disagree.
 artifact_policies:
+- operation_id: get_shipping_documents
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_shipping_document
+    filename: amazon-shipping-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation:
+      claim_output: document_file
+- operation_id: fba_create_marketplace_item_labels
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_fba_document
+    filename: amazon-fba-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation:
+      claim_output: document_file
+- operation_id: fba_get_labels
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_fba_document
+    filename: amazon-fba-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation:
+      claim_output: document_file
+- operation_id: fba_get_bill_of_lading
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_fba_document
+    filename: amazon-fba-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation:
+      claim_output: document_file
+- operation_id: fba_get_delivery_challan_document
+  outputs:
+  - kind: artifact
+    value_type: artifact_handle
+    binding_key: amazon_fba_document
+    filename: amazon-fba-document
+    content_type: application/octet-stream
+    max_size_bytes: 209715200
+    max_size_env: FS_EXTENSION_ARTIFACT_MAX_BYTES
+    retention_class: run_window
+    presentation:
+      claim_output: document_file
 - operation_id: upload_feed_document
   inputs:
   - kind: artifact

@@ -347,6 +347,8 @@ def _sample(schema: dict):
         return schema["enum"][0]
     if kind == "integer":
         return schema.get("minimum", 1)
+    if kind == "number":
+        return schema.get("minimum", 1)
     if kind == "array":
         return [_sample(schema.get("items") or {"type": "string"})] * max(
             1, schema.get("minItems", 1)

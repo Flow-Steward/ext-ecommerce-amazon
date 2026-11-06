@@ -77,9 +77,26 @@ MAX_AMAZON_MESSAGE_LENGTH = 500
 #: host can be operated by an arbitrary AWS customer.
 _S3_HOST_RE = re.compile(r"^(?:[a-z0-9][a-z0-9.-]*\.)?s3(?:[.-][a-z0-9-]+)*\.amazonaws\.com$")
 
-USER_AGENT = "FlowSteward-AmazonSPAPI/0.1 (Language=Python)"
+USER_AGENT = "FlowSteward-AmazonSPAPI/0.2 (Language=Python)"
+_HEADER_VALUE_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
 
 _RETRYABLE_STATUSES = frozenset({429, 500, 502, 503, 504})
+
+#: The only request headers an operation may add, each with a fixed meaning:
+#: the Amazon Shipping business the call addresses (derived from the
+#: connection's marketplace) and the platform's external-effect id as the
+#: idempotency key of a shipment purchase. Nothing from workflow input.
+EXTRA_HEADERS = frozenset({"x-amzn-shipping-business-id", "x-amzn-IdempotencyKey"})
+
+#: Amazon error codes and wording that say an offered rate, token or option is no
+#: longer valid, or that the resource is not in a state that allows the change.
+_EXPIRED_CODES = frozenset({"TOKEN_EXPIRED", "RATE_EXPIRED", "OPTION_EXPIRED"})
+_EXPIRED_TEXT = re.compile(r"\b(expired|has expired|no longer valid)\b", re.IGNORECASE)
+_STATE_TEXT = re.compile(
+    r"(ineligible state|invalid state|not in a valid state|current (state|status)|"
+    r"already (been )?(confirmed|cancel+ed|voided|shipped)|cannot be (cancel+ed|modified|updated))",
+    re.IGNORECASE,
+)
 _INVALID_JSON = "Amazon returned a response that is not valid JSON"
 
 
@@ -161,31 +178,39 @@ class SpApiTransport:
         mutating: bool,
         purpose: str,
         access_token: str | None = None,
+        headers: Mapping[str, str] | None = None,
     ) -> ApiResponse:
         """Send one SP-API request and return its decoded body.
 
         ``access_token`` replaces the connection's token for one call; it is how a
         restricted data token is used for the operations that need one.
+        ``headers`` may only name ``EXTRA_HEADERS``.
         """
+        extra = dict(headers or {})
+        if set(extra) - EXTRA_HEADERS or not all(
+            isinstance(value, str) and _HEADER_VALUE_RE.fullmatch(value) for value in extra.values()
+        ):
+            raise ExtensionError(errors.INTERNAL_ERROR, "An unsupported request header was built")
         url = self._connection.api_base_url + encode_path(path_template, path or {})
         encoded_query = encode_query(query or {})
         if encoded_query:
             url = f"{url}?{encoded_query}"
         data = _json_bytes(body) if body is not None else None
         token = access_token if access_token is not None else self._connection.access_token()
-        headers = {
+        request_headers = {
             "Accept": "application/json",
             "User-Agent": USER_AGENT,
             "x-amz-access-token": token,
             "x-amz-date": time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()),
         }
         if data is not None:
-            headers["Content-Type"] = "application/json; charset=utf-8"
+            request_headers["Content-Type"] = "application/json; charset=utf-8"
+        request_headers.update(extra)
         backoff_spent = 0.0
         attempt = 0
         while True:
             attempt += 1
-            request = Request(url, method=method, data=data, headers=headers)
+            request = Request(url, method=method, data=data, headers=request_headers)
             try:
                 return self._send(request, mutating=mutating, purpose=purpose)
             except _Retry as retry:
@@ -371,6 +396,18 @@ def _failure(status: int, raw: bytes, headers: Any, *, mutating: bool) -> Except
     if status == 400 and _mentions_next_token(amazon_errors):
         code = errors.CONTINUATION_TOKEN_INVALID
         message = "The continuation token is not valid any more; start the search again"
+    elif code == errors.UPSTREAM_VALIDATION_FAILED and _says_expired(amazon_errors):
+        code = errors.OFFER_EXPIRED
+        message = (
+            "Amazon says the rate, token or option has expired; request new ones and choose "
+            "again. Nothing was bought or confirmed."
+        )
+    elif code == errors.UPSTREAM_VALIDATION_FAILED and _says_invalid_state(amazon_errors):
+        code = errors.INVALID_STATE
+        message = (
+            "Amazon refused the change in the current state of the plan, shipment or item; "
+            "read its current state first"
+        )
     retry_after = _retry_after(headers)
     ambiguous = code == errors.OUTCOME_UNKNOWN
     error = ExtensionError(
@@ -383,6 +420,7 @@ def _failure(status: int, raw: bytes, headers: Any, *, mutating: bool) -> Except
         external_effect_status="unknown" if ambiguous else "failed",
         http_status=status,
         amazon_errors=amazon_errors,
+        amazon_request_id=_request_id(headers),
     )
     if status == 429 or (status in _RETRYABLE_STATUSES and not mutating):
         return _Retry(error, minimum_delay=retry_after or _rate_limit_delay(headers))
@@ -410,6 +448,33 @@ def amazon_error_list(raw: bytes) -> list[dict[str, str]]:
         if item:
             reduced.append(item)
     return reduced
+
+
+def _says_expired(amazon_errors: Sequence[Mapping[str, str]]) -> bool:
+    for entry in amazon_errors:
+        if entry.get("code", "").upper() in _EXPIRED_CODES:
+            return True
+        if _EXPIRED_TEXT.search(f"{entry.get('message', '')} {entry.get('details', '')}"):
+            return True
+    return False
+
+
+def _says_invalid_state(amazon_errors: Sequence[Mapping[str, str]]) -> bool:
+    return any(
+        _STATE_TEXT.search(f"{entry.get('message', '')} {entry.get('details', '')}")
+        for entry in amazon_errors
+    )
+
+
+def _request_id(headers: Any) -> str | None:
+    if headers is None:
+        return None
+    try:
+        value = headers.get("x-amzn-RequestId") or headers.get("x-amzn-requestid")
+    except (AttributeError, TypeError, ValueError):
+        return None
+    text = str(value or "").strip()
+    return text[:128] if text and _HEADER_VALUE_RE.fullmatch(text[:128]) else None
 
 
 def _mentions_next_token(amazon_errors: Sequence[Mapping[str, str]]) -> bool:
@@ -524,6 +589,7 @@ def _transport_facts(*, mutating: bool) -> dict[str, Any]:
 
 
 __all__ = [
+    "EXTRA_HEADERS",
     "MAX_ATTEMPTS",
     "MAX_RESPONSE_BYTES",
     "USER_AGENT",

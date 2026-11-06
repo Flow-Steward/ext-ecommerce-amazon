@@ -50,10 +50,14 @@ def handle_runtime(
             artifact_writer=artifact_writer,
         )
     except ExtensionError as exc:
-        response = error_response(
-            exc.code, exc.message, retry_facts=exc.retry_facts(), amazon_errors=exc.amazon_errors
+        return error_response(
+            exc.code,
+            exc.message,
+            retry_facts=exc.retry_facts(),
+            amazon_errors=exc.amazon_errors,
+            amazon_request_id=exc.amazon_request_id,
+            check=exc.check,
         )
-        return response
     except Exception:  # pragma: no cover - last line of defence, never echoes detail
         return error_response(errors.INTERNAL_ERROR, "The Amazon extension failed unexpectedly")
 
@@ -79,6 +83,13 @@ def run_operation(
     connection = connection_from_payload(
         payload, connection_ref=_connection_ref(payload, row, operation_input)
     )
+    if row.marketplaces and connection.marketplace.code not in row.marketplaces:
+        raise ExtensionError(
+            errors.UNSUPPORTED_MARKETPLACE,
+            f"{row.display_name} is not available for the {connection.marketplace.country} "
+            f"marketplace of this connection. {row.availability}".strip(),
+            definitely_no_external_effect=True,
+        )
     context = Context(
         operation=row,
         input=operation_input,
@@ -89,7 +100,12 @@ def run_operation(
         artifact_reader=artifact_reader,
         artifact_writer=artifact_writer,
     )
-    result = json_safe(row.handler(context))
+    try:
+        result = json_safe(row.handler(context))
+    except ExtensionError as exc:
+        if exc.code == errors.OUTCOME_UNKNOWN and row.mutating and exc.check is None:
+            exc.check = _check_after_unknown(row, operation_input)
+        raise
     if row.mutating:
         result.setdefault("external_effect_status", "succeeded")
         result.setdefault("definitely_no_external_effect", False)
@@ -111,6 +127,26 @@ def _connection_ref(
     target = action.get("target") if isinstance(action, Mapping) else None
     value = target.get("connection_id") if isinstance(target, Mapping) else None
     return value if isinstance(value, str) else ""
+
+
+def _check_after_unknown(row: Operation, operation_input: Mapping[str, Any]) -> dict[str, Any]:
+    """What to read before deciding whether to repeat a change whose outcome is unknown.
+
+    The identifiers are the change's own inputs (plan, shipment, option, SKU, feed);
+    nothing new is invented. ``read_with`` names the method that shows the current
+    state, when the row declares one.
+    """
+    ids = {
+        key: value
+        for key, value in operation_input.items()
+        if isinstance(value, str)
+        and key != "connection_ref"
+        and (key.endswith("_id") or key in {"sku", "msku", "request_token"})
+    }
+    check: dict[str, Any] = {"ids": ids}
+    if row.read_back:
+        check["read_with"] = list(row.read_back)
+    return check
 
 
 def _suppressed_result() -> dict[str, Any]:

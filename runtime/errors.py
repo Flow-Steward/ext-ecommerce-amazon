@@ -48,6 +48,12 @@ REDIRECT_REJECTED = "redirect_rejected"
 BLOCKED_ADDRESS = "blocked_address"
 #: A mutation was sent and no reliable answer came back.
 OUTCOME_UNKNOWN = "outcome_unknown"
+#: The connection's marketplace is not one where Amazon offers this API or program.
+UNSUPPORTED_MARKETPLACE = "unsupported_marketplace"
+#: A rate, a request token or an option Amazon offered has expired; request a new one.
+OFFER_EXPIRED = "offer_expired"
+#: The plan, shipment or listing is not in a state that allows this change.
+INVALID_STATE = "invalid_state"
 INTERNAL_ERROR = "internal_error"
 
 SAFE_ERROR_CODES: tuple[str, ...] = (
@@ -77,6 +83,9 @@ SAFE_ERROR_CODES: tuple[str, ...] = (
     REDIRECT_REJECTED,
     BLOCKED_ADDRESS,
     OUTCOME_UNKNOWN,
+    UNSUPPORTED_MARKETPLACE,
+    OFFER_EXPIRED,
+    INVALID_STATE,
     INTERNAL_ERROR,
 )
 
@@ -95,6 +104,8 @@ TRANSPORT_ERROR_CODES: tuple[str, ...] = (
     NOT_FOUND,
     RATE_LIMITED,
     UPSTREAM_VALIDATION_FAILED,
+    OFFER_EXPIRED,
+    INVALID_STATE,
     UPSTREAM_FAILURE,
     INVALID_JSON_RESPONSE,
     RESPONSE_TOO_LARGE,
@@ -129,6 +140,8 @@ class ExtensionError(Exception):
         external_effect_status: str | None = None,
         http_status: int | None = None,
         amazon_errors: list[dict[str, str]] | None = None,
+        amazon_request_id: str | None = None,
+        check: Mapping[str, object] | None = None,
     ) -> None:
         safe_code = code if code in SAFE_ERROR_CODES else INTERNAL_ERROR
         super().__init__(message)
@@ -141,6 +154,10 @@ class ExtensionError(Exception):
         self.external_effect_status = external_effect_status
         self.http_status = http_status
         self.amazon_errors = amazon_errors or []
+        #: Amazon's x-amzn-RequestId, for a support case; it identifies no person.
+        self.amazon_request_id = amazon_request_id
+        #: For an unknown outcome: the identifiers to read back and the method to read them with.
+        self.check = dict(check) if check else None
 
     def retry_facts(self) -> dict[str, object]:
         """Project only closed, non-secret facts understood by Core."""
@@ -167,12 +184,21 @@ def error_response(
     *,
     retry_facts: Mapping[str, object] | None = None,
     amazon_errors: list[dict[str, str]] | None = None,
+    amazon_request_id: str | None = None,
+    check: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     """Build the failing runtime envelope for one safe error."""
     safe_code = code if code in SAFE_ERROR_CODES else INTERNAL_ERROR
+    result: dict[str, object] = {}
+    if amazon_errors:
+        result["amazon_errors"] = amazon_errors
+    if amazon_request_id:
+        result["amazon_request_id"] = amazon_request_id
+    if check:
+        result["check"] = dict(check)
     response: dict[str, object] = {
         "ok": False,
-        "result": {"amazon_errors": amazon_errors} if amazon_errors else {},
+        "result": result,
         "error_code": safe_code,
         "error": message,
         "errors": [{"code": safe_code, "message": message}],

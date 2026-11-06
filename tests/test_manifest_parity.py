@@ -83,10 +83,17 @@ def test_egress_covers_every_host_the_extension_calls():
     } <= hosts
 
 
+#: Amazon's official OpenAPI models, copied unchanged as the source the logistics
+#: specs are compiled from; they are reference data for the tests, not authoring files.
+AMAZON_MODELS = ROOT / "tests" / "reference" / "models"
+
+
 def test_no_json_authoring_files():
     offenders = [
         path.relative_to(ROOT)
         for path in ROOT.rglob("*.json")
-        if ".git" not in path.parts and "dev-wheels" not in path.parts
+        if ".git" not in path.parts
+        and "dev-wheels" not in path.parts
+        and path.parent != AMAZON_MODELS
     ]
     assert offenders == []

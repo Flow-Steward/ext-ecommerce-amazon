@@ -12,52 +12,64 @@ forms:
   fields:
   - name: api_version
     label: Amazon API version
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
   - name: created_after
     label: Created after
     widget_type: text
     required: false
+    help_text: 'Orders created at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: created_before
     label: Created before
     widget_type: text
     required: false
+    help_text: 'Orders created before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: last_updated_after
     label: Updated after
     widget_type: text
     required: false
+    help_text: 'Orders updated at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: last_updated_before
     label: Updated before
     widget_type: text
     required: false
+    help_text: 'Orders updated before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: statuses
     label: Statuses
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Only orders in these statuses. INVOICE_UNCONFIRMED is v0 only. Allowed: up to 8 entries.'
   - name: fulfilled_by
     label: Fulfilled by
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'MERCHANT (FBM) or AMAZON (FBA). Allowed: up to 2 entries.'
   - name: max_results
     label: Page size
-    widget_type: number
+    widget_type: integer
     required: false
+    help_text: 'Orders per page, 1 to 100. Allowed: from 1 to 100.'
   - name: included_data
     label: Included data (2026-01-01)
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Extra order sections to return. FULFILLMENT and PROCEEDS are always included. Allowed: up to 11 entries.'
   - name: amazon_order_ids
     label: Amazon order IDs (v0)
     widget_type: json
     required: false
+    help_text: 'Up to 50 order IDs. Allowed: up to 50 entries.'
   - name: seller_order_id
     label: Seller order ID (v0)
     widget_type: text
     required: false
+    help_text: 'Your own order identifier. Allowed: up to 64 characters.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: get_order
   title: Get an order
   fields:
@@ -65,14 +77,17 @@ forms:
     label: Amazon order ID
     widget_type: text
     required: true
+    help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
   - name: api_version
     label: Amazon API version
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
   - name: included_data
     label: Included data (2026-01-01)
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Extra order sections to return. FULFILLMENT and PROCEEDS are always included. Allowed: up to 11 entries.'
 - operation_id: get_order_items
   title: Get order items
   fields:
@@ -80,14 +95,17 @@ forms:
     label: Amazon order ID
     widget_type: text
     required: true
+    help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
   - name: api_version
     label: Amazon API version
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: get_order_buyer_info
   title: Get buyer and shipping address
   fields:
@@ -95,10 +113,12 @@ forms:
     label: Amazon order ID
     widget_type: text
     required: true
+    help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
   - name: api_version
     label: Amazon API version
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: 2026-01-01 (current, default) or v0 (legacy; Amazon removes its read operations on 2027-03-27).
 - operation_id: confirm_shipment
   title: Confirm a shipment
   fields:
@@ -106,42 +126,52 @@ forms:
     label: Amazon order ID
     widget_type: text
     required: true
+    help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
   - name: package_reference_id
     label: Package reference ID
     widget_type: text
     required: true
+    help_text: 'Your positive numeric identifier of this package within the order, for example 1. Allowed: up to 19 characters.'
   - name: carrier_code
     label: Carrier code
     widget_type: text
     required: true
+    help_text: 'Amazon''s carrier code, for example UPS, DHL, Royal Mail, or Other with carrier_name. Allowed: up to 100 characters.'
   - name: carrier_name
     label: Carrier name
     widget_type: text
     required: false
+    help_text: 'Required when carrier_code is Other. Allowed: up to 100 characters.'
   - name: shipping_method
     label: Shipping method
     widget_type: text
     required: false
+    help_text: 'The ship method, for example Next Day. Allowed: up to 100 characters.'
   - name: tracking_number
     label: Tracking number
     widget_type: text
     required: true
+    help_text: 'The carrier''s tracking number. Allowed: up to 100 characters.'
   - name: ship_date
     label: Ship date
     widget_type: text
     required: true
+    help_text: 'When the package was shipped. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: ship_from_supply_source_id
     label: Supply source ID
     widget_type: text
     required: false
+    help_text: 'The supply source the package ships from, if you use supply sources. Allowed: up to 128 characters.'
   - name: items
     label: Order items
     widget_type: json
     required: true
+    help_text: 'The order items and quantities in this package. Allowed: up to 100 entries.'
   - name: cod_collection_method
     label: COD collection method
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Cash-on-delivery collection method (Japan only).
 - operation_id: update_shipment_status
   title: Update shipment status
   fields:
@@ -149,14 +179,152 @@ forms:
     label: Amazon order ID
     widget_type: text
     required: true
+    help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
   - name: shipment_status
     label: Shipment status
-    widget_type: text
+    widget_type: select
     required: true
+    help_text: The status to apply.
   - name: items
     label: Order items
     widget_type: json
     required: false
+    help_text: 'For a partial update: the order items and quantities the status applies to. Allowed: up to 100 entries.'
+- operation_id: get_shipping_rates
+  title: Get shipping rates
+  fields:
+  - name: packages
+    label: Package
+    widget_type: json
+    required: true
+    help_text: 'Exactly one package: Amazon Shipping quotes one package per request. Dimensions in INCH or CENTIMETER, weight in GRAM, KILOGRAM, OUNCE or POUND, values in the marketplace currency. item_identifier is the order_item_id from get_order_items. Allowed: up to 1 entries. Example: [{"package_client_reference_id": "order-123-pkg-1", "dimensions": {"length": 30, "width": 20, "height": 10, "unit": "CENTIMETER"}, "weight": {"value": 1.2, "unit": "KILOGRAM"}, "insured_value": {"value": 25.0, "unit": "GBP"}, "items": [{"item_identifier": "12345678901234", "quantity": 1, "item_value": {"value": 25.0, "unit": "GBP"}, "description": "Blue mug", "weight": {"value": 1.0, "unit": "KILOGRAM"}}]}]'
+  - name: return_to
+    label: Return to
+    widget_type: json
+    required: false
+    help_text: 'The return to address. Example: {"name": "Warehouse 1", "company_name": "Example Ltd", "address_line1": "1 Example Street", "city": "London", "state_or_region": "London", "postal_code": "EC1A 1BB", "country_code": "GB", "phone_number": "+442000000000"}'
+  - name: ship_date
+    label: Ship date
+    widget_type: text
+    required: false
+    help_text: 'Only for a future pickup: ISO 8601 with a time zone, for example 2026-11-10T09:00:00Z. Leave empty to ship today.'
+  - name: ship_from
+    label: Ship from
+    widget_type: json
+    required: true
+    help_text: 'The address the package leaves from, in the marketplace''s country. Example: {"name": "Warehouse 1", "company_name": "Example Ltd", "address_line1": "1 Example Street", "city": "London", "state_or_region": "London", "postal_code": "EC1A 1BB", "country_code": "GB", "phone_number": "+442000000000"}'
+  - name: shipper_instruction
+    label: Shipper instruction
+    widget_type: json
+    required: false
+    help_text: This field describe shipper instruction.
+  - name: tax_details
+    label: Tax details
+    widget_type: json
+    required: false
+    help_text: A list of tax detail information.
+  - name: value_added_services
+    label: Value added services
+    widget_type: json
+    required: false
+    help_text: A collection of supported value-added services.
+  - name: amazon_order_id
+    label: Amazon order ID
+    widget_type: text
+    required: true
+    help_text: 'The Amazon order this package fulfils, for example 123-1234567-1234567. Allowed: up to 64 characters.'
+    placeholder: 123-1234567-1234567
+- operation_id: get_shipping_additional_inputs
+  title: Get shipping additional inputs
+  fields:
+  - name: request_token
+    label: Request token
+    widget_type: text
+    required: true
+    help_text: request_token from get_shipping_rates (not an access token).
+  - name: rate_id
+    label: Rate ID
+    widget_type: text
+    required: true
+    help_text: rate_id of the chosen offer.
+- operation_id: purchase_shipping_shipment
+  title: Purchase a shipping label
+  fields:
+  - name: additional_inputs
+    label: Additional inputs
+    widget_type: json
+    required: false
+    help_text: 'Only when the rate requires them: the values get_shipping_additional_inputs asks for, with exactly the keys of its schema.'
+  - name: rate_id
+    label: Rate ID
+    widget_type: text
+    required: true
+    help_text: rate_id of the chosen offer.
+  - name: request_token
+    label: Request token
+    widget_type: text
+    required: true
+    help_text: request_token from get_shipping_rates (not an access token).
+  - name: requested_document_specification
+    label: Label format
+    widget_type: json
+    required: true
+    help_text: 'One of the supported_document_specifications of the chosen rate: format PDF, PNG or ZPL, size, dpi (ZPL only: 203 or 300), page layout, file joining and the document types. A specification the rate does not offer is refused by Amazon.'
+    placeholder: '{"format": "PDF", "size": {"width": 4, "length": 6, "unit": "INCH"}, "need_file_joining": false, "requested_document_types": ["LABEL"]}'
+  - name: requested_value_added_services
+    label: Value-added services
+    widget_type: json
+    required: false
+    help_text: The value-added services to be added to a shipping service purchase.
+- operation_id: get_shipping_documents
+  title: Get a shipping document
+  fields:
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: shipment_id from purchase_shipping_shipment.
+  - name: package_client_reference_id
+    label: Package reference
+    widget_type: text
+    required: true
+    help_text: package_client_reference_id of the package, as sent to get_shipping_rates.
+  - name: format
+    label: Format
+    widget_type: text
+    required: false
+    help_text: 'PDF, PNG or ZPL; one the rate supported. Empty: the purchased format.'
+  - name: dpi
+    label: DPI
+    widget_type: number
+    required: false
+    help_text: 'ZPL only: 203 or 300.'
+  - name: document_type
+    label: Document type
+    widget_type: select
+    required: false
+    help_text: Which document of the package to store. Default LABEL.
+- operation_id: get_shipping_tracking
+  title: Get shipment tracking
+  fields:
+  - name: tracking_id
+    label: Tracking ID
+    widget_type: text
+    required: true
+    help_text: tracking_id from the purchase.
+  - name: carrier_id
+    label: Carrier ID
+    widget_type: text
+    required: true
+    help_text: carrier_id of the purchased rate.
+- operation_id: cancel_shipping_shipment
+  title: Cancel a shipping label
+  fields:
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: shipment_id from the purchase.
 - operation_id: search_catalog_items
   title: Search the Amazon catalog
   fields:
@@ -164,42 +332,52 @@ forms:
     label: Identifiers
     widget_type: json
     required: false
+    help_text: 'Up to 20 product identifiers. Allowed: up to 20 entries.'
   - name: identifiers_type
     label: Identifier type
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: The type of every value in identifiers.
   - name: keywords
     label: Keywords
     widget_type: json
     required: false
+    help_text: 'Up to 20 search keywords. Allowed: up to 20 entries.'
   - name: brand_names
     label: Brands
     widget_type: json
     required: false
+    help_text: 'Keyword search only: limit to these brands. Allowed: up to 20 entries.'
   - name: classification_ids
     label: Classification IDs
     widget_type: json
     required: false
+    help_text: 'Keyword search only: limit to these browse classifications. Allowed: up to 20 entries.'
   - name: keywords_locale
     label: Keywords language
     widget_type: text
     required: false
+    help_text: 'Keyword search only: the language of the keywords. Allowed: up to 10 characters.'
   - name: included_data
     label: Included data
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Catalog data sets to return (Amazon default: summaries). relationships gives variation parents and children; vendorDetails needs a vendor account. Allowed: up to 10 entries.'
   - name: locale
     label: Locale
     widget_type: text
     required: false
+    help_text: 'Locale for localized summaries, for example en_GB. Allowed: up to 10 characters.'
   - name: page_size
     label: Page size
-    widget_type: number
+    widget_type: integer
     required: false
+    help_text: 'Items per page, 1 to 20. Allowed: from 1 to 20.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: get_catalog_item
   title: Get a catalog item
   fields:
@@ -207,14 +385,17 @@ forms:
     label: ASIN
     widget_type: text
     required: true
+    help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
   - name: included_data
     label: Included data
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Catalog data sets to return (Amazon default: summaries). relationships gives variation parents and children; vendorDetails needs a vendor account. Allowed: up to 10 entries.'
   - name: locale
     label: Locale
     widget_type: text
     required: false
+    help_text: 'Locale for localized summaries, for example en_GB. Allowed: up to 10 characters.'
 - operation_id: search_listings
   title: Find listings
   fields:
@@ -222,70 +403,87 @@ forms:
     label: Identifiers
     widget_type: json
     required: false
+    help_text: 'Up to 20 product identifiers of identifiers_type. Allowed: up to 20 entries.'
   - name: identifiers_type
     label: Identifier type
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: The type of every value in identifiers.
   - name: variation_parent_sku
     label: Variation parent SKU
     widget_type: text
     required: false
+    help_text: 'Only variation children of this SKU. Allowed: up to 200 characters.'
   - name: package_hierarchy_sku
     label: Package hierarchy SKU
     widget_type: text
     required: false
+    help_text: 'Only listings that contain or are contained by this SKU. Allowed: up to 200 characters.'
   - name: created_after
     label: Created after
     widget_type: text
     required: false
+    help_text: 'Listings created at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: created_before
     label: Created before
     widget_type: text
     required: false
+    help_text: 'Listings created at or before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: last_updated_after
     label: Updated after
     widget_type: text
     required: false
+    help_text: 'Listings updated at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: last_updated_before
     label: Updated before
     widget_type: text
     required: false
+    help_text: 'Listings updated at or before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: with_issue_severity
     label: With issue severity
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Only listings with issues of these severities. Allowed: up to 2 entries.'
   - name: with_status
     label: With status
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Only listings with these statuses. Allowed: up to 2 entries.'
   - name: without_status
     label: Without status
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Only listings without these statuses. Allowed: up to 2 entries.'
   - name: sort_by
     label: Sort by
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Sort field (Amazon default lastUpdatedDate).
   - name: sort_order
     label: Sort order
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: ASC or DESC (Amazon default DESC).
   - name: included_data
     label: Included data
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Listing data sets to return. Default for get_listing: summaries, attributes, issues, offers, fulfillmentAvailability; for search_listings Amazon''s default is summaries. Allowed: up to 8 entries.'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
+    help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
   - name: page_size
     label: Page size
-    widget_type: number
+    widget_type: integer
     required: false
+    help_text: 'Listings per page, 1 to 20. Allowed: from 1 to 20.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: get_listing
   title: Get a listing
   fields:
@@ -293,14 +491,17 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
   - name: included_data
     label: Included data
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Listing data sets to return. Default for get_listing: summaries, attributes, issues, offers, fulfillmentAvailability; for search_listings Amazon''s default is summaries. Allowed: up to 8 entries.'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
+    help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
 - operation_id: get_listing_issues
   title: Get listing issues
   fields:
@@ -308,10 +509,12 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
+    help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
 - operation_id: create_listing
   title: Create or replace a listing
   fields:
@@ -319,30 +522,37 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
   - name: listing_kind
     label: Listing kind
-    widget_type: text
+    widget_type: select
     required: true
+    help_text: 'offer_on_existing_asin: sell an existing Amazon catalog product (offer only). new_product: create the product and the offer (Amazon may refuse to create a new ASIN without brand registry or GTIN approval).'
   - name: asin
     label: ASIN
     widget_type: text
     required: false
+    help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
   - name: condition_type
     label: Condition
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: The item condition of the offer.
   - name: product_type
     label: Amazon product type
     widget_type: text
     required: false
+    help_text: 'The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission. Allowed: up to 100 characters.'
   - name: attributes
     label: Attributes
     widget_type: json
     required: true
+    help_text: 'Listing attributes keyed by Amazon attribute name, each a list of values as the product type definition describes them, for example {"item_name": [{"value": "Mug", "language_tag": "en_GB"}]}. A marketplace_id inside a value must be the connection''s.'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
+    help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
 - operation_id: update_listing_attributes
   title: Update listing attributes
   fields:
@@ -350,18 +560,35 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
   - name: product_type
     label: Amazon product type
     widget_type: text
     required: true
+    help_text: 'The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission. Allowed: up to 100 characters.'
   - name: patches
     label: Patches
     widget_type: json
     required: true
+    help_text: 'JSON Patch operations on top-level attributes: op add, replace, merge or delete; path /attributes/<attribute name>; value a list of attribute values (optional for delete). merge works only for purchasable_offer and fulfillment_availability. Allowed: up to 100 entries.'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
+    help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+- operation_id: delete_listing
+  title: Delete a listing
+  fields:
+  - name: sku
+    label: SKU
+    widget_type: text
+    required: true
+    help_text: The seller SKU whose listing is deleted.
+  - name: issue_locale
+    label: Issue locale
+    widget_type: text
+    required: false
+    help_text: 'A locale for localization of issues. When not provided, the default language code of the first Amazon store is used. Examples: `en_US`, `fr_CA`, `fr_FR`. Localized messages default to `en_US` when localization is not available for the specified locale.'
 - operation_id: search_product_types
   title: Find product types
   fields:
@@ -369,18 +596,22 @@ forms:
     label: Keywords
     widget_type: json
     required: false
+    help_text: 'Up to 20 keywords. Allowed: up to 20 entries.'
   - name: item_name
     label: Product title
     widget_type: text
     required: false
+    help_text: 'A product title to get a product type recommendation for. Allowed: up to 500 characters.'
   - name: locale
     label: Display language
     widget_type: text
     required: false
+    help_text: 'Locale for display names, for example en_GB. Allowed: up to 10 characters.'
   - name: search_locale
     label: Search language
     widget_type: text
     required: false
+    help_text: 'Language of keywords or item_name. Allowed: up to 10 characters.'
 - operation_id: get_product_type_definition
   title: Get product type requirements
   fields:
@@ -388,34 +619,42 @@ forms:
     label: Amazon product type
     widget_type: text
     required: true
+    help_text: 'The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission. Allowed: up to 100 characters.'
   - name: requirements
     label: Requirements
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Requirement set (Amazon default LISTING).
   - name: requirements_enforced
     label: Requirements enforced
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: NOT_ENFORCED checks attribute structure without requiring every attribute (for partial updates).
   - name: locale
     label: Locale
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Language of labels in the definition.
   - name: product_type_version
     label: Product type version
     widget_type: text
     required: false
+    help_text: 'A version ID, LATEST (default) or RELEASE_CANDIDATE. Allowed: up to 100 characters.'
   - name: parentage_level
     label: Parentage level
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Resolve the schema for this variation level.
   - name: seller_specific
     label: Seller-specific values
     widget_type: boolean
     required: false
+    help_text: Fill seller-specific values such as the seller's brands (default true).
   - name: include_schema
     label: Include schema
     widget_type: boolean
     required: false
+    help_text: Download and return the JSON Schema (up to 2.5 MB; narrow it with parentage_level or requirements).
 - operation_id: check_listing_restrictions
   title: Check listing restrictions
   fields:
@@ -423,18 +662,22 @@ forms:
     label: ASIN
     widget_type: text
     required: true
+    help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
   - name: condition_type
     label: Condition
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: The item condition of the offer.
   - name: product_type
     label: Amazon product type
     widget_type: text
     required: false
+    help_text: 'The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission. Allowed: up to 100 characters.'
   - name: reason_locale
     label: Reason language
     widget_type: text
     required: false
+    help_text: 'Locale for reasons, for example en_US. Allowed: up to 5 characters.'
 - operation_id: validate_listing
   title: Validate a listing (dry run)
   fields:
@@ -442,38 +685,47 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
   - name: request_kind
     label: Request kind
-    widget_type: text
+    widget_type: select
     required: true
+    help_text: put = create_listing, patch = update_listing_attributes.
   - name: listing_kind
     label: Listing kind
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: 'offer_on_existing_asin: sell an existing Amazon catalog product (offer only). new_product: create the product and the offer (Amazon may refuse to create a new ASIN without brand registry or GTIN approval).'
   - name: asin
     label: ASIN
     widget_type: text
     required: false
+    help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
   - name: condition_type
     label: Condition
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: The item condition of the offer.
   - name: product_type
     label: Amazon product type
     widget_type: text
     required: false
+    help_text: 'The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission. Allowed: up to 100 characters.'
   - name: attributes
     label: Attributes
     widget_type: json
     required: false
+    help_text: 'Listing attributes keyed by Amazon attribute name, each a list of values as the product type definition describes them, for example {"item_name": [{"value": "Mug", "language_tag": "en_GB"}]}. A marketplace_id inside a value must be the connection''s.'
   - name: patches
     label: Patches
     widget_type: json
     required: false
+    help_text: 'JSON Patch operations on top-level attributes: op add, replace, merge or delete; path /attributes/<attribute name>; value a list of attribute values (optional for delete). merge works only for purchasable_offer and fulfillment_availability. Allowed: up to 100 entries.'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
+    help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
 - operation_id: get_own_offer
   title: Get my offer
   fields:
@@ -481,6 +733,7 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
 - operation_id: get_listing_offers
   title: Get offers on my listing
   fields:
@@ -488,14 +741,17 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
   - name: item_condition
     label: Item condition
-    widget_type: text
+    widget_type: select
     required: true
+    help_text: The condition of the offers to return.
   - name: customer_type
     label: Customer type
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Consumer (default) or Business offers.
 - operation_id: get_item_offers
   title: Get offers on an ASIN
   fields:
@@ -503,14 +759,17 @@ forms:
     label: ASIN
     widget_type: text
     required: true
+    help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
   - name: item_condition
     label: Item condition
-    widget_type: text
+    widget_type: select
     required: true
+    help_text: The condition of the offers to return.
   - name: customer_type
     label: Customer type
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Consumer (default) or Business offers.
 - operation_id: get_competitive_summary
   title: Get competitive summary
   fields:
@@ -518,14 +777,17 @@ forms:
     label: ASINs
     widget_type: json
     required: true
+    help_text: '1 to 20 distinct ASINs. Allowed: up to 20 entries.'
   - name: included_data
     label: Included data
-    widget_type: json
+    widget_type: multi_select
     required: true
+    help_text: 'The data sets to return. Allowed: up to 4 entries.'
   - name: lowest_priced_offers_conditions
     label: Lowest priced offer conditions
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'With lowestPricedOffers: the conditions to return the lowest consumer offers for (up to 5). Allowed: up to 5 entries.'
 - operation_id: get_featured_offer_expected_price
   title: Get featured offer expected price
   fields:
@@ -533,6 +795,7 @@ forms:
     label: SKUs
     widget_type: json
     required: true
+    help_text: '1 to 40 distinct seller SKUs. Allowed: up to 40 entries.'
 - operation_id: set_price
   title: Set a price
   fields:
@@ -540,26 +803,32 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
   - name: product_type
     label: Amazon product type
     widget_type: text
     required: true
+    help_text: 'The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission. Allowed: up to 100 characters.'
   - name: price
     label: Price
     widget_type: text
     required: true
+    help_text: 'The new price as a decimal string, for example "19.99". Allowed: up to 24 characters.'
   - name: currency_code
     label: Currency
     widget_type: text
     required: true
+    help_text: 'ISO 4217 code of the marketplace currency, for example GBP. Allowed: up to 3 characters.'
   - name: business_price
     label: Business price
     widget_type: text
     required: false
+    help_text: 'Optional B2B price as a decimal string (Amazon Business sellers). Allowed: up to 24 characters.'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
+    help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
 - operation_id: get_fba_inventory
   title: Get FBA inventory
   fields:
@@ -567,14 +836,17 @@ forms:
     label: SKUs
     widget_type: json
     required: false
+    help_text: 'Up to 50 seller SKUs. Allowed: up to 50 entries.'
   - name: start_date_time
     label: Changed since
     widget_type: text
     required: false
+    help_text: 'Only summaries changed since this time (at most 18 months ago). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: get_fbm_quantity
   title: Get merchant quantity
   fields:
@@ -582,6 +854,7 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
 - operation_id: set_fbm_quantity
   title: Set merchant quantity
   fields:
@@ -589,44 +862,828 @@ forms:
     label: SKU
     widget_type: text
     required: true
+    help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
   - name: product_type
     label: Amazon product type
     widget_type: text
     required: true
+    help_text: 'The Amazon product type of the listing, for example LUGGAGE (see search_product_types). Amazon requires it for every listing submission. Allowed: up to 100 characters.'
   - name: quantity
     label: Quantity
-    widget_type: number
+    widget_type: integer
     required: true
+    help_text: 'Units available for sale, 0 or more. Allowed: from 0 to 99999999.'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
+    help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+- operation_id: fba_list_prep_details
+  title: 'FBA: list prep details'
+  fields:
+  - name: mskus
+    label: MSKUs
+    widget_type: json
+    required: true
+    help_text: 'Up to 100 seller SKUs. Allowed: up to 100 entries.'
+    placeholder: '["MUG-BLUE-01"]'
+- operation_id: fba_set_prep_details
+  title: 'FBA: set prep details'
+  fields:
+  - name: msku_prep_details
+    label: MSKU prep details
+    widget_type: json
+    required: true
+    help_text: 'A list of MSKUs and related prep details. Allowed: up to 100 entries.'
+    placeholder: '[{"msku": "MUG-BLUE-01", "prep_category": "FRAGILE", "prep_types": ["ITEM_BUBBLEWRAP"]}]'
+- operation_id: fba_create_marketplace_item_labels
+  title: 'FBA: create item labels'
+  fields:
+  - name: height
+    label: Label height (mm)
+    widget_type: number
+    required: false
+    help_text: 'Thermal labels: 25 to 100 millimetres. Allowed: from 25 to 100.'
+  - name: label_type
+    label: Label type
+    widget_type: select
+    required: true
+    help_text: 'Indicates the type of print type for a given label. Values: STANDARD_FORMAT: -; THERMAL_PRINTING: -.'
+    placeholder: STANDARD_FORMAT
+  - name: locale_code
+    label: Locale code
+    widget_type: text
+    required: false
+    help_text: 'The locale code constructed from ISO 639 language code and ISO 3166-1 alpha-2 standard of country codes separated by an underscore character. Format (checked by Amazon): ^[a-z]{2}_[A-Z]{2}$'
+  - name: msku_quantities
+    label: MSKUs and quantities
+    widget_type: json
+    required: true
+    help_text: '1 to 100 MSKUs, 1 to 10,000 labels each. Allowed: up to 100 entries.'
+    placeholder: '[{"msku": "MUG-BLUE-01", "quantity": 24}]'
+  - name: page_type
+    label: Page type
+    widget_type: select
+    required: false
+    help_text: 'The page type to use to print the labels. Possible values: ''A4_21'', ''A4_24'', ''A4_24_64x33'', ''A4_24_66x35'', ''A4_24_70x36'', ''A4_24_70x37'', ''A4_24i'', ''A4_27'', ''A4_40_52x29'', ''A4_44_48x25'', ''Letter_30''. Values: A4_21: -; A4_24: -; A4_24_64x33: -; A4_24_66x35: -; A4_24_70x36: -; A4_24_70x37: -; A4_24i: -; A4_27: -; A4_40_52x29: -; A4_44_48x25: -; Letter_30: -.'
+    placeholder: A4_21
+  - name: width
+    label: Label width (mm)
+    widget_type: number
+    required: false
+    help_text: 'Thermal labels: 25 to 100 millimetres. Allowed: from 25 to 100.'
+- operation_id: fba_create_inbound_plan
+  title: 'FBA: create inbound plan'
+  fields:
+  - name: items
+    label: Items
+    widget_type: json
+    required: true
+    help_text: 'MSKUs, quantities and who preps and labels them. Allowed: up to 2000 entries.'
+    placeholder: '[{"msku": "MUG-BLUE-01", "quantity": 24, "prep_owner": "SELLER", "label_owner": "SELLER"}]'
+  - name: name
+    label: Plan name
+    widget_type: text
+    required: false
+    help_text: 'Name for the Inbound Plan. If one isn''t provided, a default name will be provided. Allowed: up to 40 characters.'
+  - name: source_address
+    label: Ship-from address
+    widget_type: json
+    required: true
+    help_text: 'Specific details to identify a place. Example: {"name": "Warehouse 1", "company_name": "Example Ltd", "address_line1": "1 Example Street", "city": "Seattle", "state_or_province_code": "WA", "postal_code": "98101", "country_code": "US", "phone_number": "+12065550100", "email": "warehouse@example.com"}'
+- operation_id: fba_list_inbound_plans
+  title: 'FBA: list inbound plans'
+  fields:
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 30.'
+  - name: status
+    label: Status
+    widget_type: select
+    required: false
+    help_text: 'The status of an inbound plan. Values: ACTIVE: An inbound plan that is being worked on; VOIDED: An inbound plan with all shipment cancelled and can no longer be modified; SHIPPED: A completed inbound plan. Only minor modifications can be made at this time.'
+  - name: sort_by
+    label: Sort by
+    widget_type: select
+    required: false
+    help_text: 'Sort by field. Values: LAST_UPDATED_TIME: Last updated time of the inbound plan; CREATION_TIME: Inbound plan creation time.'
+  - name: sort_order
+    label: Sort order
+    widget_type: select
+    required: false
+    help_text: 'The sort order. Values: ASC: Ascending order; DESC: Descending order.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_get_inbound_plan
+  title: 'FBA: get inbound plan'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+- operation_id: fba_cancel_inbound_plan
+  title: 'FBA: cancel inbound plan'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+- operation_id: fba_get_inbound_operation_status
+  title: 'FBA: get operation status'
+  fields:
+  - name: operation_id
+    label: Operation ID
+    widget_type: text
+    required: true
+    help_text: 'operation_id returned by an asynchronous FBA method. Allowed: up to 38 characters.'
+- operation_id: fba_list_inbound_plan_items
+  title: 'FBA: list plan items'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 1000.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_list_inbound_plan_boxes
+  title: 'FBA: list plan boxes'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 1000.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_list_inbound_plan_pallets
+  title: 'FBA: list plan pallets'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 1000.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_update_inbound_plan_name
+  title: 'FBA: rename inbound plan'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: name
+    label: Name
+    widget_type: text
+    required: true
+    help_text: 'A human-readable name to update the inbound plan name to. Allowed: up to 40 characters.'
+- operation_id: fba_generate_packing_options
+  title: 'FBA: generate packing options'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+- operation_id: fba_list_packing_options
+  title: 'FBA: list packing options'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 20.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_confirm_packing_option
+  title: 'FBA: confirm packing option'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: packing_option_id
+    label: Packing option ID
+    widget_type: text
+    required: true
+    help_text: 'Identifier of a packing option. Format (checked by Amazon): ^[a-zA-Z0-9-]*$ Allowed: up to 38 characters.'
+- operation_id: fba_list_packing_group_items
+  title: 'FBA: list packing group items'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: packing_group_id
+    label: Packing group ID
+    widget_type: text
+    required: true
+    help_text: 'Identifier of a packing group. Format (checked by Amazon): ^[a-zA-Z0-9-]*$ Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 100.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_list_packing_group_boxes
+  title: 'FBA: list packing group boxes'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: packing_group_id
+    label: Packing group ID
+    widget_type: text
+    required: true
+    help_text: 'Identifier of a packing group. Format (checked by Amazon): ^[a-zA-Z0-9-]*$ Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 100.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_set_packing_information
+  title: 'FBA: set packing information'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: package_groupings
+    label: Package groupings
+    widget_type: json
+    required: true
+    help_text: 'List of packing information for the inbound plan. Example: [{"packing_group_id": "pg1234abcd-1234-abcd-5678-1234abcd5678", "boxes": [{"content_information_source": "BOX_CONTENT_PROVIDED", "quantity": 2, "dimensions": {"length": 40, "width": 30, "height": 30, "unit_of_measurement": "CM"}, "weight": {"value": 9.5, "unit": "KG"}, "items": [{"msku": "MUG-BLUE-01", "quantity": 12, "prep_owner": "SELLER", "label_owner": "SELLER"}]}]}]'
+- operation_id: fba_generate_placement_options
+  title: 'FBA: generate placement options'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: custom_placement
+    label: Custom placement
+    widget_type: json
+    required: false
+    help_text: Custom placement options you want to add to the plan. This is only used for the India (IN - A21TJRUUN4KGV) marketplace.
+- operation_id: fba_list_placement_options
+  title: 'FBA: list placement options'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 20.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_confirm_placement_option
+  title: 'FBA: confirm placement option'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: placement_option_id
+    label: Placement option ID
+    widget_type: text
+    required: true
+    help_text: 'The identifier of a placement option. A placement option represents the shipment splits and destinations of SKUs. Format (checked by Amazon): ^[a-zA-Z0-9-]*$ Allowed: up to 38 characters.'
+- operation_id: fba_generate_transportation_options
+  title: 'FBA: generate transportation options'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: placement_option_id
+    label: Placement option ID
+    widget_type: text
+    required: true
+    help_text: 'The placement option to generate transportation options for. Format (checked by Amazon): ^[a-zA-Z0-9-]*$ Allowed: up to 38 characters.'
+  - name: shipment_transportation_configurations
+    label: Shipment transportation configurations
+    widget_type: json
+    required: true
+    help_text: 'List of shipment transportation configurations. Example: [{"shipment_id": "sh1234abcd-1234-abcd-5678-1234abcd5678", "ready_to_ship_window": {"start": "2026-11-12T00:00:00Z"}, "contact_information": {"name": "Jane Doe", "phone_number": "+12065550100", "email": "jane@example.com"}}]'
+- operation_id: fba_list_transportation_options
+  title: 'FBA: list transportation options'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 20.'
+  - name: placement_option_id
+    label: Placement option ID
+    widget_type: text
+    required: false
+    help_text: 'The placement option to get transportation options for. Either `placementOptionId` or `shipmentId` must be specified. Format (checked by Amazon): ^[a-zA-Z0-9-]*$ Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: false
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_confirm_transportation_options
+  title: 'FBA: confirm transportation options'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: transportation_selections
+    label: Transportation selections
+    widget_type: json
+    required: true
+    help_text: One shipment_id with its chosen transportation_option_id per shipment.
+    placeholder: '[{"shipment_id": "sh1234abcd-1234-abcd-5678-1234abcd5678", "transportation_option_id": "to1234abcd-1234-abcd-5678-1234abcd5678"}]'
+- operation_id: fba_generate_delivery_window_options
+  title: 'FBA: generate delivery window options'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+- operation_id: fba_list_delivery_window_options
+  title: 'FBA: list delivery window options'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 100.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_confirm_delivery_window_options
+  title: 'FBA: confirm delivery window'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: delivery_window_option_id
+    label: Delivery window option ID
+    widget_type: text
+    required: true
+    help_text: 'The id of the delivery window option to be confirmed. Format (checked by Amazon): ^[a-zA-Z0-9-]*$ Allowed: up to 38 characters.'
+- operation_id: fba_get_shipment
+  title: 'FBA: get shipment'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+- operation_id: fba_list_shipment_items
+  title: 'FBA: list shipment items'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 1000.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_list_shipment_boxes
+  title: 'FBA: list shipment boxes'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 1000.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_list_shipment_pallets
+  title: 'FBA: list shipment pallets'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'How many rows one page returns. Allowed: from 1 to 1000.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_update_shipment_name
+  title: 'FBA: rename shipment'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: name
+    label: Name
+    widget_type: text
+    required: true
+    help_text: 'A human-readable name to update the shipment name to. Allowed: up to 100 characters.'
+- operation_id: fba_update_shipment_source_address
+  title: 'FBA: change shipment source address'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: address
+    label: Ship-from address
+    widget_type: json
+    required: true
+    help_text: 'Specific details to identify a place. Example: {"name": "Warehouse 1", "company_name": "Example Ltd", "address_line1": "1 Example Street", "city": "Seattle", "state_or_province_code": "WA", "postal_code": "98101", "country_code": "US", "phone_number": "+12065550100", "email": "warehouse@example.com"}'
+- operation_id: fba_update_shipment_tracking_details
+  title: 'FBA: set shipment tracking'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: tracking_details
+    label: Tracking details
+    widget_type: json
+    required: true
+    help_text: Tracking information input for Less-Than-Truckload (LTL) and Small Parcel Delivery (SPD) shipments.
+    placeholder: '{"ltl_tracking_detail": {"bill_of_lading_number": "billOfLadingNumber", "freight_bill_number": ["freightBillNumber1"]}}'
+- operation_id: fba_get_item_eligibility_preview
+  title: 'FBA: check item eligibility'
+  fields:
+  - name: asin
+    label: ASIN
+    widget_type: text
+    required: true
+    help_text: The ASIN of the item for which you want an eligibility preview.
+    placeholder: B000000000
+  - name: program
+    label: Program
+    widget_type: select
+    required: true
+    help_text: The program that you want to check eligibility against.
+- operation_id: fba_get_labels
+  title: 'FBA: get box or pallet labels'
+  fields:
+  - name: shipment_confirmation_id
+    label: Shipment confirmation ID
+    widget_type: text
+    required: true
+    help_text: 'The shipment''s FBA… ID: shipment_confirmation_id from fba_get_shipment. Not the 2024-03-20 shipment_id (sh…).'
+    placeholder: FBA1234ABCD
+  - name: page_type
+    label: Page type
+    widget_type: select
+    required: true
+    help_text: 'The page type to use to print the labels. Submitting a PageType value that is not supported in your marketplace returns an error. Values: PackageLabel_Letter_2: Two labels per US Letter label sheet. This is the only valid value for Amazon-partnered shipments in the US that use United Parcel Service (UPS) as the carrier. Supported in Canada and the US; PackageLabel_Letter_4: Four labels per US Letter label sheet. This is the only valid value for non-Amazon-partnered shipments in the US. Supported in Canada and the US; PackageLabel_Letter_6: Six labels per US Letter label sheet. This is the only valid value for non-Amazon-partnered shipments in the US. Supported in Canada and the US; PackageLabel_Letter_6_CarrierLeft: PackageLabel_Letter_6_CarrierLeft; PackageLabel_A4_2: Two labels per A4 label sheet; PackageLabel_A4_4: Four labels per A4 label sheet; PackageLabel_Plain_Paper: One label per sheet of US Letter paper. Only for non-Amazon-partnered shipments; PackageLabel_Plain_Paper_CarrierBottom: PackageLabel_Plain_Paper_CarrierBottom; PackageLabel_Thermal: For use of a thermal printer. Supports Amazon-partnered shipments with UPS; PackageLabel_Thermal_Unified: For use of a thermal p…'
+  - name: label_type
+    label: Label type
+    widget_type: select
+    required: true
+    help_text: 'The type of labels requested. Values: BARCODE_2D: This option is provided only for shipments where 2D Barcodes will be applied to all packages. Amazon strongly recommends using the UNIQUE option to get package labels instead of the BARCODE_2D option; UNIQUE: Document data for printing unique shipping labels and carrier labels for an inbound shipment; PALLET: Document data for printing pallet labels for a Less Than Truckload/Full Truckload (LTL/FTL) inbound shipment.'
+  - name: number_of_packages
+    label: Number of packages
+    widget_type: integer
+    required: false
+    help_text: The number of packages in the shipment.
+  - name: package_labels_to_print
+    label: Box IDs to print
+    widget_type: json
+    required: false
+    help_text: 'UNIQUE labels: the box IDs from fba_list_shipment_boxes.'
+  - name: number_of_pallets
+    label: Number of pallets
+    widget_type: integer
+    required: false
+    help_text: The number of pallets in the shipment. This returns four identical labels for each pallet.
+  - name: page_size
+    label: Labels per page request
+    widget_type: integer
+    required: false
+    help_text: 'Non-partnered LTL: how many labels to return.'
+  - name: page_start_index
+    label: Start index
+    widget_type: integer
+    required: false
+    help_text: 'Non-partnered LTL: the first label to return.'
+- operation_id: fba_get_bill_of_lading
+  title: 'FBA: get bill of lading'
+  fields:
+  - name: shipment_confirmation_id
+    label: Shipment confirmation ID
+    widget_type: text
+    required: true
+    help_text: 'The shipment''s FBA… ID: shipment_confirmation_id from fba_get_shipment. Not the 2024-03-20 shipment_id (sh…).'
+    placeholder: FBA1234ABCD
+- operation_id: fba_list_item_compliance_details
+  title: 'FBA India: list compliance details'
+  fields:
+  - name: mskus
+    label: MSKUs
+    widget_type: json
+    required: true
+    help_text: 'A list of merchant SKUs, a merchant-supplied identifier of a specific SKU. Allowed: up to 100 entries.'
+    placeholder: '["MUG-BLUE-01"]'
+- operation_id: fba_update_item_compliance_details
+  title: 'FBA India: update compliance details'
+  fields:
+  - name: msku
+    label: MSKU
+    widget_type: text
+    required: true
+    help_text: 'The merchant SKU, a merchant-supplied identifier for a specific SKU. Allowed: up to 255 characters.'
+  - name: tax_details
+    label: Tax details
+    widget_type: json
+    required: true
+    help_text: Information used to determine the tax compliance.
+    placeholder: '{"hsn_code": "69120010", "declared_value": {"amount": 499.0, "code": "INR"}, "tax_rates": [{"tax_type": "GST", "gst_rate": 18, "cess_rate": 0}]}'
+- operation_id: fba_generate_self_ship_appointment_slots
+  title: 'FBA: generate appointment slots'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: desired_end_date
+    label: Desired end date
+    widget_type: text
+    required: false
+    help_text: The desired end date. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format.
+  - name: desired_start_date
+    label: Desired start date
+    widget_type: text
+    required: false
+    help_text: The desired start date. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format.
+- operation_id: fba_get_self_ship_appointment_slots
+  title: 'FBA: list appointment slots'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: page_size
+    label: Page size
+    widget_type: integer
+    required: false
+    help_text: 'The number of self ship appointment slots to return in the response matching the given query. Allowed: from 1 to 100.'
+  - name: next_token
+    label: Continuation token
+    widget_type: text
+    required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
+- operation_id: fba_schedule_self_ship_appointment
+  title: 'FBA: schedule appointment'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: slot_id
+    label: Slot ID
+    widget_type: text
+    required: true
+    help_text: 'An identifier to a self-ship appointment slot. Format (checked by Amazon): ^[a-zA-Z0-9-]*$ Allowed: up to 38 characters.'
+  - name: reason_comment
+    label: Reason comment
+    widget_type: select
+    required: false
+    help_text: 'Reason for cancelling or rescheduling a self-ship appointment. Values: APPOINTMENT_REQUESTED_BY_MISTAKE: -; VEHICLE_DELAY: -; SLOT_NOT_SUITABLE: -; OUTSIDE_CARRIER_BUSINESS_HOURS: -; UNFAVOURABLE_EXTERNAL_CONDITIONS: -; PROCUREMENT_DELAY: -; SHIPPING_PLAN_CHANGED: -; INCREASED_QUANTITY: -; OTHER: -.'
+- operation_id: fba_cancel_self_ship_appointment
+  title: 'FBA: cancel appointment'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
+  - name: reason_comment
+    label: Reason comment
+    widget_type: select
+    required: false
+    help_text: 'Reason for cancelling or rescheduling a self-ship appointment. Values: APPOINTMENT_REQUESTED_BY_MISTAKE: -; VEHICLE_DELAY: -; SLOT_NOT_SUITABLE: -; OUTSIDE_CARRIER_BUSINESS_HOURS: -; UNFAVOURABLE_EXTERNAL_CONDITIONS: -; PROCUREMENT_DELAY: -; SHIPPING_PLAN_CHANGED: -; INCREASED_QUANTITY: -; OTHER: -.'
+- operation_id: fba_get_delivery_challan_document
+  title: 'FBA India: get delivery challan'
+  fields:
+  - name: inbound_plan_id
+    label: Inbound plan ID
+    widget_type: text
+    required: true
+    help_text: 'inbound_plan_id from fba_create_inbound_plan or fba_list_inbound_plans (wf…). Allowed: up to 38 characters.'
+  - name: shipment_id
+    label: Shipment ID
+    widget_type: text
+    required: true
+    help_text: 'The 2024-03-20 shipment_id (sh…) from fba_get_inbound_plan or a placement option. Not the FBA… shipment confirmation ID. Allowed: up to 38 characters.'
 - operation_id: upload_feed_document
   title: Upload a feed document
   fields:
   - name: feed_type
     label: Feed type
-    widget_type: text
+    widget_type: select
     required: true
+    help_text: The Amazon feed type. Only JSON_LISTINGS_FEED is supported.
   - name: content
     label: Feed content
     widget_type: json
     required: false
+    help_text: The JSON_LISTINGS_FEED document as a JSON object (header and messages). Give this or content_file, not both.
   - name: content_file
     label: Feed file
     widget_type: json
     required: false
+    help_text: A JSON feed file from an earlier step, up to 10 MB. Give this or content, not both.
 - operation_id: create_feed
   title: Submit a feed
   fields:
   - name: feed_type
     label: Feed type
-    widget_type: text
+    widget_type: select
     required: true
+    help_text: The Amazon feed type. Only JSON_LISTINGS_FEED is supported.
   - name: feed_document_id
     label: Feed document ID
     widget_type: text
     required: true
+    help_text: 'The feed_document_id upload_feed_document returned. Allowed: up to 256 characters.'
 - operation_id: get_feed
   title: Get feed status
   fields:
@@ -634,33 +1691,40 @@ forms:
     label: Feed ID
     widget_type: text
     required: true
+    help_text: 'The feed_id create_feed returned. Allowed: up to 64 characters.'
 - operation_id: search_feeds
   title: Find feeds
   fields:
   - name: feed_types
     label: Feed types
-    widget_type: json
+    widget_type: multi_select
     required: true
+    help_text: 'Feed types to find. Allowed: up to 1 entries.'
   - name: processing_statuses
     label: Processing statuses
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Only feeds in these statuses. Allowed: up to 5 entries.'
   - name: created_since
     label: Created since
     widget_type: text
     required: false
+    help_text: 'Feeds created at or after this time (default: 90 days ago). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: created_until
     label: Created until
     widget_type: text
     required: false
+    help_text: 'Feeds created before this time (default: now). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: page_size
     label: Page size
-    widget_type: number
+    widget_type: integer
     required: false
+    help_text: 'Feeds per page, 1 to 100. Allowed: from 1 to 100.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: get_feed_result
   title: Get feed result
   fields:
@@ -668,41 +1732,58 @@ forms:
     label: Feed ID
     widget_type: text
     required: true
+    help_text: 'The feed_id create_feed returned. Allowed: up to 64 characters.'
   - name: save_report_file
     label: Save the report as a file
     widget_type: boolean
     required: false
+    help_text: Also store Amazon's full processing report as a JSON file.
+- operation_id: cancel_feed
+  title: Cancel a feed
+  fields:
+  - name: feed_id
+    label: Feed ID
+    widget_type: text
+    required: true
+    help_text: feed_id from create_feed.
 - operation_id: list_financial_records
   title: List financial records
   fields:
   - name: api_version
     label: Amazon API version
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: 2024-06-19 (listTransactions, default) or v0 (financial events; Amazon removes listFinancialEvents, listFinancialEventsByGroupId and listFinancialEventsByOrderId on 2027-08-27). The two versions return different records with no shared ID; do not mix them.
   - name: posted_after
     label: Posted after
     widget_type: text
     required: false
+    help_text: 'Records posted at or after this time; at least two minutes in the past. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: posted_before
     label: Posted before
     widget_type: text
     required: false
+    help_text: 'Records posted before this time (default: two minutes ago). At most 180 days after posted_after. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: transaction_status
     label: Transaction status (2024-06-19)
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Only transactions in this status.
   - name: omit_marketplace_filter
     label: Do not filter by marketplace (2024-06-19)
     widget_type: boolean
     required: false
+    help_text: 'Leave out Amazon''s marketplace filter. Amazon''s own note: to get MFN orders in the US store, do not send the marketplace. Records may then cover other marketplaces of the seller.'
   - name: max_results
     label: Page size (v0)
-    widget_type: number
+    widget_type: integer
     required: false
+    help_text: 'Events per page, 1 to 100. Allowed: from 1 to 100.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: list_financial_records_for_order
   title: List financial records of an order
   fields:
@@ -710,26 +1791,32 @@ forms:
     label: Amazon order ID
     widget_type: text
     required: true
+    help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
   - name: api_version
     label: Amazon API version
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: 2024-06-19 (listTransactions, default) or v0 (financial events; Amazon removes listFinancialEvents, listFinancialEventsByGroupId and listFinancialEventsByOrderId on 2027-08-27). The two versions return different records with no shared ID; do not mix them.
   - name: transaction_status
     label: Transaction status (2024-06-19)
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Only transactions in this status.
   - name: omit_marketplace_filter
     label: Do not filter by marketplace (2024-06-19)
     widget_type: boolean
     required: false
+    help_text: 'Leave out Amazon''s marketplace filter. Amazon''s own note: to get MFN orders in the US store, do not send the marketplace. Records may then cover other marketplaces of the seller.'
   - name: max_results
     label: Page size (v0)
-    widget_type: number
+    widget_type: integer
     required: false
+    help_text: 'Events per page, 1 to 100. Allowed: from 1 to 100.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: list_financial_event_groups
   title: List financial event groups
   fields:
@@ -737,18 +1824,22 @@ forms:
     label: Started after
     widget_type: text
     required: false
+    help_text: 'Groups opened at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: started_before
     label: Started before
     widget_type: text
     required: false
+    help_text: 'Groups opened before this time; at most 180 days after started_after. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: max_results
     label: Page size
-    widget_type: number
+    widget_type: integer
     required: false
+    help_text: 'Groups per page, 1 to 100. Allowed: from 1 to 100.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: list_financial_events_by_group
   title: List financial records of a group
   fields:
@@ -756,76 +1847,93 @@ forms:
     label: Financial event group ID
     widget_type: text
     required: true
+    help_text: 'A group_id from list_financial_event_groups. Allowed: up to 256 characters.'
   - name: api_version
     label: Amazon API version
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: 2024-06-19 (listTransactions, default) or v0 (financial events; Amazon removes listFinancialEvents, listFinancialEventsByGroupId and listFinancialEventsByOrderId on 2027-08-27). The two versions return different records with no shared ID; do not mix them.
   - name: posted_after
     label: Posted after
     widget_type: text
     required: false
+    help_text: 'Records posted at or after this time; at least two minutes in the past. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: posted_before
     label: Posted before
     widget_type: text
     required: false
+    help_text: 'Records posted before this time (default: two minutes ago). At most 180 days after posted_after. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: transaction_status
     label: Transaction status (2024-06-19)
-    widget_type: text
+    widget_type: select
     required: false
+    help_text: Only transactions in this status.
   - name: omit_marketplace_filter
     label: Do not filter by marketplace (2024-06-19)
     widget_type: boolean
     required: false
+    help_text: 'Leave out Amazon''s marketplace filter. Amazon''s own note: to get MFN orders in the US store, do not send the marketplace. Records may then cover other marketplaces of the seller.'
   - name: max_results
     label: Page size (v0)
-    widget_type: number
+    widget_type: integer
     required: false
+    help_text: 'Events per page, 1 to 100. Allowed: from 1 to 100.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: search_reports
   title: Find reports
   fields:
   - name: report_types
     label: Report types
-    widget_type: json
+    widget_type: multi_select
     required: true
+    help_text: 'Report types to find. Allowed: up to 10 entries.'
   - name: processing_statuses
     label: Processing statuses
-    widget_type: json
+    widget_type: multi_select
     required: false
+    help_text: 'Only reports in these statuses. Allowed: up to 5 entries.'
   - name: created_since
     label: Created since
     widget_type: text
     required: false
+    help_text: 'Reports created at or after this time (default: 90 days ago). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: created_until
     label: Created until
     widget_type: text
     required: false
+    help_text: 'Reports created before this time (default: now). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: page_size
     label: Page size
-    widget_type: number
+    widget_type: integer
     required: false
+    help_text: 'Reports per page, 1 to 100. Allowed: from 1 to 100.'
   - name: next_token
     label: Continuation token
     widget_type: text
     required: false
+    help_text: 'next_token from the previous page of the same search, with the same filters and connection. Leave empty for the first page. Allowed: up to 4096 characters.'
 - operation_id: create_report
   title: Request a report
   fields:
   - name: report_type
     label: Report type
-    widget_type: text
+    widget_type: select
     required: true
+    help_text: 'Requestable: GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE. GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2 cannot be requested; Amazon generates it.'
   - name: data_start_time
     label: Data start
     widget_type: text
     required: false
+    help_text: 'Start of the period the report covers. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
   - name: data_end_time
     label: Data end
     widget_type: text
     required: false
+    help_text: 'End of the period the report covers. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
 - operation_id: get_report
   title: Get report status
   fields:
@@ -833,6 +1941,7 @@ forms:
     label: Report ID
     widget_type: text
     required: true
+    help_text: 'The report_id create_report or search_reports returned. Allowed: up to 64 characters.'
 - operation_id: download_report
   title: Download a report
   fields:
@@ -840,3 +1949,12 @@ forms:
     label: Report ID
     widget_type: text
     required: true
+    help_text: 'The report_id create_report or search_reports returned. Allowed: up to 64 characters.'
+- operation_id: cancel_report
+  title: Cancel a report
+  fields:
+  - name: report_id
+    label: Report ID
+    widget_type: text
+    required: true
+    help_text: report_id from create_report.

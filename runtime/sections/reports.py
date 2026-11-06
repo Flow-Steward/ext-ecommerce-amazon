@@ -21,6 +21,8 @@ URL it is downloaded from is never returned. Report content is not parsed.
 
 from __future__ import annotations
 
+from .. import amazon_api
+
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -430,4 +432,48 @@ OPERATIONS: tuple[Operation, ...] = (
         artifact_output=REPORT_OUTPUT,
         pii=True,
     ),
+)
+
+_CANCEL_REPORT_NOTE = (
+    "Amazon accepted the cancellation. Only a report still IN_QUEUE can be cancelled; read it with "
+    "get_report to see processing_status CANCELLED."
+)
+
+
+def _cancel_report_result(context, _converted, _response):
+    return {
+        "report_id": context.input["report_id"],
+        "cancellation_requested": True,
+        "note": _CANCEL_REPORT_NOTE,
+    }
+
+
+OPERATIONS = OPERATIONS + amazon_api.operations(
+    (
+        amazon_api.Method(
+            operation_id="cancel_report",
+            display_name="Cancel a report",
+            description=(
+                "Cancels a requested report that Amazon has not started processing (status IN_QUEUE). The "
+                "nine supported report types and download_report are unchanged."
+            ),
+            section="reports",
+            namespace="reports_2021_06_30",
+            amazon_operation="cancelReport",
+            roles=(_ROLE_REPORTS,),
+            mutating=True,
+            effect_kind="amazon_report_cancellation",
+            inputs={
+                "report_id": {"title": "Report ID", "description": "report_id from create_report."}
+            },
+            read_back=("get_report",),
+            result=_cancel_report_result,
+            outputs=(
+                out("report_id", TEXT),
+                out("cancellation_requested", BOOLEAN),
+                out("note", TEXT),
+            ),
+            pii=False,
+        ),
+    )
 )

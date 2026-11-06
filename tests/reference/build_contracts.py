@@ -12,6 +12,7 @@ changing the registry.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,7 @@ from typing import Any
 import yaml
 
 from runtime.catalog import CATEGORY, CHANNEL, OPERATIONS
+from runtime.marketplaces import MARKETPLACE_CODES
 from runtime.connection import CONNECTION_TYPE_ID
 from runtime.registry import Operation
 
@@ -93,7 +95,7 @@ def operation_manifest() -> dict[str, Any]:
         entry: dict[str, Any] = {
             "operation_id": row.operation_id,
             "display_name": row.display_name,
-            "description": row.description,
+            "description": described(row),
             "operation_kind": "action" if row.mutating else row.kind,
             "category": CATEGORY,
         }
@@ -112,31 +114,82 @@ def operation_manifest() -> dict[str, Any]:
     return {"operations": operations}
 
 
+def described(row: Operation) -> str:
+    """The method's description with its marketplace and program limits, if any."""
+    if row.availability and row.availability not in row.description:
+        return f"{row.description} Availability: {row.availability}"
+    return row.description
+
+
 def _widget(spec: Mapping[str, Any]) -> str:
     declared = spec.get("type")
     types = [declared] if isinstance(declared, str) else list(declared or [])
-    if "array" in types or "object" in types:
+    if "enum" in spec:
+        return "select"
+    if "array" in types:
+        items = spec.get("items") if isinstance(spec.get("items"), Mapping) else {}
+        return "multi_select" if "enum" in items else "json"
+    if "object" in types:
         return "json"
     if "boolean" in types:
         return "boolean"
-    if "integer" in types or "number" in types:
+    if "integer" in types:
+        return "integer"
+    if "number" in types:
         return "number"
     return "text"
+
+
+#: A placeholder is a hint, not documentation: long JSON examples stay in the schema.
+MAX_PLACEHOLDER = 160
+
+
+def _placeholder(spec: Mapping[str, Any]) -> str:
+    examples = spec.get("examples")
+    if not isinstance(examples, list) or not examples:
+        return ""
+    example = examples[0]
+    text = example if isinstance(example, str) else json.dumps(example, ensure_ascii=False)
+    return text if len(text) <= MAX_PLACEHOLDER else ""
+
+
+def _help(spec: Mapping[str, Any]) -> str:
+    parts = [str(spec.get("description") or "").strip()]
+    limits = []
+    if "minimum" in spec or "maximum" in spec:
+        limits.append(f"from {spec.get('minimum', '…')} to {spec.get('maximum', '…')}")
+    if "maxLength" in spec:
+        limits.append(f"up to {spec['maxLength']} characters")
+    if "maxItems" in spec:
+        limits.append(f"up to {spec['maxItems']} entries")
+    if limits:
+        parts.append("Allowed: " + ", ".join(limits) + ".")
+    examples = spec.get("examples")
+    if isinstance(examples, list) and examples and not _placeholder(spec):
+        parts.append("Example: " + json.dumps(examples[0], ensure_ascii=False))
+    return " ".join(part for part in parts if part)
 
 
 def step_ui_manifest() -> dict[str, Any]:
     forms: list[dict[str, Any]] = []
     for row in OPERATIONS:
-        fields = [
-            {
+        fields = []
+        for name, spec in row.properties.items():
+            if name == "connection_ref":
+                continue
+            field: dict[str, Any] = {
                 "name": name,
                 "label": str(spec.get("title") or name.replace("_", " ").capitalize()),
                 "widget_type": _widget(spec),
                 "required": name in row.required,
             }
-            for name, spec in row.properties.items()
-            if name != "connection_ref"
-        ]
+            help_text = _help(spec)
+            if help_text:
+                field["help_text"] = help_text
+            placeholder = _placeholder(spec)
+            if placeholder:
+                field["placeholder"] = placeholder
+            fields.append(field)
         forms.append(
             {"operation_id": row.operation_id, "title": row.display_name, "fields": fields}
         )
@@ -153,7 +206,7 @@ def action_manifest() -> dict[str, Any]:
         required_scopes = list(REQUIRED_SCOPES)
         if row.artifact_input is not None:
             required_scopes.append("artifact:read")
-        if row.artifact_output is not None:
+        if row.artifact_outputs:
             required_scopes.append("artifact:write")
         entry: dict[str, Any] = {
             "action_id": row.operation_id,
@@ -196,10 +249,10 @@ def artifact_policies() -> dict[str, Any]:
                     "max_size_bytes": binding.max_size_bytes,
                 }
             ]
-        if row.artifact_output is not None:
-            binding = row.artifact_output
-            entry["outputs"] = [
-                {
+        if row.artifact_outputs:
+            outputs: list[dict[str, Any]] = []
+            for binding in row.artifact_outputs:
+                item: dict[str, Any] = {
                     "kind": "artifact",
                     "value_type": "artifact_handle",
                     "binding_key": binding.binding_key,
@@ -209,7 +262,12 @@ def artifact_policies() -> dict[str, Any]:
                     "max_size_env": "FS_EXTENSION_ARTIFACT_MAX_BYTES",
                     "retention_class": ARTIFACT_RETENTION,
                 }
-            ]
+                if binding.presentation_claim:
+                    # ADR 0045: the real file name and MIME arrive as a claim in
+                    # this result field once the document has been read.
+                    item["presentation"] = {"claim_output": binding.presentation_claim}
+                outputs.append(item)
+            entry["outputs"] = outputs
         if len(entry) > 1:
             policies.append(entry)
     return {"artifact_policies": policies}
@@ -264,8 +322,27 @@ def manifest_with_artifact_policies(current: str) -> str:
     return current[:start] + artifact_policies_block() + current[end:]
 
 
+def _markets(row: Operation) -> str:
+    if not row.contacts_amazon:
+        return "n/a"
+    if not row.marketplaces:
+        return "all 23"
+    if len(row.marketplaces) > 12:
+        missing = [code for code in MARKETPLACE_CODES if code not in row.marketplaces]
+        return "all except " + ", ".join(missing)
+    return ", ".join(row.marketplaces)
+
+
+def _file(row: Operation) -> str:
+    if row.artifact_input is not None:
+        return "reads a file"
+    if row.artifact_outputs:
+        return "writes a file"
+    return "no"
+
+
 def operation_matrix() -> str:
-    """The method → Amazon operation → version → roles → effect table."""
+    """The method → Amazon operation → version → roles → markets → effect table."""
     lines = [
         "# Operation matrix",
         "",
@@ -275,8 +352,9 @@ def operation_matrix() -> str:
         "Every operation runs against one connection, i.e. one seller account in one "
         "marketplace; the marketplace and the Seller ID always come from the connection.",
         "",
-        "| Method | Section | Amazon operations | Roles | External effect | Personal data |",
-        "|---|---|---|---|---|---|",
+        "| Method | Section | Amazon operations | Roles | Marketplaces | External effect "
+        "| Personal data | File |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for row in OPERATIONS:
         calls = "<br>".join(row.amazon_calls)
@@ -284,10 +362,72 @@ def operation_matrix() -> str:
         effect = f"`{row.effect_kind}`" if row.mutating else "none (read)"
         visibility = "" if row.workflow_visible else " (platform only)"
         lines.append(
-            f"| `{row.operation_id}`{visibility} | {row.section} | {calls} | {roles} | {effect} | "
-            f"{'yes' if row.pii else 'no'} |"
+            f"| `{row.operation_id}`{visibility} | {row.section} | {calls} | {roles} | "
+            f"{_markets(row)} | {effect} | {'yes' if row.pii else 'no'} | {_file(row)} |"
         )
     return "\n".join(lines) + "\n"
+
+
+SECTION_TITLES = {
+    "account": "Account and connection",
+    "orders": "Orders",
+    "shipping": "FBM shipping",
+    "catalog_items": "Catalog",
+    "listings": "Listings",
+    "requirements": "Listing requirements",
+    "pricing": "Pricing",
+    "inventory": "Inventory",
+    "fba_inbound": "FBA inbound shipments",
+    "fba_inbound_india": "FBA inbound: India and appointments",
+    "feeds": "Feeds",
+    "finances": "Finances",
+    "reports": "Reports",
+}
+
+
+def matrix_page() -> dict[str, Any]:
+    """The Operation matrix UI page: one list per section (the page renderer draws no tables)."""
+    components: list[dict[str, Any]] = [
+        {
+            "component_id": "intro",
+            "type": "markdown",
+            "title": "How to read this page",
+            "body": (
+                "Every method is one Amazon call on one connection (one seller account in one "
+                "marketplace). Per method: the Amazon operation and API version, the roles the "
+                "application needs, where it works, whether it changes something on Amazon (an "
+                "external effect, suppressed in test runs), whether its result holds personal "
+                "data, and whether it reads or writes a file.\n"
+            ),
+        }
+    ]
+    for section, title in SECTION_TITLES.items():
+        rows = [row for row in OPERATIONS if row.section == section and row.workflow_visible]
+        if not rows:
+            continue
+        lines = []
+        for row in rows:
+            effect = f"changes Amazon ({row.effect_kind})" if row.mutating else "read only"
+            lines.append(
+                f"- **{row.display_name}** (`{row.operation_id}`): "
+                f"{'; '.join(row.amazon_calls)}. Roles: {', '.join(row.roles)}. "
+                f"Marketplaces: {_markets(row)}. {effect.capitalize()}. "
+                f"Personal data: {'yes' if row.pii else 'no'}. File: {_file(row)}."
+            )
+        components.append(
+            {
+                "component_id": f"matrix_{section}",
+                "type": "markdown",
+                "title": title,
+                "body": "\n".join(lines) + "\n",
+            }
+        )
+    return {
+        "page_id": "operation-matrix",
+        "title": "Operation matrix",
+        "description": "Every method with its Amazon operation, roles, marketplaces, effect, personal data and files.",
+        "components": components,
+    }
 
 
 def dump(payload: Any) -> str:
@@ -301,6 +441,7 @@ GENERATED_FILES: dict[str, Any] = {
     "contracts/step_ui_manifest.yaml": step_ui_manifest,
     "contracts/artifact_policies.yaml": artifact_policies,
     "ui/actions/actions.yaml": action_manifest,
+    "ui/pages/operation-matrix.yaml": matrix_page,
 }
 
 GENERATED_TEXT: dict[str, Any] = {"docs/operation-matrix.md": operation_matrix}

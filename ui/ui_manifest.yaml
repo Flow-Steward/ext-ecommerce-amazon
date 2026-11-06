@@ -3,3 +3,4 @@ pages:
   - ref: pages/setup-guide.yaml
   - ref: pages/connection.yaml
   - ref: pages/operations.yaml
+  - ref: pages/operation-matrix.yaml

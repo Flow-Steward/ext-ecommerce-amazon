@@ -15,16 +15,22 @@ for entry in (BUNDLE_ROOT, BUNDLE_ROOT / "tests" / "reference"):
     if str(entry) not in sys.path:
         sys.path.insert(0, str(entry))
 
-from build_contracts import (  # noqa: E402
-    GENERATED_FILES,
-    GENERATED_TEXT,
-    dump,
-    manifest_with_artifact_policies,
-    manifest_with_external_effects,
-)
+from build_amazon_specs import SPECS_PATH, render_specs  # noqa: E402
 
 
 def main() -> int:
+    # The specs come first: the registry the other files are generated from reads
+    # them, so the contract generator is imported only once they are written.
+    (BUNDLE_ROOT / SPECS_PATH).write_text(render_specs(), encoding="utf-8")
+    print(f"wrote {SPECS_PATH}")
+    from build_contracts import (
+        GENERATED_FILES,
+        GENERATED_TEXT,
+        dump,
+        manifest_with_artifact_policies,
+        manifest_with_external_effects,
+    )
+
     for relative, builder in GENERATED_FILES.items():
         path = BUNDLE_ROOT / relative
         path.parent.mkdir(parents=True, exist_ok=True)
