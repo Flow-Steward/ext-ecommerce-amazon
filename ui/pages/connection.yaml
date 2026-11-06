@@ -28,9 +28,13 @@ components:
       marked as needing attention and **Test the connection** says which check
       failed.
 
-      **One connection is one marketplace.** Every method runs in the connection's
-      marketplace and region; a workflow cannot point a step at another one. Use a
-      second connection for a second marketplace.
+      **One connection is one marketplace.** Every call goes to the connection's
+      region, and searches and creations name the connection's marketplace; a
+      workflow cannot point a step at another seller or region. Amazon's order,
+      plan, shipment, feed and report IDs are region-wide, so a method that
+      addresses one by its ID reaches it in any marketplace of the same seller in
+      that region; the Operation matrix marks those methods. Use a second
+      connection for a second marketplace.
 
       **Replacing the token** (after a new self-authorization, for example when a
       role was added) keeps the connection and every workflow that uses it.

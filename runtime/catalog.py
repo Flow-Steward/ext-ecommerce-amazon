@@ -10,6 +10,8 @@ the extension's own tests.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from .registry import Operation
 from .sections import (
     account,
@@ -49,7 +51,37 @@ SECTIONS = (
     reports,
 )
 
-OPERATIONS: tuple[Operation, ...] = tuple(row for section in SECTIONS for row in section.OPERATIONS)
+#: Hand-written methods that address a resource by its Amazon ID, or read
+#: seller-wide data, so Amazon answers for any marketplace of the seller in the
+#: connection's region (``registry.SCOPES``). Methods built from Amazon's specs
+#: derive their scope from the request instead.
+SELLER_REGION_METHODS = frozenset(
+    {
+        "get_order",
+        "get_order_items",
+        "get_order_buyer_info",
+        "confirm_shipment",
+        "update_shipment_status",
+        "get_feed",
+        "get_feed_result",
+        "get_report",
+        "download_report",
+        "list_financial_records_for_order",
+        "list_financial_event_groups",
+        "list_financial_events_by_group",
+    }
+)
+
+
+def _scoped(row: Operation) -> Operation:
+    if row.operation_id in SELLER_REGION_METHODS:
+        return replace(row, scope="seller_region")
+    return row
+
+
+OPERATIONS: tuple[Operation, ...] = tuple(
+    _scoped(row) for section in SECTIONS for row in section.OPERATIONS
+)
 
 
 def _index(rows: tuple[Operation, ...]) -> dict[str, Operation]:

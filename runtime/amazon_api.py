@@ -255,6 +255,9 @@ class Method:
     dropped_outputs: tuple[str, ...] = ()
     #: Shown with the result of an asynchronous or deferred change.
     note: str = ""
+    #: ``registry.SCOPES`` key; empty derives it from the request (a marketplace
+    #: field from the connection means "marketplace", none means "seller_region").
+    scope: str = ""
 
 
 @dataclass(frozen=True)
@@ -382,6 +385,13 @@ def build(method: Method) -> Operation:
         properties["next_token"] = NEXT_TOKEN
     outputs = method.outputs if method.outputs is not None else _outputs(method, layout)
     pii = method.pii if method.pii is not None else contains_personal_data(layout.response)
+    scope = method.scope or (
+        "marketplace"
+        if layout.connection_query
+        or layout.connection_body
+        or any(name.startswith("@marketplace") for name, _amazon in layout.path_inputs)
+        else "seller_region"
+    )
     kind = "action" if method.mutating else "source"
     return Operation(
         operation_id=method.operation_id,
@@ -410,6 +420,7 @@ def build(method: Method) -> Operation:
         marketplaces=method.marketplaces,
         availability=method.availability,
         api_version=api_version(method.namespace),
+        scope=scope,
     )
 
 

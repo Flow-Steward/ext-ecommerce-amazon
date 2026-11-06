@@ -96,6 +96,8 @@ class Operation:
     availability: str = ""
     #: Amazon's API version this method calls, for the matrix.
     api_version: str = ""
+    #: Which data the call can reach; see ``SCOPES``.
+    scope: str = "marketplace"
     #: Inputs besides the common ones (next_token, page size, connection_ref)
     #: that may change between pages of one search without invalidating its
     #: continuation token; see ``runtime/pagination.py``.
@@ -128,6 +130,24 @@ class Operation:
             codes.append(errors.UNSUPPORTED_MARKETPLACE)
         codes += list(self.extra_error_codes)
         return tuple(dict.fromkeys(codes))
+
+
+#: What one call can reach. A connection is one seller in one marketplace, but
+#: Amazon identifies orders, plans, shipments, feeds and reports seller-wide in a
+#: region: a method that addresses one by its Amazon ID reaches it whichever
+#: marketplace of that seller (in the connection's region) it belongs to.
+SCOPES: dict[str, str] = {
+    "marketplace": "Only the connection's marketplace: the request names it.",
+    "seller_region": (
+        "The seller's data in the connection's region: the method addresses a resource by its Amazon "
+        "ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that "
+        "region. Check marketplace_ids in the result where it matters."
+    ),
+    "shipping_business": (
+        "The seller's labels in the Amazon Shipping business of the connection's country (sent as "
+        "x-amzn-shipping-business-id)."
+    ),
+}
 
 
 # -- Reusable input fragments ---------------------------------------------
@@ -262,6 +282,7 @@ AMAZON_OPERATION_OUTPUT = out("amazon_operation", TEXT)
 
 __all__ = [
     "AMAZON_OPERATION_OUTPUT",
+    "SCOPES",
     "API_VERSION_OUTPUT",
     "ARRAY_OF_OBJECTS",
     "BOOLEAN",

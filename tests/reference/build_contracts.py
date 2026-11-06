@@ -22,7 +22,7 @@ import yaml
 from runtime.catalog import CATEGORY, CHANNEL, OPERATIONS
 from runtime.marketplaces import MARKETPLACE_CODES
 from runtime.connection import CONNECTION_TYPE_ID
-from runtime.registry import Operation
+from runtime.registry import SCOPES, Operation
 
 BUNDLE_ROOT = Path(__file__).resolve().parents[2]
 
@@ -115,10 +115,13 @@ def operation_manifest() -> dict[str, Any]:
 
 
 def described(row: Operation) -> str:
-    """The method's description with its marketplace and program limits, if any."""
-    if row.availability and row.availability not in row.description:
-        return f"{row.description} Availability: {row.availability}"
-    return row.description
+    """The method's description with its marketplace/program limits and its data scope."""
+    text = row.description
+    if row.availability and row.availability not in text:
+        text = f"{text} Availability: {row.availability}"
+    if row.contacts_amazon and row.scope != "marketplace":
+        text = f"{text} Scope: {SCOPES[row.scope]}"
+    return text
 
 
 def _widget(spec: Mapping[str, Any]) -> str:
@@ -341,6 +344,14 @@ def _file(row: Operation) -> str:
     return "no"
 
 
+def _scope_words(row: Operation) -> str:
+    return {
+        "marketplace": "this connection's marketplace",
+        "seller_region": "the seller's data in this connection's region (by Amazon ID)",
+        "shipping_business": "the seller's labels in this country's Amazon Shipping business",
+    }[row.scope]
+
+
 def operation_matrix() -> str:
     """The method → Amazon operation → version → roles → markets → effect table."""
     lines = [
@@ -352,9 +363,14 @@ def operation_matrix() -> str:
         "Every operation runs against one connection, i.e. one seller account in one "
         "marketplace; the marketplace and the Seller ID always come from the connection.",
         "",
-        "| Method | Section | Amazon operations | Roles | Marketplaces | External effect "
+        "Scope: `marketplace` = the request names the connection's marketplace; "
+        "`seller_region` = addressed by Amazon ID or seller-wide, so Amazon answers for any "
+        "marketplace of the seller in the connection's region; `shipping_business` = the "
+        "seller's labels in the Amazon Shipping business of the connection's country.",
+        "",
+        "| Method | Section | Amazon operations | Roles | Marketplaces | Scope | External effect "
         "| Personal data | File |",
-        "|---|---|---|---|---|---|---|---|",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for row in OPERATIONS:
         calls = "<br>".join(row.amazon_calls)
@@ -363,7 +379,8 @@ def operation_matrix() -> str:
         visibility = "" if row.workflow_visible else " (platform only)"
         lines.append(
             f"| `{row.operation_id}`{visibility} | {row.section} | {calls} | {roles} | "
-            f"{_markets(row)} | {effect} | {'yes' if row.pii else 'no'} | {_file(row)} |"
+            f"{_markets(row)} | {row.scope if row.contacts_amazon else 'n/a'} | {effect} | "
+            f"{'yes' if row.pii else 'no'} | {_file(row)} |"
         )
     return "\n".join(lines) + "\n"
 
@@ -394,7 +411,11 @@ def matrix_page() -> dict[str, Any]:
             "title": "How to read this page",
             "body": (
                 "Every method is one Amazon call on one connection (one seller account in one "
-                "marketplace). Per method: the Amazon operation and API version, the roles the "
+                "marketplace). Scope says what the call can reach: searches and creations name "
+                "the connection's marketplace; a method that addresses an order, plan, shipment, "
+                "feed or report by its Amazon ID reaches it in any marketplace of the same seller "
+                "in the connection's region, because Amazon's IDs are region-wide. Per method: the "
+                "Amazon operation and API version, the roles the "
                 "application needs, where it works, whether it changes something on Amazon (an "
                 "external effect, suppressed in test runs), whether its result holds personal "
                 "data, and whether it reads or writes a file.\n"
@@ -411,7 +432,7 @@ def matrix_page() -> dict[str, Any]:
             lines.append(
                 f"- **{row.display_name}** (`{row.operation_id}`): "
                 f"{'; '.join(row.amazon_calls)}. Roles: {', '.join(row.roles)}. "
-                f"Marketplaces: {_markets(row)}. {effect.capitalize()}. "
+                f"Marketplaces: {_markets(row)}. Scope: {_scope_words(row)}. {effect.capitalize()}. "
                 f"Personal data: {'yes' if row.pii else 'no'}. File: {_file(row)}."
             )
         components.append(

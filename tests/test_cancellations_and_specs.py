@@ -117,3 +117,40 @@ def test_an_oversized_label_is_refused_before_it_is_stored(amazon, run):
     )
     assert response["error_code"] in {"response_too_large"}
     assert calls == []
+
+
+def test_every_method_states_what_it_can_reach():
+    from runtime.catalog import OPERATIONS_BY_ID
+    from runtime.registry import SCOPES
+
+    for row in OPERATIONS:
+        assert row.scope in SCOPES, row.operation_id
+    # Addressed by Amazon ID: the plan or shipment may belong to another marketplace
+    # of the same seller in the region, and the contract says so.
+    for operation_id in (
+        "fba_list_inbound_plans",
+        "fba_get_inbound_plan",
+        "fba_cancel_inbound_plan",
+        "fba_get_shipment",
+        "fba_get_labels",
+        "get_order",
+        "get_report",
+        "cancel_feed",
+    ):
+        assert OPERATIONS_BY_ID[operation_id].scope == "seller_region", operation_id
+    for operation_id in (
+        "fba_create_inbound_plan",
+        "fba_list_prep_details",
+        "delete_listing",
+        "search_orders",
+    ):
+        assert OPERATIONS_BY_ID[operation_id].scope == "marketplace", operation_id
+    assert OPERATIONS_BY_ID["purchase_shipping_shipment"].scope == "shipping_business"
+
+
+def test_region_wide_methods_say_so_in_their_published_description():
+    from build_contracts import operation_manifest
+
+    rows = {row["operation_id"]: row for row in operation_manifest()["operations"]}
+    assert "any marketplace of the seller" in rows["fba_get_inbound_plan"]["description"]
+    assert "Scope:" not in rows["fba_create_inbound_plan"]["description"]

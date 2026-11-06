@@ -118,6 +118,16 @@ components:
       Every method names the exact identifier it needs; pass the field from the
       earlier step's result, never a description.
 
+      **What an identifier reaches.** Amazon's order, plan, shipment, operation,
+      feed and report IDs are unique for the seller across a region, not per
+      marketplace. A method that takes one of them (for example
+      fba_get_inbound_plan, fba_cancel_inbound_plan, get_order, get_report) acts on
+      that resource even when it belongs to another marketplace of the same seller
+      in the connection's region, and fba_list_inbound_plans lists the plans of all
+      of them. Results carry marketplace_ids; filter on them where a workflow must
+      stay in one marketplace. Searches and creations always name the connection's
+      marketplace. The Operation matrix shows the scope of every method.
+
   - component_id: async_inbound
     type: markdown
     title: Asynchronous FBA requests

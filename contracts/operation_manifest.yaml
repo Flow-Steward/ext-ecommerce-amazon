@@ -364,7 +364,7 @@ operations:
   - continuation_token_invalid
 - operation_id: get_order
   display_name: Get an order
-  description: Returns one order by its Amazon order ID.
+  description: 'Returns one order by its Amazon order ID. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -458,7 +458,7 @@ operations:
   - unsupported_filter
 - operation_id: get_order_items
   display_name: Get order items
-  description: Returns the items of one order. v0 pages them; 2026-01-01 returns them all.
+  description: 'Returns the items of one order. v0 pages them; 2026-01-01 returns them all. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -558,7 +558,7 @@ operations:
   - continuation_token_invalid
 - operation_id: get_order_buyer_info
   display_name: Get buyer and shipping address
-  description: Returns the buyer and the shipping address of one order, as far as the application's Amazon roles allow. Contains personal data.
+  description: 'Returns the buyer and the shipping address of one order, as far as the application''s Amazon roles allow. Contains personal data. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -647,7 +647,7 @@ operations:
   - internal_error
 - operation_id: confirm_shipment
   display_name: Confirm a shipment
-  description: 'Confirms that a package of a merchant-fulfilled order was shipped: carrier, tracking number, ship date and the items with quantities in the package. Amazon answers without the new order state; read the order afterwards. Orders v0 only: Orders 2026-01-01 has no equivalent, and this call is not in Amazon''s v0 deprecation schedule.'
+  description: 'Confirms that a package of a merchant-fulfilled order was shipped: carrier, tracking number, ship date and the items with quantities in the package. Amazon answers without the new order state; read the order afterwards. Orders v0 only: Orders 2026-01-01 has no equivalent, and this call is not in Amazon''s v0 deprecation schedule. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -824,7 +824,7 @@ operations:
   - unsupported_filter
 - operation_id: update_shipment_status
   display_name: Update shipment status
-  description: 'Sets the shipment status of a merchant-fulfilled order to ReadyForPickup, PickedUp or RefusedPickup, for the whole order or for the listed items. Amazon answers without the new order state; read the order afterwards. Orders v0 only: Orders 2026-01-01 has no equivalent, and this call is not in Amazon''s v0 deprecation schedule.'
+  description: 'Sets the shipment status of a merchant-fulfilled order to ReadyForPickup, PickedUp or RefusedPickup, for the whole order or for the listed items. Amazon answers without the new order state; read the order afterwards. Orders v0 only: Orders 2026-01-01 has no equivalent, and this call is not in Amazon''s v0 deprecation schedule. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -929,7 +929,7 @@ operations:
   - outcome_unknown
 - operation_id: get_shipping_rates
   display_name: Get shipping rates
-  description: 'Asks Amazon Shipping for the offers to ship one package of one Amazon order: per offer a rate_id, carrier, service, total charge, promised pickup and delivery windows, label formats and whether more inputs are needed. Returns request_token for the purchase. Chooses nothing and buys nothing. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country.'
+  description: 'Asks Amazon Shipping for the offers to ship one package of one Amazon order: per offer a rate_id, carrier, service, total charge, promised pickup and delivery windows, label formats and whether more inputs are needed. Returns request_token for the purchase. Chooses nothing and buys nothing. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country. Scope: The seller''s labels in the Amazon Shipping business of the connection''s country (sent as x-amzn-shipping-business-id).'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -1950,7 +1950,7 @@ operations:
   - unsupported_marketplace
 - operation_id: get_shipping_additional_inputs
   display_name: Get shipping additional inputs
-  description: 'For an offer whose requires_additional_inputs is true: returns Amazon''s JSON schema of the extra values the purchase must carry. Fill them as that schema says and pass them as additional_inputs to purchase_shipping_shipment. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country.'
+  description: 'For an offer whose requires_additional_inputs is true: returns Amazon''s JSON schema of the extra values the purchase must carry. Fill them as that schema says and pass them as additional_inputs to purchase_shipping_shipment. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country. Scope: The seller''s labels in the Amazon Shipping business of the connection''s country (sent as x-amzn-shipping-business-id).'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -2025,7 +2025,7 @@ operations:
   - unsupported_marketplace
 - operation_id: purchase_shipping_shipment
   display_name: Purchase a shipping label
-  description: 'Buys the offer named by request_token and rate_id. Amazon charges the seller''s account the offer''s total_charge. Returns shipment_id and, per package, the tracking ID and which documents exist; store a document with get_shipping_documents. Never re-quotes an expired offer and never repeats a purchase. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country.'
+  description: 'Buys the offer named by request_token and rate_id. Amazon charges the seller''s account the offer''s total_charge. Returns shipment_id and, per package, the tracking ID and which documents exist; store a document with get_shipping_documents. Never re-quotes an expired offer and never repeats a purchase. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country. Scope: The seller''s labels in the Amazon Shipping business of the connection''s country (sent as x-amzn-shipping-business-id).'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -2266,7 +2266,7 @@ operations:
   - unsupported_marketplace
 - operation_id: get_shipping_documents
   display_name: Get a shipping document
-  description: 'Stores one document of one package of a purchased shipment as a file: the label by default, or the packing slip, receipt or customs form. The file holds the buyer''s name and address. Bytes are stored unchanged. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country.'
+  description: 'Stores one document of one package of a purchased shipment as a file: the label by default, or the packing slip, receipt or customs form. The file holds the buyer''s name and address. Bytes are stored unchanged. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country. Scope: The seller''s labels in the Amazon Shipping business of the connection''s country (sent as x-amzn-shipping-business-id).'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -2422,7 +2422,7 @@ operations:
   - unsupported_marketplace
 - operation_id: get_shipping_tracking
   display_name: Get shipment tracking
-  description: 'Reads the tracking of one package: status summary, promised delivery date and the event history. Changes nothing on the order or the shipment. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country.'
+  description: 'Reads the tracking of one package: status summary, promised delivery date and the event history. Changes nothing on the order or the shipment. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country. Scope: The seller''s labels in the Amazon Shipping business of the connection''s country (sent as x-amzn-shipping-business-id).'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -2680,7 +2680,7 @@ operations:
   - unsupported_marketplace
 - operation_id: cancel_shipping_shipment
   display_name: Cancel a shipping label
-  description: 'Cancels a purchased shipment that the carrier has not picked up. A picked-up shipment is refused with invalid_state. Cancellation windows depend on the carrier. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country.'
+  description: 'Cancels a purchased shipment that the carrier has not picked up. A picked-up shipment is refused with invalid_state. Cancellation windows depend on the carrier. Availability: Amazon Shipping v2 labels for Amazon orders: United States, United Kingdom, Italy, France and Spain only. The package ships from the marketplace''s own country. Scope: The seller''s labels in the Amazon Shipping business of the connection''s country (sent as x-amzn-shipping-business-id).'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -6120,7 +6120,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_inbound_plans
   display_name: 'FBA: list inbound plans'
-  description: 'Lists inbound plans, optionally by status, sorted as asked. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists inbound plans, optionally by status, sorted as asked. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -6316,7 +6316,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_get_inbound_plan
   display_name: 'FBA: get inbound plan'
-  description: 'Reads one inbound plan: status, ship-from address, its shipments and the packing and placement options with their status. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Reads one inbound plan: status, ship-from address, its shipments and the packing and placement options with their status. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -6543,7 +6543,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_cancel_inbound_plan
   display_name: 'FBA: cancel inbound plan'
-  description: 'Cancels an inbound plan and its shipments. Amazon may charge for a cancellation outside the void window of a partnered carrier (24 hours for small parcel, one hour for LTL). Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Cancels an inbound plan and its shipments. Amazon may charge for a cancellation outside the void window of a partnered carrier (24 hours for small parcel, one hour for LTL). Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -6622,7 +6622,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_get_inbound_operation_status
   display_name: 'FBA: get operation status'
-  description: 'Checks one asynchronous Inbound request once: IN_PROGRESS, SUCCESS or FAILED, with Amazon''s problems (code, message, severity). Does not wait; call it again later from the workflow if the status is IN_PROGRESS. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Checks one asynchronous Inbound request once: IN_PROGRESS, SUCCESS or FAILED, with Amazon''s problems (code, message, severity). Does not wait; call it again later from the workflow if the status is IN_PROGRESS. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -6742,7 +6742,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_inbound_plan_items
   display_name: 'FBA: list plan items'
-  description: 'Lists the items of an inbound plan. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the items of an inbound plan. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -6899,7 +6899,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_inbound_plan_boxes
   display_name: 'FBA: list plan boxes'
-  description: 'Lists the boxes of an inbound plan. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the boxes of an inbound plan. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -7152,7 +7152,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_inbound_plan_pallets
   display_name: 'FBA: list plan pallets'
-  description: 'Lists the pallets of an inbound plan. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the pallets of an inbound plan. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -7314,7 +7314,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_update_inbound_plan_name
   display_name: 'FBA: rename inbound plan'
-  description: 'Changes the name of an inbound plan. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Changes the name of an inbound plan. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -7399,7 +7399,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_generate_packing_options
   display_name: 'FBA: generate packing options'
-  description: 'Asks Amazon to work out the ways the plan''s items can be packed into packing groups. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Asks Amazon to work out the ways the plan''s items can be packed into packing groups. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -7478,7 +7478,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_packing_options
   display_name: 'FBA: list packing options'
-  description: 'Lists the packing options of a plan with their packing groups, fees, discounts and expiration. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the packing options of a plan with their packing groups, fees, discounts and expiration. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -7755,7 +7755,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_confirm_packing_option
   display_name: 'FBA: confirm packing option'
-  description: 'Confirms the packing option the workflow chose. Choose it from fba_list_packing_options; nothing is chosen here. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Confirms the packing option the workflow chose. Choose it from fba_list_packing_options; nothing is chosen here. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -7843,7 +7843,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_packing_group_items
   display_name: 'FBA: list packing group items'
-  description: 'Lists the items of one packing group. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the items of one packing group. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -8009,7 +8009,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_packing_group_boxes
   display_name: 'FBA: list packing group boxes'
-  description: 'Lists the boxes of one packing group. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the boxes of one packing group. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -8271,7 +8271,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_set_packing_information
   display_name: 'FBA: set packing information'
-  description: 'Sends box contents, dimensions and weights per packing group (Pack Now: after confirming the packing option and before confirming placement) or per shipment (Pack Later, pallets only: after confirming placement). Dimensions in IN or CM, weight in LB or KG. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Sends box contents, dimensions and weights per packing group (Pack Now: after confirming the packing option and before confirming placement) or per shipment (Pack Later, pallets only: after confirming placement). Dimensions in IN or CM, weight in LB or KG. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -8561,7 +8561,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_generate_placement_options
   display_name: 'FBA: generate placement options'
-  description: 'Asks Amazon for the ways the plan''s shipments can be split across fulfillment centres. custom_placement names fulfillment centres where Amazon allows it (for example India). Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Asks Amazon for the ways the plan''s shipments can be split across fulfillment centres. custom_placement names fulfillment centres where Amazon allows it (for example India). Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -8723,7 +8723,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_placement_options
   display_name: 'FBA: list placement options'
-  description: 'Lists the placement options with their shipment IDs, fees, discounts, status and expiration. An expired option must be generated again. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the placement options with their shipment IDs, fees, discounts, status and expiration. An expired option must be generated again. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -8917,7 +8917,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_confirm_placement_option
   display_name: 'FBA: confirm placement option'
-  description: 'Confirms the placement option the workflow chose. Confirming a placement option cannot be undone for the plan. The option''s fees (for example the placement service fee) are listed in fba_list_placement_options. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Confirms the placement option the workflow chose. Confirming a placement option cannot be undone for the plan. The option''s fees (for example the placement service fee) are listed in fba_list_placement_options. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -9005,7 +9005,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_generate_transportation_options
   display_name: 'FBA: generate transportation options'
-  description: 'Asks Amazon for carrier options per shipment: small parcel or LTL/FTL, Amazon-partnered or the seller''s own carrier, from the ready-to-ship window, contact and, for pallets, pallet and freight details. Amazon-partnered carriers are offered in the contiguous United States (and through the Partnered Carrier Program in India); in the EU the seller must first accept the carrier''s and Amazon''s terms in Seller Central. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Asks Amazon for carrier options per shipment: small parcel or LTL/FTL, Amazon-partnered or the seller''s own carrier, from the ready-to-ship window, contact and, for pallets, pallet and freight details. Amazon-partnered carriers are offered in the contiguous United States (and through the Partnered Carrier Program in India); in the EU the seller must first accept the carrier''s and Amazon''s terms in Seller Central. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -9274,7 +9274,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_transportation_options
   display_name: 'FBA: list transportation options'
-  description: 'Lists transportation options for a placement option or a shipment: shipping mode, solution (Amazon-partnered or own carrier), carrier and, for partnered carriers, the quote with cost, currency and expiration. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists transportation options for a placement option or a shipment: shipping mode, solution (Amazon-partnered or own carrier), carrier and, for partnered carriers, the quote with cost, currency and expiration. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -9472,7 +9472,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_confirm_transportation_options
   display_name: 'FBA: confirm transportation options'
-  description: 'Confirms one transportation option per shipment, as the workflow chose them. For an Amazon-partnered carrier this authorizes Amazon to charge the seller''s account the transportation option''s quote (cost and currency in fba_list_transportation_options). Amazon lets a small parcel request be voided within 24 hours and an LTL/FTL request within one hour of confirmation; after that the shipping cost is charged. No new transportation options can be generated or confirmed for the plan afterwards. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Amazon-partnered carriers are offered in the contiguous United States (and through the Partnered Carrier Program in India); in the EU the seller must first accept the carrier''s and Amazon''s terms in Seller Central.'
+  description: 'Confirms one transportation option per shipment, as the workflow chose them. For an Amazon-partnered carrier this authorizes Amazon to charge the seller''s account the transportation option''s quote (cost and currency in fba_list_transportation_options). Amazon lets a small parcel request be voided within 24 hours and an LTL/FTL request within one hour of confirmation; after that the shipping cost is charged. No new transportation options can be generated or confirmed for the plan afterwards. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Amazon-partnered carriers are offered in the contiguous United States (and through the Partnered Carrier Program in India); in the EU the seller must first accept the carrier''s and Amazon''s terms in Seller Central. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -9632,7 +9632,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_generate_delivery_window_options
   display_name: 'FBA: generate delivery window options'
-  description: 'Asks Amazon for delivery windows of a shipment sent with the seller''s own carrier. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Asks Amazon for delivery windows of a shipment sent with the seller''s own carrier. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -9720,7 +9720,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_delivery_window_options
   display_name: 'FBA: list delivery window options'
-  description: 'Lists a shipment''s delivery windows with their availability and valid_until; a window not confirmed by then must be generated again. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists a shipment''s delivery windows with their availability and valid_until; a window not confirmed by then must be generated again. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -9889,7 +9889,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_confirm_delivery_window_options
   display_name: 'FBA: confirm delivery window'
-  description: 'Confirms the delivery window the workflow chose for a shipment with the seller''s own carrier. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Confirms the delivery window the workflow chose for a shipment with the seller''s own carrier. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -9986,7 +9986,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_get_shipment
   display_name: 'FBA: get shipment'
-  description: 'Reads one shipment: status, shipment_confirmation_id (FBA…), destination fulfillment centre, source address, contact, selected transportation and delivery window, tracking and the Amazon reference ID needed for appointments. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Reads one shipment: status, shipment_confirmation_id (FBA…), destination fulfillment centre, source address, contact, selected transportation and delivery window, tracking and the Amazon reference ID needed for appointments. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -10423,7 +10423,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_shipment_items
   display_name: 'FBA: list shipment items'
-  description: 'Lists the items of a shipment. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the items of a shipment. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -10589,7 +10589,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_shipment_boxes
   display_name: 'FBA: list shipment boxes'
-  description: 'Lists the boxes of a shipment with their box IDs. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the boxes of a shipment with their box IDs. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -10851,7 +10851,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_shipment_pallets
   display_name: 'FBA: list shipment pallets'
-  description: 'Lists the pallets of a shipment. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Lists the pallets of a shipment. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -11022,7 +11022,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_update_shipment_name
   display_name: 'FBA: rename shipment'
-  description: 'Changes the name of a shipment. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Changes the name of a shipment. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -11116,7 +11116,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_update_shipment_source_address
   display_name: 'FBA: change shipment source address'
-  description: 'Changes the address a shipment leaves from, where Amazon still allows it. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Changes the address a shipment leaves from, where Amazon still allows it. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -11285,7 +11285,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_update_shipment_tracking_details
   display_name: 'FBA: set shipment tracking'
-  description: 'Sends the tracking of a shipment sent with the seller''s own carrier: per box tracking IDs for small parcel, or the bill of lading and freight bill numbers for LTL/FTL. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Sends the tracking of a shipment sent with the seller''s own carrier: per box tracking IDs for small parcel, or the bill of lading and freight bill numbers for LTL/FTL. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -11611,7 +11611,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_get_labels
   display_name: 'FBA: get box or pallet labels'
-  description: 'Stores the box labels (BARCODE_2D or UNIQUE) or pallet labels (PALLET) of a shipment as a file, for the page type chosen. For UNIQUE labels name the box IDs from fba_list_shipment_boxes; for a non-partnered LTL shipment give the page size and start index. Getting labels does not change the shipment''s status. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Stores the box labels (BARCODE_2D or UNIQUE) or pallet labels (PALLET) of a shipment as a file, for the page type chosen. For UNIQUE labels name the box IDs from fba_list_shipment_boxes; for a non-partnered LTL shipment give the page size and start index. Getting labels does not change the shipment''s status. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -11781,7 +11781,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_get_bill_of_lading
   display_name: 'FBA: get bill of lading'
-  description: 'Stores the bill of lading of a partnered-carrier LTL/FTL shipment as a PDF file, once Amazon has issued it. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Stores the bill of lading of a partnered-carrier LTL/FTL shipment as a PDF file, once Amazon has issued it. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -12156,7 +12156,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_generate_self_ship_appointment_slots
   display_name: 'FBA: generate appointment slots'
-  description: 'Asks Amazon for fulfillment-centre appointment slots of a self-ship shipment, by default for the next 42 days. The shipment needs its Amazon reference ID first (fba_get_shipment). Availability: Self-ship shipments where fulfillment-centre appointments are mandatory, such as India. Amazon does not offer appointments for partnered-carrier shipments.'
+  description: 'Asks Amazon for fulfillment-centre appointment slots of a self-ship shipment, by default for the next 42 days. The shipment needs its Amazon reference ID first (fba_get_shipment). Availability: Self-ship shipments where fulfillment-centre appointments are mandatory, such as India. Amazon does not offer appointments for partnered-carrier shipments. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -12260,7 +12260,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_get_self_ship_appointment_slots
   display_name: 'FBA: list appointment slots'
-  description: 'Lists the appointment slots Amazon generated for a self-ship shipment. Returns one page and next_token. Availability: Self-ship shipments where fulfillment-centre appointments are mandatory, such as India. Amazon does not offer appointments for partnered-carrier shipments.'
+  description: 'Lists the appointment slots Amazon generated for a self-ship shipment. Returns one page and next_token. Availability: Self-ship shipments where fulfillment-centre appointments are mandatory, such as India. Amazon does not offer appointments for partnered-carrier shipments. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -12399,7 +12399,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_schedule_self_ship_appointment
   display_name: 'FBA: schedule appointment'
-  description: 'Books the appointment slot the workflow chose for a self-ship shipment. Rescheduling needs a reason comment. Availability: Self-ship shipments where fulfillment-centre appointments are mandatory, such as India. Amazon does not offer appointments for partnered-carrier shipments.'
+  description: 'Books the appointment slot the workflow chose for a self-ship shipment. Rescheduling needs a reason comment. Availability: Self-ship shipments where fulfillment-centre appointments are mandatory, such as India. Amazon does not offer appointments for partnered-carrier shipments. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -12533,7 +12533,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_cancel_self_ship_appointment
   display_name: 'FBA: cancel appointment'
-  description: 'Cancels the booked appointment of a self-ship shipment, with a reason comment. Availability: Self-ship shipments where fulfillment-centre appointments are mandatory, such as India. Amazon does not offer appointments for partnered-carrier shipments.'
+  description: 'Cancels the booked appointment of a self-ship shipment, with a reason comment. Availability: Self-ship shipments where fulfillment-centre appointments are mandatory, such as India. Amazon does not offer appointments for partnered-carrier shipments. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -12638,7 +12638,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_get_delivery_challan_document
   display_name: 'FBA India: get delivery challan'
-  description: 'Stores the delivery challan of a Partnered Carrier Program shipment in India as a PDF file. The carrier must carry it with the goods. Availability: India (Amazon IN store) only. Partnered Carrier Program shipments.'
+  description: 'Stores the delivery challan of a Partnered Carrier Program shipment in India as a PDF file. The carrier must carry it with the goods. Availability: India (Amazon IN store) only. Partnered Carrier Program shipments. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -12918,7 +12918,7 @@ operations:
   - outcome_unknown
 - operation_id: get_feed
   display_name: Get feed status
-  description: Returns one feed's processing status, timestamps and result document ID.
+  description: 'Returns one feed''s processing status, timestamps and result document ID. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -13102,7 +13102,7 @@ operations:
   - continuation_token_invalid
 - operation_id: get_feed_result
   display_name: Get feed result
-  description: 'Reads a feed and, once Amazon has finished it, its processing report: summary counts, messages that failed (at least one ERROR) and messages applied with warnings, each with messageId, sku and Amazon''s issues. Messages without issues appear only in the summary count. The issue lists together are capped at 2.5 MB (feed-level issues first, then failed, then accepted with issues); issues_truncated is true when entries were left out, and save_report_file keeps the full report. While the feed is still processing it returns the status alone; it never waits.'
+  description: 'Reads a feed and, once Amazon has finished it, its processing report: summary counts, messages that failed (at least one ERROR) and messages applied with warnings, each with messageId, sku and Amazon''s issues. Messages without issues appear only in the summary count. The issue lists together are capped at 2.5 MB (feed-level issues first, then failed, then accepted with issues); issues_truncated is true when entries were left out, and save_report_file keeps the full report. While the feed is still processing it returns the status alone; it never waits. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -13211,7 +13211,7 @@ operations:
   - artifact_output_unavailable
 - operation_id: cancel_feed
   display_name: Cancel a feed
-  description: Cancels a submitted feed that Amazon has not started processing (status IN_QUEUE). A feed already IN_PROGRESS or DONE cannot be cancelled.
+  description: 'Cancels a submitted feed that Amazon has not started processing (status IN_QUEUE). A feed already IN_PROGRESS or DONE cannot be cancelled. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -13420,7 +13420,7 @@ operations:
   - continuation_token_invalid
 - operation_id: list_financial_records_for_order
   display_name: List financial records of an order
-  description: 'Returns one page of the financial records of one order: 2024-06-19 transactions related to the order ID (default) or v0 financial events of the order. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile. Amazon may take up to 48 hours to post an event, so a window ending now is not complete yet.'
+  description: 'Returns one page of the financial records of one order: 2024-06-19 transactions related to the order ID (default) or v0 financial events of the order. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile. Amazon may take up to 48 hours to post an event, so a window ending now is not complete yet. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -13542,7 +13542,7 @@ operations:
   - continuation_token_invalid
 - operation_id: list_financial_event_groups
   display_name: List financial event groups
-  description: 'Returns one page of financial event groups (settlement periods) opened in a time window, with original and converted totals, processing and fund transfer status. Finances v0 listFinancialEventGroups: v0 only, and not on Amazon''s deprecation schedule.'
+  description: 'Returns one page of financial event groups (settlement periods) opened in a time window, with original and converted totals, processing and fund transfer status. Finances v0 listFinancialEventGroups: v0 only, and not on Amazon''s deprecation schedule. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -13644,7 +13644,7 @@ operations:
   - continuation_token_invalid
 - operation_id: list_financial_events_by_group
   display_name: List financial records of a group
-  description: 'Returns one page of the financial records of one financial event group: 2024-06-19 transactions related to the group ID (default) or v0 listFinancialEventsByGroupId. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile.'
+  description: 'Returns one page of the financial records of one financial event group: 2024-06-19 transactions related to the group ID (default) or v0 listFinancialEventsByGroupId. Each record has record_type, posted_date, amazon_order_id (when present), amounts (labelled money values, never summed across currencies), origin and Amazon''s object under amazon. v0 events and 2024-06-19 transactions are not interchangeable and share no ID: never mix records of both versions to deduplicate or reconcile. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -14000,7 +14000,7 @@ operations:
   - internal_error
 - operation_id: get_report
   display_name: Get report status
-  description: Returns one report's processing status, period and document ID.
+  description: 'Returns one report''s processing status, period and document ID. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -14062,7 +14062,7 @@ operations:
   - internal_error
 - operation_id: download_report
   display_name: Download a report
-  description: 'Downloads a finished report (up to 100 MB compressed, 200 MB uncompressed) and stores it as a file. Give the report_id from search_reports, create_report or get_report; the report''s type is read from Amazon and must be one of the supported types. The report is not parsed. Supported types: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2, GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE.'
+  description: 'Downloads a finished report (up to 100 MB compressed, 200 MB uncompressed) and stores it as a file. Give the report_id from search_reports, create_report or get_report; the report''s type is read from Amazon and must be one of the supported types. The report is not parsed. Supported types: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2, GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -14159,7 +14159,7 @@ operations:
   - artifact_output_unavailable
 - operation_id: cancel_report
   display_name: Cancel a report
-  description: Cancels a requested report that Amazon has not started processing (status IN_QUEUE). The nine supported report types and download_report are unchanged.
+  description: 'Cancels a requested report that Amazon has not started processing (status IN_QUEUE). The nine supported report types and download_report are unchanged. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
