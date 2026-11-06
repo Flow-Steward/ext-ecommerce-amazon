@@ -75,7 +75,8 @@ AVAILABILITY = (
 DOCUMENT_TYPES = ("LABEL", "PACKSLIP", "RECEIPT", "CUSTOM_FORM")
 DOCUMENT_FORMATS = ("PDF", "PNG", "ZPL")
 #: A label or customs form is a few hundred kilobytes; this bounds a hostile answer.
-MAX_DOCUMENT_BYTES = 5 * 1024 * 1024
+#: Base64 inflates it by a third, which must stay under the transport's 6 MiB cap.
+MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
 
 SHIPPING_DOCUMENT = ArtifactBinding(
     binding_key="amazon_shipping_document",

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.2 — unreleased
+
+Independent review fixes: MSKU lists are sent as repeated query parameters
+(Amazon's `multi` format) in fba_list_prep_details and
+fba_list_item_compliance_details; delete_listing reports an INVALID answer as a
+refused change and a missing status as an unknown outcome; output schemas accept
+new Amazon enum values and nested nulls; UTF-8 and BOM-prefixed ZPL labels and
+PDFs with leading bytes are accepted; an expired pagination token is
+continuation_token_invalid and "cannot be updated" validation errors are no
+longer invalid_state; rehearsals refuse unsupported marketplaces like real runs;
+the shipping document limit (4 MiB) sits below the response cap.
+
 ## 0.2.1 — unreleased
 
 Audit fixes on 0.2.0: select and multi_select fields carry their options (enum

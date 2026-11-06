@@ -1492,10 +1492,14 @@ operations:
         properties:
           carrier_id:
             description: The carrier identifier for the offering, provided by the carrier.
-            type: string
+            type:
+            - string
+            - 'null'
           carrier_name:
             description: The carrier name for the offering.
-            type: string
+            type:
+            - string
+            - 'null'
           ineligibility_reasons:
             description: A list of reasons why a shipping service offering is ineligible.
             items:
@@ -1503,39 +1507,42 @@ operations:
               properties:
                 code:
                   description: 'Reasons that make a shipment service offering ineligible. Values: NO_COVERAGE: The shipment is ineligible because there is no coverage to that address; PICKUP_SLOT_RESTRICTION: The shipment is ineligible because there is an issue with the pickup slot; UNSUPPORTED_VAS: The shipment is ineligible because the value-added service is invalid for this shipment; VAS_COMBINATION_RESTRICTION: The shipment is ineligible because an invalid combination of value-added services were chosen; SIZE_RESTRICTIONS: The shipment is ineligible because the package dimensions are unsupported; WEIGHT_RESTRICTIONS: The shipment is ineligible because the weight is unsupported; LATE_DELIVERY: The shipment is ineligible because delivery is too late; PROGRAM_CONSTRAINTS: The shipment is ineligible because of program constraints; TERMS_AND_CONDITIONS_NOT_ACCEPTED: The shipment is ineligible because terms and conditions have not been accepted by the carrier; UNKNOWN: The ineligibility reason is unknown.'
-                  enum:
-                  - NO_COVERAGE
-                  - PICKUP_SLOT_RESTRICTION
-                  - UNSUPPORTED_VAS
-                  - VAS_COMBINATION_RESTRICTION
-                  - SIZE_RESTRICTIONS
-                  - WEIGHT_RESTRICTIONS
-                  - LATE_DELIVERY
-                  - PROGRAM_CONSTRAINTS
-                  - TERMS_AND_CONDITIONS_NOT_ACCEPTED
-                  - UNKNOWN
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 message:
                   description: The ineligibility reason.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
               required:
               - code
               - message
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           service_id:
             description: An identifier for the shipping service.
-            type: string
+            type:
+            - string
+            - 'null'
           service_name:
             description: The name of the shipping service.
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - carrier_id
         - carrier_name
         - ineligibility_reasons
         - service_id
         - service_name
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -1553,13 +1560,19 @@ operations:
               properties:
                 group_description:
                   description: The name of the value-added service group.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 group_id:
                   description: The type of the value-added service group.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 is_required:
                   description: When true, one or more of the value-added services listed must be specified.
-                  type: boolean
+                  type:
+                  - boolean
+                  - 'null'
                 value_added_services:
                   description: A list of optional value-added services available for purchase with a shipping service offering.
                   items:
@@ -1570,34 +1583,51 @@ operations:
                         properties:
                           unit:
                             description: The ISO 4217 format 3-character currency code.
-                            type: string
+                            type:
+                            - string
+                            - 'null'
                           value:
                             description: The monetary value.
                             type:
                             - number
                             - string
+                            - 'null'
                         required:
                         - unit
                         - value
-                        type: object
+                        type:
+                        - object
+                        - 'null'
                       id:
                         description: The identifier for the value-added service.
-                        type: string
+                        type:
+                        - string
+                        - 'null'
                       name:
                         description: The name of the value-added service.
-                        type: string
+                        type:
+                        - string
+                        - 'null'
                     required:
                     - cost
                     - id
                     - name
-                    type: object
-                  type: array
+                    type:
+                    - object
+                    - 'null'
+                  type:
+                  - array
+                  - 'null'
               required:
               - group_description
               - group_id
               - is_required
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           benefits:
             description: Benefits that are included and excluded for each shipping offer. Benefits represents services provided by Amazon (eg. CLAIMS_PROTECTED, etc.) when sellers purchase shipping through Amazon. Benefit details will be made available for any shipment placed on or after January 1st 2024 00:00 UTC.
             properties:
@@ -1608,57 +1638,76 @@ operations:
                   properties:
                     benefit:
                       description: benefit
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                     reason_codes:
                       description: List of reasons (eg. LATE_DELIVERY_RISK, etc.) indicating why a benefit is excluded for a shipping offer.
                       items:
-                        type: string
-                      type: array
+                        type:
+                        - string
+                        - 'null'
+                      type:
+                      - array
+                      - 'null'
                   required:
                   - benefit
-                  type: object
-                type: array
+                  type:
+                  - object
+                  - 'null'
+                type:
+                - array
+                - 'null'
               included_benefits:
                 description: A list of included benefits.
                 items:
-                  type: string
-                type: array
+                  type:
+                  - string
+                  - 'null'
+                type:
+                - array
+                - 'null'
             required:
             - included_benefits
             - excluded_benefits
-            type: object
+            type:
+            - object
+            - 'null'
           billed_weight:
             description: The weight in the units indicated.
             properties:
               unit:
                 description: 'The unit of measurement. Values: GRAM: Metric unit of mass equal to one thousandth of a kilogram; KILOGRAM: Metric unit of mass; OUNCE: The imperial unit of weight that is one sixteenth of a pound; POUND: The imperial unit of weight.'
-                enum:
-                - GRAM
-                - KILOGRAM
-                - OUNCE
-                - POUND
-                type: string
+                type:
+                - string
+                - 'null'
               value:
                 description: The measurement value.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - unit
             - value
-            type: object
+            type:
+            - object
+            - 'null'
           carrier_id:
             description: The carrier identifier for the offering, provided by the carrier.
-            type: string
+            type:
+            - string
+            - 'null'
           carrier_name:
             description: The carrier name for the offering.
-            type: string
+            type:
+            - string
+            - 'null'
           payment_type:
             description: 'Payment type of the purchase. Values: PAY_THROUGH_AMAZON: Payment Through Amazon; PAY_DIRECT_TO_CARRIER: Payment Direct to Carrier.'
-            enum:
-            - PAY_THROUGH_AMAZON
-            - PAY_DIRECT_TO_CARRIER
-            type: string
+            type:
+            - string
+            - 'null'
           promise:
             description: The time windows promised for pickup and delivery events.
             properties:
@@ -1668,31 +1717,47 @@ operations:
                   end:
                     description: The end time of the time window.
                     format: date-time
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                   start:
                     description: The start time of the time window.
                     format: date-time
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                 required: []
-                type: object
+                type:
+                - object
+                - 'null'
               pickup_window:
                 description: The start and end time that specifies the time interval of an event.
                 properties:
                   end:
                     description: The end time of the time window.
                     format: date-time
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                   start:
                     description: The start time of the time window.
                     format: date-time
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                 required: []
-                type: object
+                type:
+                - object
+                - 'null'
             required: []
-            type: object
+            type:
+            - object
+            - 'null'
           rate_id:
             description: An identifier for the rate (shipment offering) provided by a shipping service provider.
-            type: string
+            type:
+            - string
+            - 'null'
           rate_item_list:
             description: A list of RateItem
             items:
@@ -1703,75 +1768,58 @@ operations:
                   properties:
                     unit:
                       description: The ISO 4217 format 3-character currency code.
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                     value:
                       description: The monetary value.
                       type:
                       - number
                       - string
+                      - 'null'
                   required:
                   - unit
                   - value
-                  type: object
+                  type:
+                  - object
+                  - 'null'
                 rate_item_id:
                   description: 'Unique ID for the rateItem. Values: BASE_RATE: for Base Rate; TRANSACTION_FEE: Charge for TransAction Fee; ADULT_SIGNATURE_CONFIRMATION: Charge for Adult Signature Confirmation; SIGNATURE_CONFIRMATION: Charge for signature confirmation; NO_CONFIRMATION: Charge for No Confirmation; WAIVE_SIGNATURE: Charge for Waive Signature; IMPLIED_LIABILITY: Charge for Implied Liability; HIDDEN_POSTAGE: Hidden Postage Charge; DECLARED_VALUE: Declared Valure Coverage Charge; SUNDAY_HOLIDAY_DELIVERY: Sunday Holiday Delivery Charge; DELIVERY_CONFIRMATION: Charge for Delivery Confirmation; IMPORT_DUTY_CHARGE: Import Duty Charge; VAT: Vat Charge; NO_SATURDAY_DELIVERY: Charge for No Satuarday Delivery; INSURANCE: Insurance Charge; COD: COD Charge; AMAZON_SPONSORED_DISCOUNT: Amazon Sponsored Discount; INTEGRATOR_SPONSORED_DISCOUNT: Integrator Sponsored Discount; FUEL_SURCHARGE: Fuel Surcharge; INSPECTION_CHARGE: Inspection Charge; DELIVERY_AREA_SURCHARGE: Delivery Area Surcharge; WAYBILL_CHARGE: WayBill Charge; OVERSIZE_SURCHARGE: OverSize Surcharge; CONGESTION_CHARGE: Congestion Charge; RESIDENTIAL_SURCHARGE: Residential Surcharge; ADDITIONAL_SURCHARGE: Additional Surcharge; SURCHARGE: Surcharge; REBA…'
-                  enum:
-                  - BASE_RATE
-                  - TRANSACTION_FEE
-                  - ADULT_SIGNATURE_CONFIRMATION
-                  - SIGNATURE_CONFIRMATION
-                  - NO_CONFIRMATION
-                  - WAIVE_SIGNATURE
-                  - IMPLIED_LIABILITY
-                  - HIDDEN_POSTAGE
-                  - DECLARED_VALUE
-                  - SUNDAY_HOLIDAY_DELIVERY
-                  - DELIVERY_CONFIRMATION
-                  - IMPORT_DUTY_CHARGE
-                  - VAT
-                  - NO_SATURDAY_DELIVERY
-                  - INSURANCE
-                  - COD
-                  - FUEL_SURCHARGE
-                  - INSPECTION_CHARGE
-                  - DELIVERY_AREA_SURCHARGE
-                  - WAYBILL_CHARGE
-                  - AMAZON_SPONSORED_DISCOUNT
-                  - INTEGRATOR_SPONSORED_DISCOUNT
-                  - OVERSIZE_SURCHARGE
-                  - CONGESTION_CHARGE
-                  - RESIDENTIAL_SURCHARGE
-                  - ADDITIONAL_SURCHARGE
-                  - SURCHARGE
-                  - REBATE
-                  - HIGH_CUBE_SURCHARGE
-                  - HIGH_LENGTH_SURCHARGE
-                  - HIGH_WIDTH_SURCHARGE
-                  - DEMAND_SURCHARGE
-                  - NONSTANDARD_FEE
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 rate_item_name_localization:
                   description: Used for the localization.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 rate_item_type:
                   description: 'Type of the rateItem. Values: MANDATORY: Rate Item is mandatory; OPTIONAL: Rate Item is Optional; INCLUDED: Rate Item is included.'
-                  enum:
-                  - MANDATORY
-                  - OPTIONAL
-                  - INCLUDED
-                  type: string
+                  type:
+                  - string
+                  - 'null'
               required: []
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           requires_additional_inputs:
             description: When true, indicates that additional inputs are required to purchase this shipment service. You must then call the getAdditionalInputs operation to return the JSON schema to use when providing the additional inputs to the purchaseShipment operation.
-            type: boolean
+            type:
+            - boolean
+            - 'null'
           service_id:
             description: An identifier for the shipping service.
-            type: string
+            type:
+            - string
+            - 'null'
           service_name:
             description: The name of the shipping service.
-            type: string
+            type:
+            - string
+            - 'null'
           supported_document_specifications:
             description: A list of the document specifications supported for a shipment service offering.
             items:
@@ -1779,11 +1827,9 @@ operations:
               properties:
                 format:
                   description: 'The file format of the document. Values: PDF: The Portable Document Format (PDF) file format. Used to present documents, including text formatting and images, in a manner independent of application software, hardware, and operating systems; PNG: Portable Network Graphics (PNG) is a raster-graphics file format that supports lossless data compression; ZPL: Zebra Programming Language (ZPL) format is from Zebra Technologies. It''s used primarily for labeling applications and can only be used with ZPL compatible printers.'
-                  enum:
-                  - PDF
-                  - PNG
-                  - ZPL
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 print_options:
                   description: A list of the format options for a label.
                   items:
@@ -1796,44 +1842,63 @@ operations:
                           properties:
                             is_mandatory:
                               description: When true, the supported document type is required.
-                              type: boolean
+                              type:
+                              - boolean
+                              - 'null'
                             name:
                               description: 'The type of shipping document. Values: PACKSLIP: A listing of the items packed within the shipment; LABEL: The shipping label for the specific shipment; RECEIPT: The receipt of the shipment; CUSTOM_FORM: The customs documentation for a cross-border shipment.'
-                              enum:
-                              - PACKSLIP
-                              - LABEL
-                              - RECEIPT
-                              - CUSTOM_FORM
-                              type: string
+                              type:
+                              - string
+                              - 'null'
                           required:
                           - is_mandatory
                           - name
-                          type: object
-                        type: array
+                          type:
+                          - object
+                          - 'null'
+                        type:
+                        - array
+                        - 'null'
                       supported_dpis:
                         description: A list of the supported DPI options for a document.
                         items:
                           description: The dots per inch (DPI) value used in printing. This value represents a measure of the resolution of the document.
-                          type: integer
-                        type: array
+                          type:
+                          - integer
+                          - 'null'
+                        type:
+                        - array
+                        - 'null'
                       supported_file_joining_options:
                         description: A list of the supported needFileJoining boolean values for a document.
                         items:
                           description: When true, files should be stitched together. Otherwise, files should be returned separately. Defaults to false.
-                          type: boolean
-                        type: array
+                          type:
+                          - boolean
+                          - 'null'
+                        type:
+                        - array
+                        - 'null'
                       supported_page_layouts:
                         description: A list of the supported page layout options for a document.
                         items:
                           description: Indicates the position of the label on the paper. Should be the same value as returned in getRates response.
-                          type: string
-                        type: array
+                          type:
+                          - string
+                          - 'null'
+                        type:
+                        - array
+                        - 'null'
                     required:
                     - supported_document_details
                     - supported_file_joining_options
                     - supported_page_layouts
-                    type: object
-                  type: array
+                    type:
+                    - object
+                    - 'null'
+                  type:
+                  - array
+                  - 'null'
                 size:
                   description: The size dimensions of the label.
                   properties:
@@ -1842,43 +1907,55 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     unit:
                       description: 'The unit of measurement. Values: INCH: The imperial unit of length equal to one twelfth of a foot; CENTIMETER: A metric unit of length, equal to one hundredth of a meter.'
-                      enum:
-                      - INCH
-                      - CENTIMETER
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                     width:
                       description: The width of the document measured in the units specified.
                       type:
                       - number
                       - string
+                      - 'null'
                   required:
                   - length
                   - unit
                   - width
-                  type: object
+                  type:
+                  - object
+                  - 'null'
               required:
               - format
               - print_options
               - size
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           total_charge:
             description: The monetary value in the currency indicated, in ISO 4217 standard format.
             properties:
               unit:
                 description: The ISO 4217 format 3-character currency code.
-                type: string
+                type:
+                - string
+                - 'null'
               value:
                 description: The monetary value.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - unit
             - value
-            type: object
+            type:
+            - object
+            - 'null'
         required:
         - carrier_id
         - carrier_name
@@ -1889,7 +1966,9 @@ operations:
         - service_name
         - supported_document_specifications
         - total_charge
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -2464,53 +2543,53 @@ operations:
         properties:
           event_code:
             description: 'The tracking event type. Values: ReadyForReceive: Package has been created and is ready for pickup at the shippers location. This is a pre-transit status event code; PickupDone: Package has been picked up by the service provider; Delivered: Package has been delivered; Departed: Package has departed from a particular location in carrier network; DeliveryAttempted: Delivery was attempted, but was unsuccessful; Lost: Package is lost; OutForDelivery: Package is out for delivery; ArrivedAtCarrierFacility: Package is in transit and has been received at a carrier location; Rejected: Package was rejected by the recipient; Undeliverable: Package is undeliverable; PickupCancelled: Pickup scheduled for the package was cancelled; ReturnInitiated: Return label has been generated; AvailableForPickup: Package held for recipient pickup; RecipientRequestedAlternateDeliveryTiming: Recipient has requested an update to their delivery date.'
-            enum:
-            - ReadyForReceive
-            - PickupDone
-            - Delivered
-            - Departed
-            - DeliveryAttempted
-            - Lost
-            - OutForDelivery
-            - ArrivedAtCarrierFacility
-            - Rejected
-            - Undeliverable
-            - PickupCancelled
-            - ReturnInitiated
-            - AvailableForPickup
-            - RecipientRequestedAlternateDeliveryTiming
-            type: string
+            type:
+            - string
+            - 'null'
           event_time:
             description: The ISO 8601 formatted timestamp of the event.
             format: date-time
-            type: string
+            type:
+            - string
+            - 'null'
           location:
             description: The location where the person, business or institution is located.
             properties:
               city:
                 description: The city or town where the person, business or institution is located.
-                type: string
+                type:
+                - string
+                - 'null'
               country_code:
                 description: The two digit country code. Follows ISO 3166-1 alpha-2 format.
-                type: string
+                type:
+                - string
+                - 'null'
               postal_code:
                 description: The postal code of that address. It contains a series of letters or digits or both, sometimes including spaces or punctuation.
-                type: string
+                type:
+                - string
+                - 'null'
               state_or_region:
                 description: The state, county or region where the person, business or institution is located.
-                type: string
+                type:
+                - string
+                - 'null'
             required: []
-            type: object
+            type:
+            - object
+            - 'null'
           shipment_type:
             description: 'Shipment type. Values: FORWARD: Additional information about shipment representing package journey from origin address to destination address in the transportation/shipping request; RETURNS: Additional information about shipment representing package journey from destination address to origin/return address in the original transportation/shipping request.'
-            enum:
-            - FORWARD
-            - RETURNS
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - event_code
         - event_time
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -2529,18 +2608,9 @@ operations:
       properties:
         status:
           description: 'The status of the package being shipped. Values: PreTransit: Package has been created but has not been picked up; InTransit: Package has been picked up and is in transit; Delivered: Package has has been delivered successfully; Lost: Package is lost; OutForDelivery: Package is out for delivery; Rejected: Package has been rejected by the recipient; Undeliverable: Package was undeliverable; DeliveryAttempted: Delivery was attempted to the recipient location, but was not delivered; PickupCancelled: Pickup was cancelled for the package; AwaitingCustomerPickup: Package held at facility for the customer pickup.'
-          enum:
-          - PreTransit
-          - InTransit
-          - Delivered
-          - Lost
-          - OutForDelivery
-          - Rejected
-          - Undeliverable
-          - DeliveryAttempted
-          - PickupCancelled
-          - AwaitingCustomerPickup
-          type: string
+          type:
+          - string
+          - 'null'
         tracking_detail_codes:
           description: Contains detail codes that provide additional details related to the forward and return leg of the shipment.
           properties:
@@ -2548,80 +2618,28 @@ operations:
               description: Contains detail codes that provide additional details related to the forward leg of the shipment.
               items:
                 description: 'A list of codes used to provide additional shipment information. Values: BusinessClosed: Attempted delivery but the business was closed; CustomerUnavailable: Attempted delivery but the recipient was unavailable; PaymentNotReady: Attempted delivery but cash was not available from recipient; OtpNotAvailable: Attempted delivery but the recipient did not have the PIN available; DeliveryAttempted: Delivery was attempted; UnableToAccess: Attempted delivery but could not access the recipient location; UnableToContactRecipient: Attempted delivery but unable to contact the recipient to coordinate delivery; DeliveredToBehindWheelieBin: Shipment delivered behind wheelie bin; DeliveredToPorch: Shipment delivered to front porch or front door; DeliveredToGarage: Shipment delivered to garage; DeliveredToGarden: Shipment delivered to garden; DeliveredToGreenhouse: Shipment delivered to greenhouse; DeliveredToMailSlot: Shipment delivered to letterbox/mail slot; DeliveredToMailRoom: Shipment delivered to mailroom; DeliveredToNeighbor: Shipment delivered and signed for by neighbor; DeliveredToRearDoor: Shipment delivered to rear porch or rear door; DeliveredToReceptionist: Shipment delivered to rece…'
-                enum:
-                - BusinessClosed
-                - CustomerUnavailable
-                - PaymentNotReady
-                - OtpNotAvailable
-                - DeliveryAttempted
-                - UnableToAccess
-                - UnableToContactRecipient
-                - DeliveredToBehindWheelieBin
-                - DeliveredToPorch
-                - DeliveredToGarage
-                - DeliveredToGarden
-                - DeliveredToGreenhouse
-                - DeliveredToMailSlot
-                - DeliveredToMailRoom
-                - DeliveredToNeighbor
-                - DeliveredToRearDoor
-                - DeliveredToReceptionist
-                - DeliveredToShed
-                - DeliveredWithOTP
-                - Signed
-                - Damaged
-                - IncorrectItems
-                - NotRequired
-                - Rejected
-                - RejectedByRecipientWithVerification
-                - CancelledByRecipient
-                - AddressNotFound
-                - HazmatShipment
-                - Undeliverable
-                - ArrivedAtLocalFacility
-                type: string
-              type: array
+                type:
+                - string
+                - 'null'
+              type:
+              - array
+              - 'null'
             returns:
               description: Contains detail codes that provide additional details related to the return leg of the shipment.
               items:
                 description: 'A list of codes used to provide additional shipment information. Values: BusinessClosed: Attempted delivery but the business was closed; CustomerUnavailable: Attempted delivery but the recipient was unavailable; PaymentNotReady: Attempted delivery but cash was not available from recipient; OtpNotAvailable: Attempted delivery but the recipient did not have the PIN available; DeliveryAttempted: Delivery was attempted; UnableToAccess: Attempted delivery but could not access the recipient location; UnableToContactRecipient: Attempted delivery but unable to contact the recipient to coordinate delivery; DeliveredToBehindWheelieBin: Shipment delivered behind wheelie bin; DeliveredToPorch: Shipment delivered to front porch or front door; DeliveredToGarage: Shipment delivered to garage; DeliveredToGarden: Shipment delivered to garden; DeliveredToGreenhouse: Shipment delivered to greenhouse; DeliveredToMailSlot: Shipment delivered to letterbox/mail slot; DeliveredToMailRoom: Shipment delivered to mailroom; DeliveredToNeighbor: Shipment delivered and signed for by neighbor; DeliveredToRearDoor: Shipment delivered to rear porch or rear door; DeliveredToReceptionist: Shipment delivered to rece…'
-                enum:
-                - BusinessClosed
-                - CustomerUnavailable
-                - PaymentNotReady
-                - OtpNotAvailable
-                - DeliveryAttempted
-                - UnableToAccess
-                - UnableToContactRecipient
-                - DeliveredToBehindWheelieBin
-                - DeliveredToPorch
-                - DeliveredToGarage
-                - DeliveredToGarden
-                - DeliveredToGreenhouse
-                - DeliveredToMailSlot
-                - DeliveredToMailRoom
-                - DeliveredToNeighbor
-                - DeliveredToRearDoor
-                - DeliveredToReceptionist
-                - DeliveredToShed
-                - DeliveredWithOTP
-                - Signed
-                - Damaged
-                - IncorrectItems
-                - NotRequired
-                - Rejected
-                - RejectedByRecipientWithVerification
-                - CancelledByRecipient
-                - AddressNotFound
-                - HazmatShipment
-                - Undeliverable
-                - ArrivedAtLocalFacility
-                type: string
-              type: array
+                type:
+                - string
+                - 'null'
+              type:
+              - array
+              - 'null'
           required:
           - forward
           - returns
-          type: object
+          type:
+          - object
+          - 'null'
       required: []
       type:
       - object
@@ -5450,72 +5468,46 @@ operations:
         properties:
           all_owners_constraint:
             description: 'A constraint that applies to all owners. If no constraint is specified, defer to any individual owner constraints. Values: MUST_MATCH: All owners must match.'
-            enum:
-            - MUST_MATCH
-            type: string
+            type:
+            - string
+            - 'null'
           label_owner_constraint:
             description: 'A constraint that can apply to an individual owner. If no constraint is specified, both `AMAZON` and `SELLER` are acceptable. Values: AMAZON_ONLY: Only `AMAZON` is accepted as an owner; NONE_ONLY: Only `NONE` is accepted as an owner; SELLER_ONLY: Only `SELLER` is accepted as an owner.'
-            enum:
-            - AMAZON_ONLY
-            - NONE_ONLY
-            - SELLER_ONLY
-            type: string
+            type:
+            - string
+            - 'null'
           msku:
             description: The merchant SKU, a merchant-supplied identifier for a specific SKU.
-            type: string
+            type:
+            - string
+            - 'null'
           prep_category:
             description: 'The preparation category for shipping an item to Amazon''s fulfillment network. Values: ADULT: Displays potentially offensive material such as profanity or nudity; BABY: Made for a child aged three years or younger, packaging with cutouts greater than one square inch; FC_PROVIDED: A prep type has been defined by the Fulfillment Center. This value is provided by Amazon and cannot be used as an input; FRAGILE: Glass or otherwise fragile, or a liquid in a glass container; GRANULAR: Made of powder, pellets, or granular material; HANGER: Made of cloth or fabric and intended to be put on a hanger; LIQUID: Liquid or viscous without a double seal; PERFORATED: In packaging that has a perforated opening; SET: Multiple items that are sold as one unit; SHARP: Sharp and easily exposed, not already contained in protective packaging; SMALL: Longest side less than 2 1/8 inches (width of a credit card); TEXTILE: Made of cloth or fabric that could be damaged by dirt, dust, moisture, or liquid; UNKNOWN: An unknown prep category was found and needs to be updated. This value is provided by Amazon and cannot be used as an input; NONE: Does not require prep.'
-            enum:
-            - ADULT
-            - BABY
-            - FC_PROVIDED
-            - FRAGILE
-            - GRANULAR
-            - HANGER
-            - LIQUID
-            - PERFORATED
-            - SET
-            - SHARP
-            - SMALL
-            - TEXTILE
-            - UNKNOWN
-            - NONE
-            type: string
+            type:
+            - string
+            - 'null'
           prep_owner_constraint:
             description: 'A constraint that can apply to an individual owner. If no constraint is specified, both `AMAZON` and `SELLER` are acceptable. Values: AMAZON_ONLY: Only `AMAZON` is accepted as an owner; NONE_ONLY: Only `NONE` is accepted as an owner; SELLER_ONLY: Only `SELLER` is accepted as an owner.'
-            enum:
-            - AMAZON_ONLY
-            - NONE_ONLY
-            - SELLER_ONLY
-            type: string
+            type:
+            - string
+            - 'null'
           prep_types:
             description: A list of preparation types associated with a preparation category.
             items:
               description: 'Preparation instructions for shipping an item to Amazon''s fulfillment network. For more information about preparing items for shipment to Amazon''s fulfillment network, refer to [Seller Central Help for your marketplace](https://developer-docs.amazon.com/sp-api/docs/seller-central-urls). Values: ITEM_BLACK_SHRINKWRAP: The item requires black shrink wrapping; ITEM_BLANKSTK: The item requires a blank sticker to obscure a bad barcode that cannot be covered by another sticker; ITEM_BOXING: Products may require overboxing when there are safety concerns over sharp items, fragile items, hazardous liquids, and vinyl records. For items over 4.5 kg, use double-wall corrugated boxes; ITEM_BUBBLEWRAP: The item requires bubble wrapping; ITEM_CAP_SEALING: To prevent leakage, the product needs to have a secondary seal in one of the following types: Induction seal, safety ring, clips, heat shrink plastic band, or boxing; ITEM_DEBUNDLE: The item requires taking apart a set of items labeled for individual sale. Remove tape or shrink wrap that groups multiple inventory units together; ITEM_HANG_GARMENT: The item must be placed on a hanger; ITEM_LABELING: The FNSKU label must be applied to the item; I…'
-              enum:
-              - ITEM_BLACK_SHRINKWRAP
-              - ITEM_BLANKSTK
-              - ITEM_BOXING
-              - ITEM_BUBBLEWRAP
-              - ITEM_CAP_SEALING
-              - ITEM_DEBUNDLE
-              - ITEM_HANG_GARMENT
-              - ITEM_LABELING
-              - ITEM_NO_PREP
-              - ITEM_POLYBAGGING
-              - ITEM_RMOVHANG
-              - ITEM_SETCREAT
-              - ITEM_SETSTK
-              - ITEM_SIOC
-              - ITEM_SUFFOSTK
-              - ITEM_TAPING
-              type: string
-            type: array
+              type:
+              - string
+              - 'null'
+            type:
+            - array
+            - 'null'
         required:
         - msku
         - prep_category
         - prep_types
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -6191,69 +6183,107 @@ operations:
           created_at:
             description: The time at which the inbound plan was created. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern `yyyy-MM-ddTHH:mm:ssZ`.
             format: date-time
-            type: string
+            type:
+            - string
+            - 'null'
           inbound_plan_id:
             description: 'Identifier of an inbound plan. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           last_updated_at:
             description: The time at which the inbound plan was last updated. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern `yyyy-MM-ddTHH:mm:ssZ`.
             format: date-time
-            type: string
+            type:
+            - string
+            - 'null'
           marketplace_ids:
             description: A list of marketplace IDs.
             items:
               description: The Marketplace ID. For a list of possible values, refer to [Marketplace IDs](https://developer-docs.amazon.com/sp-api/docs/marketplace-ids).
-              type: string
-            type: array
+              type:
+              - string
+              - 'null'
+            type:
+            - array
+            - 'null'
           name:
             description: Human-readable name of the inbound plan.
-            type: string
+            type:
+            - string
+            - 'null'
           source_address:
             description: Specific details to identify a place.
             properties:
               address_line1:
                 description: Street address information.
-                type: string
+                type:
+                - string
+                - 'null'
               address_line2:
                 description: Additional street address information.
-                type: string
+                type:
+                - string
+                - 'null'
               city:
                 description: The city.
-                type: string
+                type:
+                - string
+                - 'null'
               company_name:
                 description: The name of the business.
-                type: string
+                type:
+                - string
+                - 'null'
               country_code:
                 description: 'The country code in two-character ISO 3166-1 alpha-2 format. Format (checked by Amazon): ^[A-Z]{2}$'
-                type: string
+                type:
+                - string
+                - 'null'
               district_or_county:
                 description: The district or county.
-                type: string
+                type:
+                - string
+                - 'null'
               email:
                 description: The email address.
-                type: string
+                type:
+                - string
+                - 'null'
               name:
                 description: The name of the individual who is the primary contact.
-                type: string
+                type:
+                - string
+                - 'null'
               phone_number:
                 description: The phone number.
-                type: string
+                type:
+                - string
+                - 'null'
               postal_code:
                 description: The postal code.
-                type: string
+                type:
+                - string
+                - 'null'
               state_or_province_code:
                 description: The state or province code.
-                type: string
+                type:
+                - string
+                - 'null'
             required:
             - address_line1
             - city
             - country_code
             - name
             - postal_code
-            type: object
+            type:
+            - object
+            - 'null'
           status:
             description: 'The current status of the inbound plan. Possible values: `ACTIVE`, `VOIDED`, `SHIPPED`, `ERRORED`.'
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - created_at
         - inbound_plan_id
@@ -6262,7 +6292,9 @@ operations:
         - name
         - source_address
         - status
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -6366,7 +6398,9 @@ operations:
       description: A list of marketplace IDs.
       items:
         description: The Marketplace ID. For a list of possible values, refer to [Marketplace IDs](https://developer-docs.amazon.com/sp-api/docs/marketplace-ids).
-        type: string
+        type:
+        - string
+        - 'null'
       type:
       - array
       - 'null'
@@ -6386,14 +6420,20 @@ operations:
         properties:
           packing_option_id:
             description: 'Identifier of a packing option. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           status:
             description: 'The status of a packing option. Possible values: ''OFFERED'', ''ACCEPTED'', ''EXPIRED''.'
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - packing_option_id
         - status
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -6406,14 +6446,20 @@ operations:
         properties:
           placement_option_id:
             description: 'The identifier of a placement option. A placement option represents the shipment splits and destinations of SKUs. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           status:
             description: 'The status of a placement option. Possible values: `OFFERED`, `ACCEPTED`.'
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - placement_option_id
         - status
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -6426,14 +6472,20 @@ operations:
         properties:
           shipment_id:
             description: 'Identifier of a shipment. A shipment contains the boxes and units being inbounded. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           status:
             description: 'The status of a shipment. The state of the shipment will typically start as `UNCONFIRMED`, then transition to `WORKING` after a placement option has been confirmed, and then to `READY_TO_SHIP` once labels are generated. Possible values: `ABANDONED`, `CANCELLED`, `CHECKED_IN`, `CLOSED`, `DELETED`, `DELIVERED`, `IN_TRANSIT`, `MIXED`, `READY_TO_SHIP`, `RECEIVING`, `SHIPPED`, `UNCONFIRMED`, `WORKING`'
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - shipment_id
         - status
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -6444,37 +6496,59 @@ operations:
       properties:
         address_line1:
           description: Street address information.
-          type: string
+          type:
+          - string
+          - 'null'
         address_line2:
           description: Additional street address information.
-          type: string
+          type:
+          - string
+          - 'null'
         city:
           description: The city.
-          type: string
+          type:
+          - string
+          - 'null'
         company_name:
           description: The name of the business.
-          type: string
+          type:
+          - string
+          - 'null'
         country_code:
           description: 'The country code in two-character ISO 3166-1 alpha-2 format. Format (checked by Amazon): ^[A-Z]{2}$'
-          type: string
+          type:
+          - string
+          - 'null'
         district_or_county:
           description: The district or county.
-          type: string
+          type:
+          - string
+          - 'null'
         email:
           description: The email address.
-          type: string
+          type:
+          - string
+          - 'null'
         name:
           description: The name of the individual who is the primary contact.
-          type: string
+          type:
+          - string
+          - 'null'
         phone_number:
           description: The phone number.
-          type: string
+          type:
+          - string
+          - 'null'
         postal_code:
           description: The postal code.
-          type: string
+          type:
+          - string
+          - 'null'
         state_or_province_code:
           description: The state or province code.
-          type: string
+          type:
+          - string
+          - 'null'
       required:
       - address_line1
       - city
@@ -6666,21 +6740,31 @@ operations:
         properties:
           code:
             description: An error code that identifies the type of error that occurred.
-            type: string
+            type:
+            - string
+            - 'null'
           details:
             description: Additional details that can help the caller understand or fix the issue.
-            type: string
+            type:
+            - string
+            - 'null'
           message:
             description: A message that describes the error condition.
-            type: string
+            type:
+            - string
+            - 'null'
           severity:
             description: 'The severity of the problem. Possible values: `WARNING`, `ERROR`.'
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - code
         - message
         - severity
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -6688,11 +6772,6 @@ operations:
     value_type: text
     schema:
       description: 'The status of an operation. Values: SUCCESS: Indicates a request has successfully finished processing; FAILED: Indicates a request has finished processing but is in a failed state; IN_PROGRESS: Indicates a request is still processing.'
-      enum:
-      - SUCCESS
-      - FAILED
-      - IN_PROGRESS
-      - null
       type:
       - string
       - 'null'
@@ -6790,22 +6869,34 @@ operations:
         properties:
           asin:
             description: The Amazon Standard Identification Number (ASIN) of the item.
-            type: string
+            type:
+            - string
+            - 'null'
           expiration:
             description: 'The expiration date of the MSKU. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern`YYYY-MM-DD`. The same MSKU with different expiration dates cannot go into the same box. Format (checked by Amazon): ^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$'
-            type: string
+            type:
+            - string
+            - 'null'
           fnsku:
             description: A unique identifier assigned by Amazon to products stored in and fulfilled from an Amazon fulfillment center.
-            type: string
+            type:
+            - string
+            - 'null'
           label_owner:
             description: Specifies who will label the items. Options include `AMAZON`, `SELLER`, and `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-            type: string
+            type:
+            - string
+            - 'null'
           manufacturing_lot_code:
             description: The manufacturing lot code.
-            type: string
+            type:
+            - string
+            - 'null'
           msku:
             description: The merchant-defined SKU ID.
-            type: string
+            type:
+            - string
+            - 'null'
           prep_instructions:
             description: Special preparations that are required for an item.
             items:
@@ -6819,25 +6910,40 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     code:
                       description: ISO 4217 standard of a currency code.
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                   required:
                   - amount
                   - code
-                  type: object
+                  type:
+                  - object
+                  - 'null'
                 prep_owner:
                   description: In some situations, special preparations are required for items and this field reflects the owner of the preparations. Options include `AMAZON`, `SELLER` or `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 prep_type:
                   description: 'Type of preparation that should be done. Possible values: `ITEM_LABELING`, `ITEM_BUBBLEWRAP`, `ITEM_POLYBAGGING`, `ITEM_TAPING`, `ITEM_BLACK_SHRINKWRAP`, `ITEM_HANG_GARMENT`, `ITEM_BOXING`, `ITEM_SETCREAT`, `ITEM_RMOVHANG`, `ITEM_SUFFOSTK`, `ITEM_CAP_SEALING`, `ITEM_DEBUNDLE`, `ITEM_SETSTK`, `ITEM_SIOC`, `ITEM_NO_PREP`, `ADULT`, `BABY`, `TEXTILE`, `HANGER`, `FRAGILE`, `LIQUID`, `SHARP`, `SMALL`, `PERFORATED`, `GRANULAR`, `SET`, `FC_PROVIDED`, `UNKNOWN`, `NONE`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
               required: []
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           quantity:
             description: The number of the specified MSKU.
-            type: integer
+            type:
+            - integer
+            - 'null'
         required:
         - asin
         - fnsku
@@ -6845,7 +6951,9 @@ operations:
         - msku
         - prep_instructions
         - quantity
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -6947,28 +7055,36 @@ operations:
         properties:
           box_id:
             description: The ID provided by Amazon that identifies a given box. This ID is comprised of the external shipment ID (which is generated after transportation has been confirmed) and the index of the box.
-            type: string
+            type:
+            - string
+            - 'null'
           content_information_source:
             description: 'Indication of how box content is meant to be provided. Values: BOX_CONTENT_PROVIDED: Box contents have been provided by the seller; MANUAL_PROCESS: Box contents will be manually processed during receive. This service incurs charges; BARCODE_2D: Box contents information is provided by a barcode on the shipment. For more information, refer to [Using 2D barcodes for box content information](https://sellercentral.amazon.com/help/hub/reference/GJWALJCN6JKWJX5A) on Seller Central.'
-            enum:
-            - BOX_CONTENT_PROVIDED
-            - MANUAL_PROCESS
-            - BARCODE_2D
-            type: string
+            type:
+            - string
+            - 'null'
           destination_region:
             description: Representation of a location used within the inbounding experience.
             properties:
               country_code:
                 description: ISO 3166 standard alpha-2 country code.
-                type: string
+                type:
+                - string
+                - 'null'
               state:
                 description: State.
-                type: string
+                type:
+                - string
+                - 'null'
               warehouse_id:
                 description: An identifier for a warehouse, such as a FC, IXD, upstream storage.
-                type: string
+                type:
+                - string
+                - 'null'
             required: []
-            type: object
+            type:
+            - object
+            - 'null'
           dimensions:
             description: Measurement of a package's dimensions.
             properties:
@@ -6977,34 +7093,42 @@ operations:
                 type:
                 - number
                 - string
+                - 'null'
               length:
                 description: The length of a package.
                 type:
                 - number
                 - string
+                - 'null'
               unit_of_measurement:
                 description: 'Unit of linear measure. Values: IN: Inches; CM: Centimeters.'
-                enum:
-                - IN
-                - CM
-                type: string
+                type:
+                - string
+                - 'null'
               width:
                 description: The width of a package.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - height
             - length
             - unit_of_measurement
             - width
-            type: object
+            type:
+            - object
+            - 'null'
           external_container_identifier:
             description: The external identifier for this container / box.
-            type: string
+            type:
+            - string
+            - 'null'
           external_container_identifier_type:
             description: 'Type of the external identifier used. Can be: `AMAZON`, `SSCC`.'
-            type: string
+            type:
+            - string
+            - 'null'
           items:
             description: Items contained within the box.
             items:
@@ -7012,22 +7136,34 @@ operations:
               properties:
                 asin:
                   description: The Amazon Standard Identification Number (ASIN) of the item.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 expiration:
                   description: 'The expiration date of the MSKU. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern`YYYY-MM-DD`. The same MSKU with different expiration dates cannot go into the same box. Format (checked by Amazon): ^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 fnsku:
                   description: A unique identifier assigned by Amazon to products stored in and fulfilled from an Amazon fulfillment center.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 label_owner:
                   description: Specifies who will label the items. Options include `AMAZON`, `SELLER`, and `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 manufacturing_lot_code:
                   description: The manufacturing lot code.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 msku:
                   description: The merchant-defined SKU ID.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 prep_instructions:
                   description: Special preparations that are required for an item.
                   items:
@@ -7041,25 +7177,40 @@ operations:
                             type:
                             - number
                             - string
+                            - 'null'
                           code:
                             description: ISO 4217 standard of a currency code.
-                            type: string
+                            type:
+                            - string
+                            - 'null'
                         required:
                         - amount
                         - code
-                        type: object
+                        type:
+                        - object
+                        - 'null'
                       prep_owner:
                         description: In some situations, special preparations are required for items and this field reflects the owner of the preparations. Options include `AMAZON`, `SELLER` or `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-                        type: string
+                        type:
+                        - string
+                        - 'null'
                       prep_type:
                         description: 'Type of preparation that should be done. Possible values: `ITEM_LABELING`, `ITEM_BUBBLEWRAP`, `ITEM_POLYBAGGING`, `ITEM_TAPING`, `ITEM_BLACK_SHRINKWRAP`, `ITEM_HANG_GARMENT`, `ITEM_BOXING`, `ITEM_SETCREAT`, `ITEM_RMOVHANG`, `ITEM_SUFFOSTK`, `ITEM_CAP_SEALING`, `ITEM_DEBUNDLE`, `ITEM_SETSTK`, `ITEM_SIOC`, `ITEM_NO_PREP`, `ADULT`, `BABY`, `TEXTILE`, `HANGER`, `FRAGILE`, `LIQUID`, `SHARP`, `SMALL`, `PERFORATED`, `GRANULAR`, `SET`, `FC_PROVIDED`, `UNKNOWN`, `NONE`.'
-                        type: string
+                        type:
+                        - string
+                        - 'null'
                     required: []
-                    type: object
-                  type: array
+                    type:
+                    - object
+                    - 'null'
+                  type:
+                  - array
+                  - 'null'
                 quantity:
                   description: The number of the specified MSKU.
-                  type: integer
+                  type:
+                  - integer
+                  - 'null'
               required:
               - asin
               - fnsku
@@ -7067,38 +7218,52 @@ operations:
               - msku
               - prep_instructions
               - quantity
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           package_id:
             description: 'Primary key to uniquely identify a Package (Box or Pallet). Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           quantity:
             description: The number of containers where all other properties like weight or dimensions are identical.
-            type: integer
+            type:
+            - integer
+            - 'null'
           template_name:
             description: Template name of the box.
-            type: string
+            type:
+            - string
+            - 'null'
           weight:
             description: The weight of a package.
             properties:
               unit:
                 description: 'Unit of the weight being measured. Values: LB: Pounds; KG: Kilograms.'
-                enum:
-                - LB
-                - KG
-                type: string
+                type:
+                - string
+                - 'null'
               value:
                 description: Value of a weight.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - unit
             - value
-            type: object
+            type:
+            - object
+            - 'null'
         required:
         - package_id
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -7206,61 +7371,72 @@ operations:
                 type:
                 - number
                 - string
+                - 'null'
               length:
                 description: The length of a package.
                 type:
                 - number
                 - string
+                - 'null'
               unit_of_measurement:
                 description: 'Unit of linear measure. Values: IN: Inches; CM: Centimeters.'
-                enum:
-                - IN
-                - CM
-                type: string
+                type:
+                - string
+                - 'null'
               width:
                 description: The width of a package.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - height
             - length
             - unit_of_measurement
             - width
-            type: object
+            type:
+            - object
+            - 'null'
           package_id:
             description: 'Primary key to uniquely identify a Package (Box or Pallet). Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           quantity:
             description: The number of containers where all other properties like weight or dimensions are identical.
-            type: integer
+            type:
+            - integer
+            - 'null'
           stackability:
             description: 'Indicates whether pallets will be stacked when carrier arrives for pick-up. Values: STACKABLE: A pallet that can be stacked on top of another pallet; NON_STACKABLE: A pallet that cannot be stacked on top of another pallet.'
-            enum:
-            - STACKABLE
-            - NON_STACKABLE
-            type: string
+            type:
+            - string
+            - 'null'
           weight:
             description: The weight of a package.
             properties:
               unit:
                 description: 'Unit of the weight being measured. Values: LB: Pounds; KG: Kilograms.'
-                enum:
-                - LB
-                - KG
-                type: string
+                type:
+                - string
+                - 'null'
               value:
                 description: Value of a weight.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - unit
             - value
-            type: object
+            type:
+            - object
+            - 'null'
         required:
         - package_id
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -7531,13 +7707,19 @@ operations:
               properties:
                 description:
                   description: Description of the incentive.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 target:
                   description: 'Target of the incentive. Possible values: ''Placement Services'', ''Fulfillment Fee Discount''.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 type:
                   description: 'Type of incentive. Possible values: `FEE`, `DISCOUNT`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 value:
                   description: The type and amount of currency.
                   properties:
@@ -7546,24 +7728,35 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     code:
                       description: ISO 4217 standard of a currency code.
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                   required:
                   - amount
                   - code
-                  type: object
+                  type:
+                  - object
+                  - 'null'
               required:
               - description
               - target
               - type
               - value
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           expiration:
             description: The time at which this packing option is no longer valid. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern `yyyy-MM-ddTHH:mm:ss.sssZ`.
             format: date-time
-            type: string
+            type:
+            - string
+            - 'null'
           fees:
             description: Fee for the offered option.
             items:
@@ -7571,13 +7764,19 @@ operations:
               properties:
                 description:
                   description: Description of the incentive.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 target:
                   description: 'Target of the incentive. Possible values: ''Placement Services'', ''Fulfillment Fee Discount''.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 type:
                   description: 'Type of incentive. Possible values: `FEE`, `DISCOUNT`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 value:
                   description: The type and amount of currency.
                   properties:
@@ -7586,32 +7785,49 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     code:
                       description: ISO 4217 standard of a currency code.
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                   required:
                   - amount
                   - code
-                  type: object
+                  type:
+                  - object
+                  - 'null'
               required:
               - description
               - target
               - type
               - value
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           packing_groups:
             description: Packing group IDs.
             items:
               description: 'Identifier of a packing group. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-              type: string
-            type: array
+              type:
+              - string
+              - 'null'
+            type:
+            - array
+            - 'null'
           packing_option_id:
             description: 'Identifier of a packing option. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           status:
             description: 'The status of the packing option. Possible values: `OFFERED`, `ACCEPTED`, `EXPIRED`.'
-            type: string
+            type:
+            - string
+            - 'null'
           supported_configurations:
             description: A list of possible configurations for this option.
             items:
@@ -7621,12 +7837,12 @@ operations:
                   description: The box content information sources that are allowed.
                   items:
                     description: 'Indication of how box content is meant to be provided. Values: BOX_CONTENT_PROVIDED: Box contents have been provided by the seller; MANUAL_PROCESS: Box contents will be manually processed during receive. This service incurs charges; BARCODE_2D: Box contents information is provided by a barcode on the shipment. For more information, refer to [Using 2D barcodes for box content information](https://sellercentral.amazon.com/help/hub/reference/GJWALJCN6JKWJX5A) on Seller Central.'
-                    enum:
-                    - BOX_CONTENT_PROVIDED
-                    - MANUAL_PROCESS
-                    - BARCODE_2D
-                    type: string
-                  type: array
+                    type:
+                    - string
+                    - 'null'
+                  type:
+                  - array
+                  - 'null'
                 box_requirements:
                   description: The requirements for a box in the packing option.
                   properties:
@@ -7638,25 +7854,30 @@ operations:
                           type:
                           - number
                           - string
+                          - 'null'
                         minimum:
                           description: Minimum allowed weight.
                           type:
                           - number
                           - string
+                          - 'null'
                         unit:
                           description: 'Unit of the weight being measured. Values: LB: Pounds; KG: Kilograms.'
-                          enum:
-                          - LB
-                          - KG
-                          type: string
+                          type:
+                          - string
+                          - 'null'
                       required:
                       - maximum
                       - minimum
                       - unit
-                      type: object
+                      type:
+                      - object
+                      - 'null'
                   required:
                   - weight
-                  type: object
+                  type:
+                  - object
+                  - 'null'
                 shipping_requirements:
                   description: A list of supported shipping requirements for this packing configuration.
                   items:
@@ -7666,19 +7887,33 @@ operations:
                         description: Available shipment modes for this shipping program.
                         items:
                           description: 'Format (checked by Amazon): ^[a-zA-Z0-9-._ ]*$'
-                          type: string
-                        type: array
+                          type:
+                          - string
+                          - 'null'
+                        type:
+                        - array
+                        - 'null'
                       solution:
                         description: 'Shipping program for the option. Can be: `AMAZON_PARTNERED_CARRIER`, `USE_YOUR_OWN_CARRIER`.'
-                        type: string
+                        type:
+                        - string
+                        - 'null'
                     required:
                     - modes
                     - solution
-                    type: object
-                  type: array
+                    type:
+                    - object
+                    - 'null'
+                  type:
+                  - array
+                  - 'null'
               required: []
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           supported_shipping_configurations:
             description: '**This field is deprecated**. Use the `shippingRequirements` property under `supportedConfigurations` instead. List of supported shipping modes.'
             items:
@@ -7686,13 +7921,21 @@ operations:
               properties:
                 shipping_mode:
                   description: 'Mode of shipment transportation that this option will provide. Possible values: `GROUND_SMALL_PARCEL`, `FREIGHT_LTL`, `FREIGHT_FTL_PALLET`, `FREIGHT_FTL_NONPALLET`, `OCEAN_LCL`, `OCEAN_FCL`, `AIR_SMALL_PARCEL`, `AIR_SMALL_PARCEL_EXPRESS`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 shipping_solution:
                   description: 'Shipping program for the option. Possible values: `AMAZON_PARTNERED_CARRIER`, `USE_YOUR_OWN_CARRIER`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
               required: []
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
         required:
         - discounts
         - fees
@@ -7701,7 +7944,9 @@ operations:
         - status
         - supported_configurations
         - supported_shipping_configurations
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -7900,22 +8145,34 @@ operations:
         properties:
           asin:
             description: The Amazon Standard Identification Number (ASIN) of the item.
-            type: string
+            type:
+            - string
+            - 'null'
           expiration:
             description: 'The expiration date of the MSKU. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern`YYYY-MM-DD`. The same MSKU with different expiration dates cannot go into the same box. Format (checked by Amazon): ^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$'
-            type: string
+            type:
+            - string
+            - 'null'
           fnsku:
             description: A unique identifier assigned by Amazon to products stored in and fulfilled from an Amazon fulfillment center.
-            type: string
+            type:
+            - string
+            - 'null'
           label_owner:
             description: Specifies who will label the items. Options include `AMAZON`, `SELLER`, and `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-            type: string
+            type:
+            - string
+            - 'null'
           manufacturing_lot_code:
             description: The manufacturing lot code.
-            type: string
+            type:
+            - string
+            - 'null'
           msku:
             description: The merchant-defined SKU ID.
-            type: string
+            type:
+            - string
+            - 'null'
           prep_instructions:
             description: Special preparations that are required for an item.
             items:
@@ -7929,25 +8186,40 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     code:
                       description: ISO 4217 standard of a currency code.
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                   required:
                   - amount
                   - code
-                  type: object
+                  type:
+                  - object
+                  - 'null'
                 prep_owner:
                   description: In some situations, special preparations are required for items and this field reflects the owner of the preparations. Options include `AMAZON`, `SELLER` or `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 prep_type:
                   description: 'Type of preparation that should be done. Possible values: `ITEM_LABELING`, `ITEM_BUBBLEWRAP`, `ITEM_POLYBAGGING`, `ITEM_TAPING`, `ITEM_BLACK_SHRINKWRAP`, `ITEM_HANG_GARMENT`, `ITEM_BOXING`, `ITEM_SETCREAT`, `ITEM_RMOVHANG`, `ITEM_SUFFOSTK`, `ITEM_CAP_SEALING`, `ITEM_DEBUNDLE`, `ITEM_SETSTK`, `ITEM_SIOC`, `ITEM_NO_PREP`, `ADULT`, `BABY`, `TEXTILE`, `HANGER`, `FRAGILE`, `LIQUID`, `SHARP`, `SMALL`, `PERFORATED`, `GRANULAR`, `SET`, `FC_PROVIDED`, `UNKNOWN`, `NONE`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
               required: []
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           quantity:
             description: The number of the specified MSKU.
-            type: integer
+            type:
+            - integer
+            - 'null'
         required:
         - asin
         - fnsku
@@ -7955,7 +8227,9 @@ operations:
         - msku
         - prep_instructions
         - quantity
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -8066,28 +8340,36 @@ operations:
         properties:
           box_id:
             description: The ID provided by Amazon that identifies a given box. This ID is comprised of the external shipment ID (which is generated after transportation has been confirmed) and the index of the box.
-            type: string
+            type:
+            - string
+            - 'null'
           content_information_source:
             description: 'Indication of how box content is meant to be provided. Values: BOX_CONTENT_PROVIDED: Box contents have been provided by the seller; MANUAL_PROCESS: Box contents will be manually processed during receive. This service incurs charges; BARCODE_2D: Box contents information is provided by a barcode on the shipment. For more information, refer to [Using 2D barcodes for box content information](https://sellercentral.amazon.com/help/hub/reference/GJWALJCN6JKWJX5A) on Seller Central.'
-            enum:
-            - BOX_CONTENT_PROVIDED
-            - MANUAL_PROCESS
-            - BARCODE_2D
-            type: string
+            type:
+            - string
+            - 'null'
           destination_region:
             description: Representation of a location used within the inbounding experience.
             properties:
               country_code:
                 description: ISO 3166 standard alpha-2 country code.
-                type: string
+                type:
+                - string
+                - 'null'
               state:
                 description: State.
-                type: string
+                type:
+                - string
+                - 'null'
               warehouse_id:
                 description: An identifier for a warehouse, such as a FC, IXD, upstream storage.
-                type: string
+                type:
+                - string
+                - 'null'
             required: []
-            type: object
+            type:
+            - object
+            - 'null'
           dimensions:
             description: Measurement of a package's dimensions.
             properties:
@@ -8096,34 +8378,42 @@ operations:
                 type:
                 - number
                 - string
+                - 'null'
               length:
                 description: The length of a package.
                 type:
                 - number
                 - string
+                - 'null'
               unit_of_measurement:
                 description: 'Unit of linear measure. Values: IN: Inches; CM: Centimeters.'
-                enum:
-                - IN
-                - CM
-                type: string
+                type:
+                - string
+                - 'null'
               width:
                 description: The width of a package.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - height
             - length
             - unit_of_measurement
             - width
-            type: object
+            type:
+            - object
+            - 'null'
           external_container_identifier:
             description: The external identifier for this container / box.
-            type: string
+            type:
+            - string
+            - 'null'
           external_container_identifier_type:
             description: 'Type of the external identifier used. Can be: `AMAZON`, `SSCC`.'
-            type: string
+            type:
+            - string
+            - 'null'
           items:
             description: Items contained within the box.
             items:
@@ -8131,22 +8421,34 @@ operations:
               properties:
                 asin:
                   description: The Amazon Standard Identification Number (ASIN) of the item.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 expiration:
                   description: 'The expiration date of the MSKU. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern`YYYY-MM-DD`. The same MSKU with different expiration dates cannot go into the same box. Format (checked by Amazon): ^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 fnsku:
                   description: A unique identifier assigned by Amazon to products stored in and fulfilled from an Amazon fulfillment center.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 label_owner:
                   description: Specifies who will label the items. Options include `AMAZON`, `SELLER`, and `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 manufacturing_lot_code:
                   description: The manufacturing lot code.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 msku:
                   description: The merchant-defined SKU ID.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 prep_instructions:
                   description: Special preparations that are required for an item.
                   items:
@@ -8160,25 +8462,40 @@ operations:
                             type:
                             - number
                             - string
+                            - 'null'
                           code:
                             description: ISO 4217 standard of a currency code.
-                            type: string
+                            type:
+                            - string
+                            - 'null'
                         required:
                         - amount
                         - code
-                        type: object
+                        type:
+                        - object
+                        - 'null'
                       prep_owner:
                         description: In some situations, special preparations are required for items and this field reflects the owner of the preparations. Options include `AMAZON`, `SELLER` or `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-                        type: string
+                        type:
+                        - string
+                        - 'null'
                       prep_type:
                         description: 'Type of preparation that should be done. Possible values: `ITEM_LABELING`, `ITEM_BUBBLEWRAP`, `ITEM_POLYBAGGING`, `ITEM_TAPING`, `ITEM_BLACK_SHRINKWRAP`, `ITEM_HANG_GARMENT`, `ITEM_BOXING`, `ITEM_SETCREAT`, `ITEM_RMOVHANG`, `ITEM_SUFFOSTK`, `ITEM_CAP_SEALING`, `ITEM_DEBUNDLE`, `ITEM_SETSTK`, `ITEM_SIOC`, `ITEM_NO_PREP`, `ADULT`, `BABY`, `TEXTILE`, `HANGER`, `FRAGILE`, `LIQUID`, `SHARP`, `SMALL`, `PERFORATED`, `GRANULAR`, `SET`, `FC_PROVIDED`, `UNKNOWN`, `NONE`.'
-                        type: string
+                        type:
+                        - string
+                        - 'null'
                     required: []
-                    type: object
-                  type: array
+                    type:
+                    - object
+                    - 'null'
+                  type:
+                  - array
+                  - 'null'
                 quantity:
                   description: The number of the specified MSKU.
-                  type: integer
+                  type:
+                  - integer
+                  - 'null'
               required:
               - asin
               - fnsku
@@ -8186,38 +8503,52 @@ operations:
               - msku
               - prep_instructions
               - quantity
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           package_id:
             description: 'Primary key to uniquely identify a Package (Box or Pallet). Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           quantity:
             description: The number of containers where all other properties like weight or dimensions are identical.
-            type: integer
+            type:
+            - integer
+            - 'null'
           template_name:
             description: Template name of the box.
-            type: string
+            type:
+            - string
+            - 'null'
           weight:
             description: The weight of a package.
             properties:
               unit:
                 description: 'Unit of the weight being measured. Values: LB: Pounds; KG: Kilograms.'
-                enum:
-                - LB
-                - KG
-                type: string
+                type:
+                - string
+                - 'null'
               value:
                 description: Value of a weight.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - unit
             - value
-            type: object
+            type:
+            - object
+            - 'null'
         required:
         - package_id
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -8776,13 +9107,19 @@ operations:
               properties:
                 description:
                   description: Description of the incentive.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 target:
                   description: 'Target of the incentive. Possible values: ''Placement Services'', ''Fulfillment Fee Discount''.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 type:
                   description: 'Type of incentive. Possible values: `FEE`, `DISCOUNT`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 value:
                   description: The type and amount of currency.
                   properties:
@@ -8791,24 +9128,35 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     code:
                       description: ISO 4217 standard of a currency code.
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                   required:
                   - amount
                   - code
-                  type: object
+                  type:
+                  - object
+                  - 'null'
               required:
               - description
               - target
               - type
               - value
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           expiration:
             description: The expiration date of the placement option. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern `yyyy-MM-ddTHH:mm:ss.sssZ`.
             format: date-time
-            type: string
+            type:
+            - string
+            - 'null'
           fees:
             description: The fee for the offered option.
             items:
@@ -8816,13 +9164,19 @@ operations:
               properties:
                 description:
                   description: Description of the incentive.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 target:
                   description: 'Target of the incentive. Possible values: ''Placement Services'', ''Fulfillment Fee Discount''.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 type:
                   description: 'Type of incentive. Possible values: `FEE`, `DISCOUNT`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 value:
                   description: The type and amount of currency.
                   properties:
@@ -8831,39 +9185,58 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     code:
                       description: ISO 4217 standard of a currency code.
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                   required:
                   - amount
                   - code
-                  type: object
+                  type:
+                  - object
+                  - 'null'
               required:
               - description
               - target
               - type
               - value
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           placement_option_id:
             description: 'The identifier of a placement option. A placement option represents the shipment splits and destinations of SKUs. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           shipment_ids:
             description: Shipment ids.
             items:
               description: 'The identifier of a shipment. A shipment contains the boxes and units being inbounded. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-              type: string
-            type: array
+              type:
+              - string
+              - 'null'
+            type:
+            - array
+            - 'null'
           status:
             description: 'The status of a placement option. Possible values: `OFFERED`, `ACCEPTED`, `EXPIRED`.'
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - discounts
         - fees
         - placement_option_id
         - shipment_ids
         - status
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -9343,33 +9716,49 @@ operations:
             properties:
               alpha_code:
                 description: The carrier code. For example, USPS or DHLEX.
-                type: string
+                type:
+                - string
+                - 'null'
               name:
                 description: The name of the carrier.
-                type: string
+                type:
+                - string
+                - 'null'
             required: []
-            type: object
+            type:
+            - object
+            - 'null'
           carrier_appointment:
             description: Contains details for a transportation carrier appointment. This appointment is vended out by Amazon and is an indicator for when a transportation carrier is accepting shipments to be picked up.
             properties:
               end_time:
                 description: The end timestamp of the appointment in UTC.
                 format: date-time
-                type: string
+                type:
+                - string
+                - 'null'
               start_time:
                 description: The start timestamp of the appointment in UTC.
                 format: date-time
-                type: string
+                type:
+                - string
+                - 'null'
             required:
             - end_time
             - start_time
-            type: object
+            type:
+            - object
+            - 'null'
           preconditions:
             description: Identifies a list of preconditions for confirming the transportation option.
             items:
               description: 'Identifies type of Transportation Option precondition. Values: `CONFIRMED_DELIVERY_WINDOW`'
-              type: string
-            type: array
+              type:
+              - string
+              - 'null'
+            type:
+            - array
+            - 'null'
           quote:
             description: The estimated shipping cost associated with the transportation option.
             properties:
@@ -9381,36 +9770,55 @@ operations:
                     type:
                     - number
                     - string
+                    - 'null'
                   code:
                     description: ISO 4217 standard of a currency code.
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                 required:
                 - amount
                 - code
-                type: object
+                type:
+                - object
+                - 'null'
               expiration:
                 description: The time at which this transportation option quote expires. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime with pattern `yyyy-MM-ddTHH:mm:ss.sssZ`.
                 format: date-time
-                type: string
+                type:
+                - string
+                - 'null'
               voidable_until:
                 description: Voidable until timestamp.
                 format: date-time
-                type: string
+                type:
+                - string
+                - 'null'
             required:
             - cost
-            type: object
+            type:
+            - object
+            - 'null'
           shipment_id:
             description: 'Identifier of a shipment. A shipment contains the boxes and units being inbounded. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           shipping_mode:
             description: 'Mode of shipment transportation that this option will provide. Possible values: `GROUND_SMALL_PARCEL`, `FREIGHT_LTL`, `FREIGHT_FTL_PALLET`, `FREIGHT_FTL_NONPALLET`, `OCEAN_LCL`, `OCEAN_FCL`, `AIR_SMALL_PARCEL`, `AIR_SMALL_PARCEL_EXPRESS`.'
-            type: string
+            type:
+            - string
+            - 'null'
           shipping_solution:
             description: 'Shipping program for the option. Possible values: `AMAZON_PARTNERED_CARRIER`, `USE_YOUR_OWN_CARRIER`.'
-            type: string
+            type:
+            - string
+            - 'null'
           transportation_option_id:
             description: 'Identifier of a transportation option. A transportation option represent one option for how to send a shipment. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - carrier
         - preconditions
@@ -9418,7 +9826,9 @@ operations:
         - shipping_mode
         - shipping_solution
         - transportation_option_id
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -9777,10 +10187,14 @@ operations:
         properties:
           availability_type:
             description: 'The type of delivery window availability. Values: `AVAILABLE`, `BLOCKED`, `CONGESTED`, `DISCOUNTED`'
-            type: string
+            type:
+            - string
+            - 'null'
           delivery_window_option_id:
             description: 'Identifier of a delivery window option. A delivery window option represent one option for when a shipment is expected to be delivered. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           discounts:
             description: Discounts for the offered option.
             items:
@@ -9788,13 +10202,19 @@ operations:
               properties:
                 description:
                   description: Description of the incentive.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 target:
                   description: 'Target of the incentive. Possible values: ''Placement Services'', ''Fulfillment Fee Discount''.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 type:
                   description: 'Type of incentive. Possible values: `FEE`, `DISCOUNT`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 value:
                   description: The type and amount of currency.
                   properties:
@@ -9803,39 +10223,56 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     code:
                       description: ISO 4217 standard of a currency code.
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                   required:
                   - amount
                   - code
-                  type: object
+                  type:
+                  - object
+                  - 'null'
               required:
               - description
               - target
               - type
               - value
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           end_date:
             description: The time at which this delivery window option ends. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern `yyyy-MM-ddTHH:mmZ`.
             format: date-time
-            type: string
+            type:
+            - string
+            - 'null'
           start_date:
             description: The time at which this delivery window option starts. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern `yyyy-MM-ddTHH:mmZ`.
             format: date-time
-            type: string
+            type:
+            - string
+            - 'null'
           valid_until:
             description: The time at which this window delivery option is no longer valid. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern `yyyy-MM-ddTHH:mmZ`.
             format: date-time
-            type: string
+            type:
+            - string
+            - 'null'
         required:
         - availability_type
         - delivery_window_option_id
         - end_date
         - start_date
         - valid_until
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -10030,13 +10467,19 @@ operations:
       properties:
         email:
           description: The email address.
-          type: string
+          type:
+          - string
+          - 'null'
         name:
           description: The contact's name.
-          type: string
+          type:
+          - string
+          - 'null'
         phone_number:
           description: The phone number.
-          type: string
+          type:
+          - string
+          - 'null'
       required:
       - name
       - phone_number
@@ -10054,19 +10497,27 @@ operations:
             editable_until:
               description: The timestamp at which this Window can no longer be edited.
               format: date-time
-              type: string
+              type:
+              - string
+              - 'null'
             end:
               description: The end timestamp of the window.
               format: date-time
-              type: string
+              type:
+              - string
+              - 'null'
             start:
               description: The start timestamp of the window.
               format: date-time
-              type: string
+              type:
+              - string
+              - 'null'
           required:
           - end
           - start
-          type: object
+          type:
+          - object
+          - 'null'
       required: []
       type:
       - object
@@ -10081,50 +10532,78 @@ operations:
           properties:
             address_line1:
               description: Street address information.
-              type: string
+              type:
+              - string
+              - 'null'
             address_line2:
               description: Additional street address information.
-              type: string
+              type:
+              - string
+              - 'null'
             city:
               description: The city.
-              type: string
+              type:
+              - string
+              - 'null'
             company_name:
               description: The name of the business.
-              type: string
+              type:
+              - string
+              - 'null'
             country_code:
               description: 'The country code in two-character ISO 3166-1 alpha-2 format. Format (checked by Amazon): ^[A-Z]{2}$'
-              type: string
+              type:
+              - string
+              - 'null'
             district_or_county:
               description: The district or county.
-              type: string
+              type:
+              - string
+              - 'null'
             email:
               description: The email address.
-              type: string
+              type:
+              - string
+              - 'null'
             name:
               description: The name of the individual who is the primary contact.
-              type: string
+              type:
+              - string
+              - 'null'
             phone_number:
               description: The phone number.
-              type: string
+              type:
+              - string
+              - 'null'
             postal_code:
               description: The postal code.
-              type: string
+              type:
+              - string
+              - 'null'
             state_or_province_code:
               description: The state or province code.
-              type: string
+              type:
+              - string
+              - 'null'
           required:
           - address_line1
           - city
           - country_code
           - name
           - postal_code
-          type: object
+          type:
+          - object
+          - 'null'
         destination_type:
           description: 'The type of destination for this shipment. Possible values: `AMAZON_OPTIMIZED`, `AMAZON_WAREHOUSE`.'
-          type: string
+          type:
+          - string
+          - 'null'
         warehouse_id:
           description: The warehouse that the shipment should be sent to. This can be empty if the destination type is `AMAZON_OPTIMIZED`.
-          type: string
+          type:
+          - string
+          - 'null'
       required:
       - destination_type
       type:
@@ -10143,16 +10622,23 @@ operations:
               type:
               - number
               - string
+              - 'null'
             code:
               description: ISO 4217 standard of a currency code.
-              type: string
+              type:
+              - string
+              - 'null'
           required:
           - amount
           - code
-          type: object
+          type:
+          - object
+          - 'null'
         freight_class:
           description: 'Freight class. Possible values: `NONE`, `FC_50`, `FC_55`, `FC_60`, `FC_65`, `FC_70`, `FC_77_5`, `FC_85`, `FC_92_5`, `FC_100`, `FC_110`, `FC_125`, `FC_150`, `FC_175`, `FC_200`, `FC_250`, `FC_300`, `FC_400`, `FC_500`.'
-          type: string
+          type:
+          - string
+          - 'null'
       required: []
       type:
       - object
@@ -10178,22 +10664,32 @@ operations:
       properties:
         availability_type:
           description: 'The type of delivery window availability. Values: `AVAILABLE`, `BLOCKED`, `CONGESTED`, `DISCOUNTED`'
-          type: string
+          type:
+          - string
+          - 'null'
         delivery_window_option_id:
           description: 'Identifier of a delivery window option. A delivery window option represent one option for when a shipment is expected to be delivered. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-          type: string
+          type:
+          - string
+          - 'null'
         editable_until:
           description: The timestamp at which this Window can no longer be edited.
           format: date-time
-          type: string
+          type:
+          - string
+          - 'null'
         end_date:
           description: The end timestamp of the window.
           format: date-time
-          type: string
+          type:
+          - string
+          - 'null'
         start_date:
           description: The start timestamp of the window.
           format: date-time
-          type: string
+          type:
+          - string
+          - 'null'
       required:
       - availability_type
       - delivery_window_option_id
@@ -10221,26 +10717,37 @@ operations:
             type:
             - number
             - string
+            - 'null'
           appointment_slot_time:
             description: An appointment slot time with start and end.
             properties:
               end_time:
                 description: The end timestamp of the appointment in UTC.
                 format: date-time
-                type: string
+                type:
+                - string
+                - 'null'
               start_time:
                 description: The start timestamp of the appointment in UTC.
                 format: date-time
-                type: string
+                type:
+                - string
+                - 'null'
             required:
             - end_time
             - start_time
-            type: object
+            type:
+            - object
+            - 'null'
           appointment_status:
             description: Status of the appointment.
-            type: string
+            type:
+            - string
+            - 'null'
         required: []
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -10268,47 +10775,73 @@ operations:
           properties:
             address_line1:
               description: Street address information.
-              type: string
+              type:
+              - string
+              - 'null'
             address_line2:
               description: Additional street address information.
-              type: string
+              type:
+              - string
+              - 'null'
             city:
               description: The city.
-              type: string
+              type:
+              - string
+              - 'null'
             company_name:
               description: The name of the business.
-              type: string
+              type:
+              - string
+              - 'null'
             country_code:
               description: 'The country code in two-character ISO 3166-1 alpha-2 format. Format (checked by Amazon): ^[A-Z]{2}$'
-              type: string
+              type:
+              - string
+              - 'null'
             district_or_county:
               description: The district or county.
-              type: string
+              type:
+              - string
+              - 'null'
             email:
               description: The email address.
-              type: string
+              type:
+              - string
+              - 'null'
             name:
               description: The name of the individual who is the primary contact.
-              type: string
+              type:
+              - string
+              - 'null'
             phone_number:
               description: The phone number.
-              type: string
+              type:
+              - string
+              - 'null'
             postal_code:
               description: The postal code.
-              type: string
+              type:
+              - string
+              - 'null'
             state_or_province_code:
               description: The state or province code.
-              type: string
+              type:
+              - string
+              - 'null'
           required:
           - address_line1
           - city
           - country_code
           - name
           - postal_code
-          type: object
+          type:
+          - object
+          - 'null'
         source_type:
           description: 'The type of source for this shipment. Possible values: `SELLER_FACILITY`.'
-          type: string
+          type:
+          - string
+          - 'null'
       required:
       - source_type
       type:
@@ -10331,15 +10864,23 @@ operations:
           properties:
             bill_of_lading_number:
               description: The number of the carrier shipment acknowledgement document.
-              type: string
+              type:
+              - string
+              - 'null'
             freight_bill_number:
               description: The number associated with the freight bill.
               items:
                 description: 'Format (checked by Amazon): ^[a-zA-Z0-9-._ ]*$'
-                type: string
-              type: array
+                type:
+                - string
+                - 'null'
+              type:
+              - array
+              - 'null'
           required: []
-          type: object
+          type:
+          - object
+          - 'null'
         spd_tracking_detail:
           description: Contains information related to Small Parcel Delivery (SPD) shipment tracking.
           properties:
@@ -10350,18 +10891,30 @@ operations:
                 properties:
                   box_id:
                     description: The ID provided by Amazon that identifies a given box. This ID is comprised of the external shipment ID (which is generated after transportation has been confirmed) and the index of the box.
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                   tracking_id:
                     description: The tracking ID associated with each box in a non-Amazon partnered Small Parcel Delivery (SPD) shipment.
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                   tracking_number_validation_status:
                     description: Indicates whether Amazon has validated the tracking number. Because shipment validation is asynchronous, tracking IDs might not be validated immediately, and the status might change after a few hours. If more than 24 hours have passed and the status is not yet 'VALIDATED' or `NOT_SUPPORTED`, verify the number and update it if necessary. **Possible values:** `VALIDATED`, `NOT_VALIDATED`, `NOT_SUPPORTED` (Amazon is unable to find tracking information for the provided tracking ID).
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                 required: []
-                type: object
-              type: array
+                type:
+                - object
+                - 'null'
+              type:
+              - array
+              - 'null'
           required: []
-          type: object
+          type:
+          - object
+          - 'null'
       required: []
       type:
       - object
@@ -10480,22 +11033,34 @@ operations:
         properties:
           asin:
             description: The Amazon Standard Identification Number (ASIN) of the item.
-            type: string
+            type:
+            - string
+            - 'null'
           expiration:
             description: 'The expiration date of the MSKU. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern`YYYY-MM-DD`. The same MSKU with different expiration dates cannot go into the same box. Format (checked by Amazon): ^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$'
-            type: string
+            type:
+            - string
+            - 'null'
           fnsku:
             description: A unique identifier assigned by Amazon to products stored in and fulfilled from an Amazon fulfillment center.
-            type: string
+            type:
+            - string
+            - 'null'
           label_owner:
             description: Specifies who will label the items. Options include `AMAZON`, `SELLER`, and `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-            type: string
+            type:
+            - string
+            - 'null'
           manufacturing_lot_code:
             description: The manufacturing lot code.
-            type: string
+            type:
+            - string
+            - 'null'
           msku:
             description: The merchant-defined SKU ID.
-            type: string
+            type:
+            - string
+            - 'null'
           prep_instructions:
             description: Special preparations that are required for an item.
             items:
@@ -10509,25 +11074,40 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     code:
                       description: ISO 4217 standard of a currency code.
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                   required:
                   - amount
                   - code
-                  type: object
+                  type:
+                  - object
+                  - 'null'
                 prep_owner:
                   description: In some situations, special preparations are required for items and this field reflects the owner of the preparations. Options include `AMAZON`, `SELLER` or `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 prep_type:
                   description: 'Type of preparation that should be done. Possible values: `ITEM_LABELING`, `ITEM_BUBBLEWRAP`, `ITEM_POLYBAGGING`, `ITEM_TAPING`, `ITEM_BLACK_SHRINKWRAP`, `ITEM_HANG_GARMENT`, `ITEM_BOXING`, `ITEM_SETCREAT`, `ITEM_RMOVHANG`, `ITEM_SUFFOSTK`, `ITEM_CAP_SEALING`, `ITEM_DEBUNDLE`, `ITEM_SETSTK`, `ITEM_SIOC`, `ITEM_NO_PREP`, `ADULT`, `BABY`, `TEXTILE`, `HANGER`, `FRAGILE`, `LIQUID`, `SHARP`, `SMALL`, `PERFORATED`, `GRANULAR`, `SET`, `FC_PROVIDED`, `UNKNOWN`, `NONE`.'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
               required: []
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           quantity:
             description: The number of the specified MSKU.
-            type: integer
+            type:
+            - integer
+            - 'null'
         required:
         - asin
         - fnsku
@@ -10535,7 +11115,9 @@ operations:
         - msku
         - prep_instructions
         - quantity
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -10646,28 +11228,36 @@ operations:
         properties:
           box_id:
             description: The ID provided by Amazon that identifies a given box. This ID is comprised of the external shipment ID (which is generated after transportation has been confirmed) and the index of the box.
-            type: string
+            type:
+            - string
+            - 'null'
           content_information_source:
             description: 'Indication of how box content is meant to be provided. Values: BOX_CONTENT_PROVIDED: Box contents have been provided by the seller; MANUAL_PROCESS: Box contents will be manually processed during receive. This service incurs charges; BARCODE_2D: Box contents information is provided by a barcode on the shipment. For more information, refer to [Using 2D barcodes for box content information](https://sellercentral.amazon.com/help/hub/reference/GJWALJCN6JKWJX5A) on Seller Central.'
-            enum:
-            - BOX_CONTENT_PROVIDED
-            - MANUAL_PROCESS
-            - BARCODE_2D
-            type: string
+            type:
+            - string
+            - 'null'
           destination_region:
             description: Representation of a location used within the inbounding experience.
             properties:
               country_code:
                 description: ISO 3166 standard alpha-2 country code.
-                type: string
+                type:
+                - string
+                - 'null'
               state:
                 description: State.
-                type: string
+                type:
+                - string
+                - 'null'
               warehouse_id:
                 description: An identifier for a warehouse, such as a FC, IXD, upstream storage.
-                type: string
+                type:
+                - string
+                - 'null'
             required: []
-            type: object
+            type:
+            - object
+            - 'null'
           dimensions:
             description: Measurement of a package's dimensions.
             properties:
@@ -10676,34 +11266,42 @@ operations:
                 type:
                 - number
                 - string
+                - 'null'
               length:
                 description: The length of a package.
                 type:
                 - number
                 - string
+                - 'null'
               unit_of_measurement:
                 description: 'Unit of linear measure. Values: IN: Inches; CM: Centimeters.'
-                enum:
-                - IN
-                - CM
-                type: string
+                type:
+                - string
+                - 'null'
               width:
                 description: The width of a package.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - height
             - length
             - unit_of_measurement
             - width
-            type: object
+            type:
+            - object
+            - 'null'
           external_container_identifier:
             description: The external identifier for this container / box.
-            type: string
+            type:
+            - string
+            - 'null'
           external_container_identifier_type:
             description: 'Type of the external identifier used. Can be: `AMAZON`, `SSCC`.'
-            type: string
+            type:
+            - string
+            - 'null'
           items:
             description: Items contained within the box.
             items:
@@ -10711,22 +11309,34 @@ operations:
               properties:
                 asin:
                   description: The Amazon Standard Identification Number (ASIN) of the item.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 expiration:
                   description: 'The expiration date of the MSKU. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format with pattern`YYYY-MM-DD`. The same MSKU with different expiration dates cannot go into the same box. Format (checked by Amazon): ^([0-9]{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$'
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 fnsku:
                   description: A unique identifier assigned by Amazon to products stored in and fulfilled from an Amazon fulfillment center.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 label_owner:
                   description: Specifies who will label the items. Options include `AMAZON`, `SELLER`, and `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 manufacturing_lot_code:
                   description: The manufacturing lot code.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 msku:
                   description: The merchant-defined SKU ID.
-                  type: string
+                  type:
+                  - string
+                  - 'null'
                 prep_instructions:
                   description: Special preparations that are required for an item.
                   items:
@@ -10740,25 +11350,40 @@ operations:
                             type:
                             - number
                             - string
+                            - 'null'
                           code:
                             description: ISO 4217 standard of a currency code.
-                            type: string
+                            type:
+                            - string
+                            - 'null'
                         required:
                         - amount
                         - code
-                        type: object
+                        type:
+                        - object
+                        - 'null'
                       prep_owner:
                         description: In some situations, special preparations are required for items and this field reflects the owner of the preparations. Options include `AMAZON`, `SELLER` or `NONE`. `AMAZON` is not an accepted value in the US marketplace.
-                        type: string
+                        type:
+                        - string
+                        - 'null'
                       prep_type:
                         description: 'Type of preparation that should be done. Possible values: `ITEM_LABELING`, `ITEM_BUBBLEWRAP`, `ITEM_POLYBAGGING`, `ITEM_TAPING`, `ITEM_BLACK_SHRINKWRAP`, `ITEM_HANG_GARMENT`, `ITEM_BOXING`, `ITEM_SETCREAT`, `ITEM_RMOVHANG`, `ITEM_SUFFOSTK`, `ITEM_CAP_SEALING`, `ITEM_DEBUNDLE`, `ITEM_SETSTK`, `ITEM_SIOC`, `ITEM_NO_PREP`, `ADULT`, `BABY`, `TEXTILE`, `HANGER`, `FRAGILE`, `LIQUID`, `SHARP`, `SMALL`, `PERFORATED`, `GRANULAR`, `SET`, `FC_PROVIDED`, `UNKNOWN`, `NONE`.'
-                        type: string
+                        type:
+                        - string
+                        - 'null'
                     required: []
-                    type: object
-                  type: array
+                    type:
+                    - object
+                    - 'null'
+                  type:
+                  - array
+                  - 'null'
                 quantity:
                   description: The number of the specified MSKU.
-                  type: integer
+                  type:
+                  - integer
+                  - 'null'
               required:
               - asin
               - fnsku
@@ -10766,38 +11391,52 @@ operations:
               - msku
               - prep_instructions
               - quantity
-              type: object
-            type: array
+              type:
+              - object
+              - 'null'
+            type:
+            - array
+            - 'null'
           package_id:
             description: 'Primary key to uniquely identify a Package (Box or Pallet). Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           quantity:
             description: The number of containers where all other properties like weight or dimensions are identical.
-            type: integer
+            type:
+            - integer
+            - 'null'
           template_name:
             description: Template name of the box.
-            type: string
+            type:
+            - string
+            - 'null'
           weight:
             description: The weight of a package.
             properties:
               unit:
                 description: 'Unit of the weight being measured. Values: LB: Pounds; KG: Kilograms.'
-                enum:
-                - LB
-                - KG
-                type: string
+                type:
+                - string
+                - 'null'
               value:
                 description: Value of a weight.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - unit
             - value
-            type: object
+            type:
+            - object
+            - 'null'
         required:
         - package_id
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -10914,61 +11553,72 @@ operations:
                 type:
                 - number
                 - string
+                - 'null'
               length:
                 description: The length of a package.
                 type:
                 - number
                 - string
+                - 'null'
               unit_of_measurement:
                 description: 'Unit of linear measure. Values: IN: Inches; CM: Centimeters.'
-                enum:
-                - IN
-                - CM
-                type: string
+                type:
+                - string
+                - 'null'
               width:
                 description: The width of a package.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - height
             - length
             - unit_of_measurement
             - width
-            type: object
+            type:
+            - object
+            - 'null'
           package_id:
             description: 'Primary key to uniquely identify a Package (Box or Pallet). Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-            type: string
+            type:
+            - string
+            - 'null'
           quantity:
             description: The number of containers where all other properties like weight or dimensions are identical.
-            type: integer
+            type:
+            - integer
+            - 'null'
           stackability:
             description: 'Indicates whether pallets will be stacked when carrier arrives for pick-up. Values: STACKABLE: A pallet that can be stacked on top of another pallet; NON_STACKABLE: A pallet that cannot be stacked on top of another pallet.'
-            enum:
-            - STACKABLE
-            - NON_STACKABLE
-            type: string
+            type:
+            - string
+            - 'null'
           weight:
             description: The weight of a package.
             properties:
               unit:
                 description: 'Unit of the weight being measured. Values: LB: Pounds; KG: Kilograms.'
-                enum:
-                - LB
-                - KG
-                type: string
+                type:
+                - string
+                - 'null'
               value:
                 description: Value of a weight.
                 type:
                 - number
                 - string
+                - 'null'
             required:
             - unit
             - value
-            type: object
+            type:
+            - object
+            - 'null'
         required:
         - package_id
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -11493,49 +12143,9 @@ operations:
       description: Potential Ineligibility Reason Codes.
       items:
         description: 'Potential Ineligibility Reason Codes. Values: FBA_INB_0004: Missing package dimensions. This product is missing necessary information; dimensions need to be provided in the manufacturer''s original packaging; FBA_INB_0006: The SKU for this product is unknown or cannot be found; FBA_INB_0007: Product Under Dangerous Goods (Hazmat) Review. We do not have enough information to determine what the product is or comes with to enable us to complete our dangerous goods review. Until you provide the necessary information, the products will not be available for sale and you will not be able to send more units to Amazon fulfillment centers. You will need to add more details to the product listings, such as a clear title, bullet points, description, and image. The review process takes 4 business days; FBA_INB_0008: Product Under Dangerous Goods (Hazmat) Review. We require detailed battery information to correctly classify the product, and until you provide the necessary information, the products will not be available for sale and you will not be able to send more units to Amazon fulfillment centers. Download an exemption sheet for battery and battery-powered products available in multiple lang…'
-        enum:
-        - FBA_INB_0004
-        - FBA_INB_0006
-        - FBA_INB_0007
-        - FBA_INB_0008
-        - FBA_INB_0009
-        - FBA_INB_0010
-        - FBA_INB_0011
-        - FBA_INB_0012
-        - FBA_INB_0013
-        - FBA_INB_0014
-        - FBA_INB_0015
-        - FBA_INB_0016
-        - FBA_INB_0017
-        - FBA_INB_0018
-        - FBA_INB_0019
-        - FBA_INB_0034
-        - FBA_INB_0035
-        - FBA_INB_0036
-        - FBA_INB_0037
-        - FBA_INB_0038
-        - FBA_INB_0050
-        - FBA_INB_0051
-        - FBA_INB_0053
-        - FBA_INB_0055
-        - FBA_INB_0056
-        - FBA_INB_0059
-        - FBA_INB_0065
-        - FBA_INB_0066
-        - FBA_INB_0067
-        - FBA_INB_0068
-        - FBA_INB_0095
-        - FBA_INB_0097
-        - FBA_INB_0098
-        - FBA_INB_0099
-        - FBA_INB_0100
-        - FBA_INB_0103
-        - FBA_INB_0104
-        - FBA_INB_0197
-        - FBA_INB_0342
-        - FBA_INB_0465
-        - UNKNOWN_INB_ERROR_CODE
-        type: string
+        type:
+        - string
+        - 'null'
       type:
       - array
       - 'null'
@@ -11557,10 +12167,6 @@ operations:
     value_type: text
     schema:
       description: 'The program for which eligibility was determined. Values: INBOUND: Inbound shipment; COMMINGLING: Using the manufacturer barcode for FBA inventory tracking.'
-      enum:
-      - INBOUND
-      - COMMINGLING
-      - null
       type:
       - string
       - 'null'
@@ -11918,13 +12524,19 @@ operations:
         properties:
           asin:
             description: The Amazon Standard Identification Number, which identifies the detail page identifier.
-            type: string
+            type:
+            - string
+            - 'null'
           fnsku:
             description: The Fulfillment Network SKU, which identifies a real fulfillable item with catalog data and condition.
-            type: string
+            type:
+            - string
+            - 'null'
           msku:
             description: The merchant SKU, a merchant-supplied identifier for a specific SKU.
-            type: string
+            type:
+            - string
+            - 'null'
           tax_details:
             description: Information used to determine the tax compliance.
             properties:
@@ -11936,16 +12548,23 @@ operations:
                     type:
                     - number
                     - string
+                    - 'null'
                   code:
                     description: ISO 4217 standard of a currency code.
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                 required:
                 - amount
                 - code
-                type: object
+                type:
+                - object
+                - 'null'
               hsn_code:
                 description: Harmonized System of Nomenclature code.
-                type: string
+                type:
+                - string
+                - 'null'
               tax_rates:
                 description: List of tax rates.
                 items:
@@ -11956,21 +12575,33 @@ operations:
                       type:
                       - number
                       - string
+                      - 'null'
                     gst_rate:
                       description: Rate of gst tax.
                       type:
                       - number
                       - string
+                      - 'null'
                     tax_type:
                       description: 'Type of tax. Possible values: `CGST`, `SGST`, `IGST`, `TOTAL_TAX`.'
-                      type: string
+                      type:
+                      - string
+                      - 'null'
                   required: []
-                  type: object
-                type: array
+                  type:
+                  - object
+                  - 'null'
+                type:
+                - array
+                - 'null'
             required: []
-            type: object
+            type:
+            - object
+            - 'null'
         required: []
-        type: object
+        type:
+        - object
+        - 'null'
       type:
       - array
       - 'null'
@@ -12316,7 +12947,9 @@ operations:
         expires_at:
           description: The time at which the self ship appointment slot expires. In [ISO 8601](https://developer-docs.amazon.com/sp-api/docs/iso-8601) datetime format.
           format: date-time
-          type: string
+          type:
+          - string
+          - 'null'
         slots:
           description: A list of appointment slots.
           items:
@@ -12324,27 +12957,39 @@ operations:
             properties:
               slot_id:
                 description: 'An identifier to a self-ship appointment slot. Format (checked by Amazon): ^[a-zA-Z0-9-]*$'
-                type: string
+                type:
+                - string
+                - 'null'
               slot_time:
                 description: An appointment slot time with start and end.
                 properties:
                   end_time:
                     description: The end timestamp of the appointment in UTC.
                     format: date-time
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                   start_time:
                     description: The start timestamp of the appointment in UTC.
                     format: date-time
-                    type: string
+                    type:
+                    - string
+                    - 'null'
                 required:
                 - end_time
                 - start_time
-                type: object
+                type:
+                - object
+                - 'null'
             required:
             - slot_id
             - slot_time
-            type: object
-          type: array
+            type:
+            - object
+            - 'null'
+          type:
+          - array
+          - 'null'
       required: []
       type:
       - object
@@ -12466,24 +13111,33 @@ operations:
           type:
           - number
           - string
+          - 'null'
         appointment_slot_time:
           description: An appointment slot time with start and end.
           properties:
             end_time:
               description: The end timestamp of the appointment in UTC.
               format: date-time
-              type: string
+              type:
+              - string
+              - 'null'
             start_time:
               description: The start timestamp of the appointment in UTC.
               format: date-time
-              type: string
+              type:
+              - string
+              - 'null'
           required:
           - end_time
           - start_time
-          type: object
+          type:
+          - object
+          - 'null'
         appointment_status:
           description: Status of the appointment.
-          type: string
+          type:
+          - string
+          - 'null'
       required: []
       type:
       - object

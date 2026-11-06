@@ -94,7 +94,7 @@ _EXPIRED_CODES = frozenset({"TOKEN_EXPIRED", "RATE_EXPIRED", "OPTION_EXPIRED"})
 _EXPIRED_TEXT = re.compile(r"\b(expired|has expired|no longer valid)\b", re.IGNORECASE)
 _STATE_TEXT = re.compile(
     r"(ineligible state|invalid state|not in a valid state|current (state|status)|"
-    r"already (been )?(confirmed|cancel+ed|voided|shipped)|cannot be (cancel+ed|modified|updated))",
+    r"already (been )?(confirmed|cancel+ed|voided|shipped))",
     re.IGNORECASE,
 )
 _INVALID_JSON = "Amazon returned a response that is not valid JSON"
@@ -125,6 +125,10 @@ def encode_path(template: str, parameters: Mapping[str, str]) -> str:
     return path
 
 
+class Repeated(list):  # noqa: FURB189 - a marker type, not a container extension
+    """A list query value sent as one ``name=value`` pair per item (``multi``)."""
+
+
 def encode_query(query: Mapping[str, Any]) -> str:
     """Encode query parameters the way SP-API expects them.
 
@@ -137,6 +141,8 @@ def encode_query(query: Mapping[str, Any]) -> str:
             continue
         if isinstance(value, bool):
             pairs.append((name, "true" if value else "false"))
+        elif isinstance(value, Repeated):
+            pairs.extend((name, str(item)) for item in value)
         elif isinstance(value, (list, tuple)):
             if value:
                 pairs.append((name, ",".join(str(item) for item in value)))
@@ -480,11 +486,8 @@ def _request_id(headers: Any) -> str | None:
 def _mentions_next_token(amazon_errors: Sequence[Mapping[str, str]]) -> bool:
     for entry in amazon_errors:
         text = f"{entry.get('message', '')} {entry.get('details', '')}".lower()
-        if (
-            "nexttoken" in text.replace(" ", "")
-            or "next token" in text
-            or "paginationtoken" in text
-        ):
+        compact = text.replace(" ", "")
+        if "nexttoken" in compact or "paginationtoken" in compact:
             return True
     return False
 
@@ -591,6 +594,7 @@ def _transport_facts(*, mutating: bool) -> dict[str, Any]:
 __all__ = [
     "EXTRA_HEADERS",
     "MAX_ATTEMPTS",
+    "Repeated",
     "MAX_RESPONSE_BYTES",
     "USER_AGENT",
     "ApiResponse",

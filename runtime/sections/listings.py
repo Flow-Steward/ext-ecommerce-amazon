@@ -344,15 +344,33 @@ _DELETE_NOTE = (
 )
 
 
+_DELETE_REFUSED_NOTE = (
+    "Amazon refused the deletion (status INVALID); nothing was changed. issues says why."
+)
+
+
 def _delete_result(context, converted, _response):
-    return {
+    status = converted.get("status")
+    if status not in ("ACCEPTED", "INVALID"):
+        raise ExtensionError(
+            errors.OUTCOME_UNKNOWN,
+            "Amazon answered without a submission status; read the listing before retrying",
+            definitely_no_external_effect=False,
+            external_effect_status="unknown",
+        )
+    result = {
         "sku": converted.get("sku") or context.input["sku"],
-        "status": converted.get("status"),
+        "status": status,
         "submission_id": converted.get("submission_id"),
         "issues": converted.get("issues") or [],
         "applied": False,
-        "note": _DELETE_NOTE,
+        "note": _DELETE_NOTE if status == "ACCEPTED" else _DELETE_REFUSED_NOTE,
     }
+    if status == "INVALID":
+        # Refused synchronously, like put/patch: no external effect happened.
+        result["external_effect_status"] = "failed"
+        result["definitely_no_external_effect"] = True
+    return result
 
 
 OPERATIONS = OPERATIONS + amazon_api.operations(

@@ -330,7 +330,14 @@ def test_every_mutation_rehearses_with_the_effect_facts_only(amazon, run):
             for name, schema in row.properties.items()
             if name in row.required and name != "connection_ref"
         }
-        response = run(row.operation_id, minimal, test_mode=True)
+        options = {}
+        if row.marketplaces and "UK" not in row.marketplaces:
+            # Rehearse where the method is offered; elsewhere it is refused first.
+            minimal["connection_ref"] = "conn-allowed"
+            options["target"] = connection_target(
+                connection_id="conn-allowed", marketplace=row.marketplaces[0]
+            )
+        response = run(row.operation_id, minimal, test_mode=True, **options)
         assert response["ok"] is True, (row.operation_id, response)
         assert response["result"] == {
             "external_effect_status": "suppressed",

@@ -259,17 +259,19 @@ class Compiler:
                 where=f"{where}.{raw['name']}",
             )
             if location == "query" and parameter_schema.get("type") == "array":
-                # Amazon takes a list query parameter as one comma-separated value.
                 parameter_schema.setdefault("minItems", 1)
-            parameters.append(
-                {
-                    "name": raw["name"],
-                    "input": snake(raw["name"]),
-                    "in": location,
-                    "required": bool(raw.get("required")),
-                    "schema": parameter_schema,
-                }
-            )
+            row_out = {
+                "name": raw["name"],
+                "input": snake(raw["name"]),
+                "in": location,
+                "required": bool(raw.get("required")),
+                "schema": parameter_schema,
+            }
+            if location == "query" and raw.get("collectionFormat") == "multi":
+                # ``multi``: one ``name=value`` pair per item. Otherwise Amazon
+                # takes a list as one comma-separated value (``csv``).
+                row_out["repeated"] = True
+            parameters.append(row_out)
         success = sorted(
             (status, item)
             for status, item in (row.get("responses") or {}).items()

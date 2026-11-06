@@ -191,8 +191,13 @@ def detect_format(body: bytes, *, allowed: tuple[str, ...]) -> str:
     """
     for name in allowed:
         if name == "ZPL":
-            head = body[:64].lstrip()
-            if head.startswith((b"^XA", b"~", b"^")) and _is_text(body[:4096]):
+            head = body[:4096].removeprefix(b"\xef\xbb\xbf")
+            if head.lstrip()[:1] in (b"^", b"~") and _is_text(head):
+                return name
+            continue
+        if name == "PDF":
+            # The PDF format allows bytes before the header; it must appear in the first kilobyte.
+            if b"%PDF-" in body[:1024]:
                 return name
             continue
         if any(body.startswith(prefix) for prefix in _MAGIC.get(name, ())):
@@ -205,10 +210,12 @@ def detect_format(body: bytes, *, allowed: tuple[str, ...]) -> str:
 
 
 def _is_text(sample: bytes) -> bool:
+    """UTF-8 text (ZPL with ``^CI28`` carries names in UTF-8); a sample cut inside a
+    multi-byte character at its end still counts."""
     try:
-        sample.decode("ascii")
-    except UnicodeDecodeError:
-        return False
+        sample.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        return exc.start >= len(sample) - 3 and exc.reason == "unexpected end of data"
     return True
 
 

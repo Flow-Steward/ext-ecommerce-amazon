@@ -44,7 +44,7 @@ from .registry import (
     Output,
     out,
 )
-from .transport import ApiResponse
+from .transport import ApiResponse, Repeated
 
 #: Amazon parameter / body names filled from the connection, never from input.
 FROM_CONNECTION = {
@@ -98,22 +98,29 @@ def output_schema(schema: Any) -> Any:
 
 
 def _output(schema: Any) -> Any:
+    """Describe what Amazon sends without rejecting what it may add.
+
+    Limits, ``additionalProperties`` and enums are dropped (Amazon adds event codes
+    and reason codes over time; the values stay in the description), and every
+    type admits null, because Amazon sends ``null`` for absent nested values.
+    """
     if not isinstance(schema, Mapping):
         return schema
     result: dict[str, Any] = {}
     for key, value in schema.items():
         if key in {"minLength", "maxLength", "minimum", "maximum", "minItems", "maxItems"}:
             continue
-        if key == "additionalProperties":
+        if key in {"additionalProperties", "enum", "examples"}:
             continue
         if key == "properties":
             result[key] = {name: _output(child) for name, child in value.items()}
         elif key == "items":
             result[key] = _output(value)
-        elif key == "type" and value == "number":
-            result[key] = ["number", "string"]
-        elif key == "examples":
-            continue
+        elif key == "type":
+            types = [value] if isinstance(value, str) else list(value)
+            if "number" in types:
+                types.append("string")
+            result[key] = list(dict.fromkeys([*types, "null"]))
         else:
             result[key] = copy.deepcopy(value)
     return result
@@ -266,6 +273,7 @@ class _Plan:
 
     path_inputs: tuple[tuple[str, str], ...]
     query_inputs: tuple[tuple[str, str, dict[str, Any]], ...]
+    repeated_query: frozenset[str]
     connection_query: tuple[tuple[str, str], ...]
     body_schema: dict[str, Any] | None
     body_inputs: tuple[str, ...]
@@ -280,6 +288,7 @@ def _plan(method: Method) -> _Plan:
     path_inputs: list[tuple[str, str]] = []
     query_inputs: list[tuple[str, str, dict[str, Any]]] = []
     connection_query: list[tuple[str, str]] = []
+    repeated: set[str] = set()
     page_token = None
     for parameter in row["parameters"]:
         name, location = parameter["name"], parameter["in"]
@@ -297,6 +306,8 @@ def _plan(method: Method) -> _Plan:
             page_token = name
             continue
         input_name = method.renamed.get(parameter["input"], parameter["input"])
+        if parameter.get("repeated"):
+            repeated.add(name)
         if location == "path":
             path_inputs.append((input_name, name))
         else:
@@ -317,6 +328,7 @@ def _plan(method: Method) -> _Plan:
     return _Plan(
         path_inputs=tuple(path_inputs),
         query_inputs=tuple(query_inputs),
+        repeated_query=frozenset(repeated),
         connection_query=tuple(connection_query),
         body_schema=body if isinstance(body, Mapping) else None,
         body_inputs=tuple(body_inputs),
@@ -485,7 +497,10 @@ def _run(method: Method, layout: _Plan, context: Context) -> dict[str, Any]:
     query: dict[str, Any] = {}
     for input_name, amazon_name, _schema in layout.query_inputs:
         if data.get(input_name) is not None:
-            query[amazon_name] = data[input_name]
+            value = data[input_name]
+            if amazon_name in layout.repeated_query and isinstance(value, list):
+                value = Repeated(value)
+            query[amazon_name] = value
     for amazon_name, source in layout.connection_query:
         query[amazon_name] = connection_value(context, source)
     version = api_version(method.namespace)

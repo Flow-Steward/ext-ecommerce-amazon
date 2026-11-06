@@ -22,6 +22,7 @@ from . import errors, validation
 from .catalog import OPERATIONS_BY_ID
 from .connection import connection_from_payload
 from .errors import ExtensionError, error_response
+from .marketplaces import marketplace_for_code
 from .registry import Context, Operation
 from .transport import SpApiTransport
 from .values import json_safe
@@ -75,6 +76,7 @@ def run_operation(
         raise ExtensionError(errors.INVALID_PAYLOAD, "action.input must be an object")
     operation_input = dict(raw_input)
     validation.validate(operation_input, row.input_schema)
+    _refuse_unsupported_marketplace(payload, row)
     effect_id = ""
     if row.mutating:
         if validation.test_mode(payload):
@@ -83,13 +85,6 @@ def run_operation(
     connection = connection_from_payload(
         payload, connection_ref=_connection_ref(payload, row, operation_input)
     )
-    if row.marketplaces and connection.marketplace.code not in row.marketplaces:
-        raise ExtensionError(
-            errors.UNSUPPORTED_MARKETPLACE,
-            f"{row.display_name} is not available for the {connection.marketplace.country} "
-            f"marketplace of this connection. {row.availability}".strip(),
-            definitely_no_external_effect=True,
-        )
     context = Context(
         operation=row,
         input=operation_input,
@@ -127,6 +122,31 @@ def _connection_ref(
     target = action.get("target") if isinstance(action, Mapping) else None
     value = target.get("connection_id") if isinstance(target, Mapping) else None
     return value if isinstance(value, str) else ""
+
+
+def _refuse_unsupported_marketplace(payload: Mapping[str, Any], row: Operation) -> None:
+    """Refuse a method outside its marketplaces, in a rehearsal exactly as in a real run.
+
+    Only the connection's marketplace setting is read here, before test mode and
+    before the connection (and its token) is hydrated.
+    """
+    if not row.marketplaces:
+        return
+    action = payload.get("action")
+    target = action.get("target") if isinstance(action, Mapping) else None
+    connection = target.get("connection") if isinstance(target, Mapping) else None
+    config = connection.get("config") if isinstance(connection, Mapping) else None
+    code = config.get("marketplace") if isinstance(config, Mapping) else None
+    if not isinstance(code, str) or not code.strip():
+        return  # connection hydration refuses a connection without one
+    marketplace = marketplace_for_code(code)
+    if marketplace.code not in row.marketplaces:
+        raise ExtensionError(
+            errors.UNSUPPORTED_MARKETPLACE,
+            f"{row.display_name} is not available for the {marketplace.country} "
+            f"marketplace of this connection. {row.availability}".strip(),
+            definitely_no_external_effect=True,
+        )
 
 
 def _check_after_unknown(row: Operation, operation_input: Mapping[str, Any]) -> dict[str, Any]:

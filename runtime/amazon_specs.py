@@ -4398,6 +4398,7 @@ SPECS: dict[str, Any] = json.loads(
       "in": "query",
       "input": "mskus",
       "name": "mskus",
+      "repeated": true,
       "required": true,
       "schema": {
        "description": "A list of merchant SKUs, a merchant-supplied identifier of a specific SKU.",
@@ -5843,6 +5844,7 @@ SPECS: dict[str, Any] = json.loads(
       "in": "query",
       "input": "mskus",
       "name": "mskus",
+      "repeated": true,
       "required": true,
       "schema": {
        "description": "A list of merchant SKUs, a merchant-supplied identifier of a specific SKU.",
