@@ -6,7 +6,7 @@ version: 0.2.0
 release_stage: active
 billing_mode: free
 display_name: Amazon Selling Partner API
-description: Atomic Amazon SP-API methods for orders, FBM shipping, catalog, listings, prices, stock, feeds, finances and reports. One connection is one seller account in one marketplace; Orders and Finances are available in both the current and the legacy API version.
+description: Atomic Amazon SP-API methods for orders, FBM shipment confirmation and Amazon Shipping labels, FBA inbound shipments (including India), catalog, listings, prices, stock, feeds, finances and reports. One connection is one seller account in one marketplace; Orders and Finances are available in both the current and the legacy API version.
 vendor:
   name: Flow Steward
   support_url: https://github.com/Flow-Steward/ext-ecommerce-amazon/issues

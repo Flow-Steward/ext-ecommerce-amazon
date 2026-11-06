@@ -31,21 +31,21 @@ components:
 - component_id: matrix_shipping
   type: markdown
   title: FBM shipping
-  body: '- **Confirm a shipment** (`confirm_shipment`): Orders v0 confirmShipment. Roles: Inventory and Order Tracking. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_shipment_confirmation). Personal data: no. File: no.
+  body: '- **Confirm a shipment** (`confirm_shipment`): Orders v0 confirmShipment. Roles: Inventory and Order Tracking. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_shipment_confirmation). Personal data: no. File: no.
 
-    - **Update shipment status** (`update_shipment_status`): Orders v0 updateShipmentStatus. Roles: Inventory and Order Tracking. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_shipment_status_update). Personal data: no. File: no.
+    - **Update shipment status** (`update_shipment_status`): Orders v0 updateShipmentStatus. Roles: Inventory and Order Tracking. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_shipment_status_update). Personal data: no. File: no.
 
     - **Get shipping rates** (`get_shipping_rates`): Shipping v2 getRates. Roles: Direct-to-Consumer Shipping (restricted). Marketplaces: US, UK, IT, FR, ES. Scope: the seller''s labels in this country''s Amazon Shipping business. Read only. Personal data: no. File: no.
 
     - **Get shipping additional inputs** (`get_shipping_additional_inputs`): Shipping v2 getAdditionalInputs. Roles: Direct-to-Consumer Shipping (restricted). Marketplaces: US, UK, IT, FR, ES. Scope: the seller''s labels in this country''s Amazon Shipping business. Read only. Personal data: no. File: no.
 
-    - **Purchase a shipping label** (`purchase_shipping_shipment`): Shipping v2 purchaseShipment. Roles: Direct-to-Consumer Shipping (restricted). Marketplaces: US, UK, IT, FR, ES. Scope: the seller''s labels in this country''s Amazon Shipping business. Changes amazon (amazon_shipping_label_purchase). Personal data: no. File: no.
+    - **Purchase a shipping label** (`purchase_shipping_shipment`): Shipping v2 purchaseShipment. Roles: Direct-to-Consumer Shipping (restricted). Marketplaces: US, UK, IT, FR, ES. Scope: the seller''s labels in this country''s Amazon Shipping business. Changes Amazon (amazon_shipping_label_purchase). Personal data: no. File: no.
 
     - **Get a shipping document** (`get_shipping_documents`): Shipping v2 getShipmentDocuments. Roles: Direct-to-Consumer Shipping (restricted). Marketplaces: US, UK, IT, FR, ES. Scope: the seller''s labels in this country''s Amazon Shipping business. Read only. Personal data: yes. File: writes a file.
 
     - **Get shipment tracking** (`get_shipping_tracking`): Shipping v2 getTracking. Roles: Direct-to-Consumer Shipping (restricted). Marketplaces: US, UK, IT, FR, ES. Scope: the seller''s labels in this country''s Amazon Shipping business. Read only. Personal data: no. File: no.
 
-    - **Cancel a shipping label** (`cancel_shipping_shipment`): Shipping v2 cancelShipment. Roles: Direct-to-Consumer Shipping (restricted). Marketplaces: US, UK, IT, FR, ES. Scope: the seller''s labels in this country''s Amazon Shipping business. Changes amazon (amazon_shipping_label_cancellation). Personal data: no. File: no.
+    - **Cancel a shipping label** (`cancel_shipping_shipment`): Shipping v2 cancelShipment. Roles: Direct-to-Consumer Shipping (restricted). Marketplaces: US, UK, IT, FR, ES. Scope: the seller''s labels in this country''s Amazon Shipping business. Changes Amazon (amazon_shipping_label_cancellation). Personal data: no. File: no.
 
     '
 - component_id: matrix_catalog_items
@@ -65,11 +65,11 @@ components:
 
     - **Get listing issues** (`get_listing_issues`): Listings Items 2021-08-01 getListingsItem (includedData issues). Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
 
-    - **Create or replace a listing** (`create_listing`): Listings Items 2021-08-01 putListingsItem. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes amazon (amazon_listing_put). Personal data: no. File: no.
+    - **Create or replace a listing** (`create_listing`): Listings Items 2021-08-01 putListingsItem. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes Amazon (amazon_listing_put). Personal data: no. File: no.
 
-    - **Update listing attributes** (`update_listing_attributes`): Listings Items 2021-08-01 patchListingsItem. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes amazon (amazon_listing_patch). Personal data: no. File: no.
+    - **Update listing attributes** (`update_listing_attributes`): Listings Items 2021-08-01 patchListingsItem. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes Amazon (amazon_listing_patch). Personal data: no. File: no.
 
-    - **Delete a listing** (`delete_listing`): Listings Items 2021-08-01 deleteListingsItem. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes amazon (amazon_listing_deletion). Personal data: no. File: no.
+    - **Delete a listing** (`delete_listing`): Listings Items 2021-08-01 deleteListingsItem. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes Amazon (amazon_listing_deletion). Personal data: no. File: no.
 
     '
 - component_id: matrix_requirements
@@ -97,7 +97,7 @@ components:
 
     - **Get featured offer expected price** (`get_featured_offer_expected_price`): Product Pricing 2022-05-01 getFeaturedOfferExpectedPriceBatch. Roles: Pricing. Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
 
-    - **Set a price** (`set_price`): Listings Items 2021-08-01 patchListingsItem (purchasable_offer only). Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes amazon (amazon_price_update). Personal data: no. File: no.
+    - **Set a price** (`set_price`): Listings Items 2021-08-01 patchListingsItem (purchasable_offer only). Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes Amazon (amazon_price_update). Personal data: no. File: no.
 
     '
 - component_id: matrix_inventory
@@ -107,7 +107,7 @@ components:
 
     - **Get merchant quantity** (`get_fbm_quantity`): Listings Items 2021-08-01 getListingsItem (includedData fulfillmentAvailability). Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
 
-    - **Set merchant quantity** (`set_fbm_quantity`): Listings Items 2021-08-01 getListingsItem (includedData fulfillmentAvailability); Listings Items 2021-08-01 patchListingsItem (fulfillment_availability only). Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes amazon (amazon_fbm_quantity_update). Personal data: no. File: no.
+    - **Set merchant quantity** (`set_fbm_quantity`): Listings Items 2021-08-01 getListingsItem (includedData fulfillmentAvailability); Listings Items 2021-08-01 patchListingsItem (fulfillment_availability only). Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes Amazon (amazon_fbm_quantity_update). Personal data: no. File: no.
 
     '
 - component_id: matrix_fba_inbound
@@ -115,17 +115,17 @@ components:
   title: FBA inbound shipments
   body: '- **FBA: list prep details** (`fba_list_prep_details`): Fulfillment Inbound 2024-03-20 listPrepDetails. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
 
-    - **FBA: set prep details** (`fba_set_prep_details`): Fulfillment Inbound 2024-03-20 setPrepDetails. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: this connection''s marketplace. Changes amazon (amazon_fba_prep_details_update). Personal data: no. File: no.
+    - **FBA: set prep details** (`fba_set_prep_details`): Fulfillment Inbound 2024-03-20 setPrepDetails. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: this connection''s marketplace. Changes Amazon (amazon_fba_prep_details_update). Personal data: no. File: no.
 
     - **FBA: create item labels** (`fba_create_marketplace_item_labels`): Fulfillment Inbound 2024-03-20 createMarketplaceItemLabels. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: this connection''s marketplace. Read only. Personal data: no. File: writes a file.
 
-    - **FBA: create inbound plan** (`fba_create_inbound_plan`): Fulfillment Inbound 2024-03-20 createInboundPlan. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: this connection''s marketplace. Changes amazon (amazon_fba_inbound_plan_creation). Personal data: no. File: no.
+    - **FBA: create inbound plan** (`fba_create_inbound_plan`): Fulfillment Inbound 2024-03-20 createInboundPlan. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: this connection''s marketplace. Changes Amazon (amazon_fba_inbound_plan_creation). Personal data: no. File: no.
 
     - **FBA: list inbound plans** (`fba_list_inbound_plans`): Fulfillment Inbound 2024-03-20 listInboundPlans. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: yes. File: no.
 
     - **FBA: get inbound plan** (`fba_get_inbound_plan`): Fulfillment Inbound 2024-03-20 getInboundPlan. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: yes. File: no.
 
-    - **FBA: cancel inbound plan** (`fba_cancel_inbound_plan`): Fulfillment Inbound 2024-03-20 cancelInboundPlan. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_inbound_plan_cancellation). Personal data: no. File: no.
+    - **FBA: cancel inbound plan** (`fba_cancel_inbound_plan`): Fulfillment Inbound 2024-03-20 cancelInboundPlan. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_inbound_plan_cancellation). Personal data: no. File: no.
 
     - **FBA: get operation status** (`fba_get_inbound_operation_status`): Fulfillment Inbound 2024-03-20 getInboundOperationStatus. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
@@ -135,37 +135,37 @@ components:
 
     - **FBA: list plan pallets** (`fba_list_inbound_plan_pallets`): Fulfillment Inbound 2024-03-20 listInboundPlanPallets. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
-    - **FBA: rename inbound plan** (`fba_update_inbound_plan_name`): Fulfillment Inbound 2024-03-20 updateInboundPlanName. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_inbound_plan_rename). Personal data: no. File: no.
+    - **FBA: rename inbound plan** (`fba_update_inbound_plan_name`): Fulfillment Inbound 2024-03-20 updateInboundPlanName. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_inbound_plan_rename). Personal data: no. File: no.
 
-    - **FBA: generate packing options** (`fba_generate_packing_options`): Fulfillment Inbound 2024-03-20 generatePackingOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_packing_options_generation). Personal data: no. File: no.
+    - **FBA: generate packing options** (`fba_generate_packing_options`): Fulfillment Inbound 2024-03-20 generatePackingOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_packing_options_generation). Personal data: no. File: no.
 
     - **FBA: list packing options** (`fba_list_packing_options`): Fulfillment Inbound 2024-03-20 listPackingOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
-    - **FBA: confirm packing option** (`fba_confirm_packing_option`): Fulfillment Inbound 2024-03-20 confirmPackingOption. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_packing_option_confirmation). Personal data: no. File: no.
+    - **FBA: confirm packing option** (`fba_confirm_packing_option`): Fulfillment Inbound 2024-03-20 confirmPackingOption. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_packing_option_confirmation). Personal data: no. File: no.
 
     - **FBA: list packing group items** (`fba_list_packing_group_items`): Fulfillment Inbound 2024-03-20 listPackingGroupItems. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
     - **FBA: list packing group boxes** (`fba_list_packing_group_boxes`): Fulfillment Inbound 2024-03-20 listPackingGroupBoxes. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
-    - **FBA: set packing information** (`fba_set_packing_information`): Fulfillment Inbound 2024-03-20 setPackingInformation. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_packing_information_update). Personal data: no. File: no.
+    - **FBA: set packing information** (`fba_set_packing_information`): Fulfillment Inbound 2024-03-20 setPackingInformation. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_packing_information_update). Personal data: no. File: no.
 
-    - **FBA: generate placement options** (`fba_generate_placement_options`): Fulfillment Inbound 2024-03-20 generatePlacementOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_placement_options_generation). Personal data: no. File: no.
+    - **FBA: generate placement options** (`fba_generate_placement_options`): Fulfillment Inbound 2024-03-20 generatePlacementOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_placement_options_generation). Personal data: no. File: no.
 
     - **FBA: list placement options** (`fba_list_placement_options`): Fulfillment Inbound 2024-03-20 listPlacementOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
-    - **FBA: confirm placement option** (`fba_confirm_placement_option`): Fulfillment Inbound 2024-03-20 confirmPlacementOption. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_placement_option_confirmation). Personal data: no. File: no.
+    - **FBA: confirm placement option** (`fba_confirm_placement_option`): Fulfillment Inbound 2024-03-20 confirmPlacementOption. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_placement_option_confirmation). Personal data: no. File: no.
 
-    - **FBA: generate transportation options** (`fba_generate_transportation_options`): Fulfillment Inbound 2024-03-20 generateTransportationOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_transportation_options_generation). Personal data: no. File: no.
+    - **FBA: generate transportation options** (`fba_generate_transportation_options`): Fulfillment Inbound 2024-03-20 generateTransportationOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_transportation_options_generation). Personal data: no. File: no.
 
     - **FBA: list transportation options** (`fba_list_transportation_options`): Fulfillment Inbound 2024-03-20 listTransportationOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
-    - **FBA: confirm transportation options** (`fba_confirm_transportation_options`): Fulfillment Inbound 2024-03-20 confirmTransportationOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_transportation_confirmation). Personal data: no. File: no.
+    - **FBA: confirm transportation options** (`fba_confirm_transportation_options`): Fulfillment Inbound 2024-03-20 confirmTransportationOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_transportation_confirmation). Personal data: no. File: no.
 
-    - **FBA: generate delivery window options** (`fba_generate_delivery_window_options`): Fulfillment Inbound 2024-03-20 generateDeliveryWindowOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_delivery_windows_generation). Personal data: no. File: no.
+    - **FBA: generate delivery window options** (`fba_generate_delivery_window_options`): Fulfillment Inbound 2024-03-20 generateDeliveryWindowOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_delivery_windows_generation). Personal data: no. File: no.
 
     - **FBA: list delivery window options** (`fba_list_delivery_window_options`): Fulfillment Inbound 2024-03-20 listDeliveryWindowOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
-    - **FBA: confirm delivery window** (`fba_confirm_delivery_window_options`): Fulfillment Inbound 2024-03-20 confirmDeliveryWindowOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_delivery_window_confirmation). Personal data: no. File: no.
+    - **FBA: confirm delivery window** (`fba_confirm_delivery_window_options`): Fulfillment Inbound 2024-03-20 confirmDeliveryWindowOptions. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_delivery_window_confirmation). Personal data: no. File: no.
 
     - **FBA: get shipment** (`fba_get_shipment`): Fulfillment Inbound 2024-03-20 getShipment. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: yes. File: no.
 
@@ -175,11 +175,11 @@ components:
 
     - **FBA: list shipment pallets** (`fba_list_shipment_pallets`): Fulfillment Inbound 2024-03-20 listShipmentPallets. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
-    - **FBA: rename shipment** (`fba_update_shipment_name`): Fulfillment Inbound 2024-03-20 updateShipmentName. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_shipment_rename). Personal data: no. File: no.
+    - **FBA: rename shipment** (`fba_update_shipment_name`): Fulfillment Inbound 2024-03-20 updateShipmentName. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_shipment_rename). Personal data: no. File: no.
 
-    - **FBA: change shipment source address** (`fba_update_shipment_source_address`): Fulfillment Inbound 2024-03-20 updateShipmentSourceAddress. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_shipment_source_address_update). Personal data: no. File: no.
+    - **FBA: change shipment source address** (`fba_update_shipment_source_address`): Fulfillment Inbound 2024-03-20 updateShipmentSourceAddress. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_shipment_source_address_update). Personal data: no. File: no.
 
-    - **FBA: set shipment tracking** (`fba_update_shipment_tracking_details`): Fulfillment Inbound 2024-03-20 updateShipmentTrackingDetails. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_shipment_tracking_update). Personal data: no. File: no.
+    - **FBA: set shipment tracking** (`fba_update_shipment_tracking_details`): Fulfillment Inbound 2024-03-20 updateShipmentTrackingDetails. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_shipment_tracking_update). Personal data: no. File: no.
 
     - **FBA: check item eligibility** (`fba_get_item_eligibility_preview`): FBA Inbound Eligibility v1 getItemEligibilityPreview. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
 
@@ -193,15 +193,15 @@ components:
   title: 'FBA inbound: India and appointments'
   body: '- **FBA India: list compliance details** (`fba_list_item_compliance_details`): Fulfillment Inbound 2024-03-20 listItemComplianceDetails. Roles: Amazon Fulfillment, Product Listing. Marketplaces: IN. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
 
-    - **FBA India: update compliance details** (`fba_update_item_compliance_details`): Fulfillment Inbound 2024-03-20 updateItemComplianceDetails. Roles: Amazon Fulfillment, Product Listing. Marketplaces: IN. Scope: this connection''s marketplace. Changes amazon (amazon_fba_compliance_details_update). Personal data: no. File: no.
+    - **FBA India: update compliance details** (`fba_update_item_compliance_details`): Fulfillment Inbound 2024-03-20 updateItemComplianceDetails. Roles: Amazon Fulfillment, Product Listing. Marketplaces: IN. Scope: this connection''s marketplace. Changes Amazon (amazon_fba_compliance_details_update). Personal data: no. File: no.
 
-    - **FBA: generate appointment slots** (`fba_generate_self_ship_appointment_slots`): Fulfillment Inbound 2024-03-20 generateSelfShipAppointmentSlots. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_appointment_slots_generation). Personal data: no. File: no.
+    - **FBA: generate appointment slots** (`fba_generate_self_ship_appointment_slots`): Fulfillment Inbound 2024-03-20 generateSelfShipAppointmentSlots. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_appointment_slots_generation). Personal data: no. File: no.
 
     - **FBA: list appointment slots** (`fba_get_self_ship_appointment_slots`): Fulfillment Inbound 2024-03-20 getSelfShipAppointmentSlots. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
-    - **FBA: schedule appointment** (`fba_schedule_self_ship_appointment`): Fulfillment Inbound 2024-03-20 scheduleSelfShipAppointment. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_appointment_scheduling). Personal data: no. File: no.
+    - **FBA: schedule appointment** (`fba_schedule_self_ship_appointment`): Fulfillment Inbound 2024-03-20 scheduleSelfShipAppointment. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_appointment_scheduling). Personal data: no. File: no.
 
-    - **FBA: cancel appointment** (`fba_cancel_self_ship_appointment`): Fulfillment Inbound 2024-03-20 cancelSelfShipAppointment. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_fba_appointment_cancellation). Personal data: no. File: no.
+    - **FBA: cancel appointment** (`fba_cancel_self_ship_appointment`): Fulfillment Inbound 2024-03-20 cancelSelfShipAppointment. Roles: Amazon Fulfillment. Marketplaces: all except BR. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_fba_appointment_cancellation). Personal data: no. File: no.
 
     - **FBA India: get delivery challan** (`fba_get_delivery_challan_document`): Fulfillment Inbound 2024-03-20 getDeliveryChallanDocument. Roles: Amazon Fulfillment, Product Listing. Marketplaces: IN. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: writes a file.
 
@@ -211,7 +211,7 @@ components:
   title: Feeds
   body: '- **Upload a feed document** (`upload_feed_document`): Feeds 2021-06-30 createFeedDocument; Upload to the presigned Amazon S3 URL. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: reads a file.
 
-    - **Submit a feed** (`create_feed`): Feeds 2021-06-30 createFeed. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes amazon (amazon_feed_submission). Personal data: no. File: no.
+    - **Submit a feed** (`create_feed`): Feeds 2021-06-30 createFeed. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes Amazon (amazon_feed_submission). Personal data: no. File: no.
 
     - **Get feed status** (`get_feed`): Feeds 2021-06-30 getFeed. Roles: Product Listing. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 
@@ -219,7 +219,7 @@ components:
 
     - **Get feed result** (`get_feed_result`): Feeds 2021-06-30 getFeed; Feeds 2021-06-30 getFeedDocument + download from the presigned Amazon S3 URL. Roles: Product Listing. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: writes a file.
 
-    - **Cancel a feed** (`cancel_feed`): Feeds 2021-06-30 cancelFeed. Roles: Product Listing. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_feed_cancellation). Personal data: no. File: no.
+    - **Cancel a feed** (`cancel_feed`): Feeds 2021-06-30 cancelFeed. Roles: Product Listing. Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_feed_cancellation). Personal data: no. File: no.
 
     '
 - component_id: matrix_finances
@@ -245,6 +245,6 @@ components:
 
     - **Download a report** (`download_report`): Reports 2021-06-30 getReport; Reports 2021-06-30 getReportDocument + download from the presigned Amazon S3 URL. Roles: The role the report type needs (for example Inventory and Order Tracking, Product Listing, Amazon Fulfillment, Finance and Accounting). Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: yes. File: writes a file.
 
-    - **Cancel a report** (`cancel_report`): Reports 2021-06-30 cancelReport. Roles: The role the report type needs (for example Inventory and Order Tracking, Product Listing, Amazon Fulfillment, Finance and Accounting). Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes amazon (amazon_report_cancellation). Personal data: no. File: no.
+    - **Cancel a report** (`cancel_report`): Reports 2021-06-30 cancelReport. Roles: The role the report type needs (for example Inventory and Order Tracking, Product Listing, Amazon Fulfillment, Finance and Accounting). Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Changes Amazon (amazon_report_cancellation). Personal data: no. File: no.
 
     '

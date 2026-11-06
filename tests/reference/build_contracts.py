@@ -428,11 +428,11 @@ def matrix_page() -> dict[str, Any]:
             continue
         lines = []
         for row in rows:
-            effect = f"changes Amazon ({row.effect_kind})" if row.mutating else "read only"
+            effect = f"Changes Amazon ({row.effect_kind})" if row.mutating else "Read only"
             lines.append(
                 f"- **{row.display_name}** (`{row.operation_id}`): "
                 f"{'; '.join(row.amazon_calls)}. Roles: {', '.join(row.roles)}. "
-                f"Marketplaces: {_markets(row)}. Scope: {_scope_words(row)}. {effect.capitalize()}. "
+                f"Marketplaces: {_markets(row)}. Scope: {_scope_words(row)}. {effect}. "
                 f"Personal data: {'yes' if row.pii else 'no'}. File: {_file(row)}."
             )
         components.append(
