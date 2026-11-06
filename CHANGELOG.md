@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4 — unreleased
+
+Tests only: the FBA document tests no longer resolve the S3 host through DNS
+(the same autouse fixture the report and feed tests use), so they pass in a
+container without network. Runtime unchanged from 0.2.3.
+
 ## 0.2.3 — unreleased
 
 Platform extension gate fixes, no behaviour change: mypy type errors in

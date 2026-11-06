@@ -38,6 +38,13 @@ INDIA_ONLY = {
 FBA_METHODS = [method for method in (*fba_inbound.METHODS, *fba_inbound_documents.METHODS)]
 
 
+@pytest.fixture(autouse=True)
+def _no_dns(monkeypatch):
+    # The extension test container may have no network; the SDK's DNS pinning is
+    # covered by the SDK itself, and the S3-host rule by test_connection_and_transport.
+    monkeypatch.setenv("FS_ALLOW_PRIVATE_REMOTE_URLS", "1")
+
+
 class Writer:
     def __init__(self) -> None:
         self.calls: list[dict[str, Any]] = []
