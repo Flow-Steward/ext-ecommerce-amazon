@@ -18,10 +18,16 @@ components:
          register one and reviews it; that review can take days.
       2. **Add new app client.** Choose the API type *SP API*.
       3. Select the **roles** for what your workflows will do. The Operation matrix
-         page lists the role each method needs. Typical choices: *Product Listing*,
-         *Pricing*, *Inventory and Order Tracking*, *Amazon Fulfillment*, *Finance
-         and Accounting*. Buyer names and addresses need the restricted
-         *Direct-to-Consumer Shipping* role, which Amazon approves separately.
+         page lists the role each method needs:
+         - *Product Listing*: listings, requirements, feeds, delete_listing; also
+           needed for the India inbound steps.
+         - *Pricing*: prices and offers.
+         - *Inventory and Order Tracking*: orders, FBM inventory, confirm_shipment.
+         - *Amazon Fulfillment*: FBA inventory and every fba_* inbound method.
+         - *Finance and Accounting*: finances and settlement reports.
+         - *Direct-to-Consumer Shipping* (restricted, approved by Amazon
+           separately): buying Amazon Shipping labels, and buyer names and
+           addresses.
       4. Save. Amazon assigns the app an **LWA Client ID** and **Client Secret**
          (View under *LWA credentials*).
 
@@ -81,4 +87,33 @@ components:
 
       Two connections of the same seller in one region (for example UK and
       Germany) may use the same refresh token. Amazon's rate limits are shared by
-      them.
+      them. Any number of seller accounts can be connected side by side: each
+      connection keeps its own Seller ID, marketplace and token, and a step only
+      ever acts for the connection it names.
+
+      All 23 Amazon marketplaces can be connected. Some methods work only in some
+      of them; the Operation matrix lists where each one works, and a method
+      called elsewhere answers unsupported_marketplace without contacting Amazon.
+
+  - component_id: programs
+    anchor_id: programs
+    type: markdown
+    title: 6. Programs some methods need
+    body: |
+      - **Amazon Shipping labels** (FBM): the seller must be able to buy
+        shipping through Amazon in the marketplace (United States, United
+        Kingdom, Italy, France or Spain), and the application needs the
+        Direct-to-Consumer Shipping role. The extension sends the Amazon
+        Shipping business of the connection's marketplace with every call.
+      - **FBA inbound**: the seller must be enrolled in Fulfillment by Amazon in
+        the marketplace. Amazon-partnered carriers are offered in the contiguous
+        United States and, through the Partnered Carrier Program, in India; in
+        the EU, accept the carrier's and Amazon's terms in Seller Central before
+        the first partnered shipment. Brazil is not supported.
+      - **India**: compliance details, fulfillment-centre appointments and the
+        delivery challan run only on an India connection; the application needs
+        Amazon Fulfillment and Product Listing.
+
+      If a role is added to the application later, authorize it again and import
+      the new refresh token into the existing connection (Replace token on the
+      Connection page): the connection and its workflows stay as they are.

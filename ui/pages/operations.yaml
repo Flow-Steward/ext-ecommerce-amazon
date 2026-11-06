@@ -1,6 +1,6 @@
 page_id: operations
 title: How the methods behave
-description: API versions, paging, asynchronous changes, limits and personal data.
+description: API versions, paging, asynchronous changes, FBM shipping, FBA inbound, costs, identifiers, files, limits and personal data.
 components:
   - component_id: versions
     type: markdown
@@ -28,6 +28,168 @@ components:
       record says which version and Amazon operation it came from; do not mix the
       two when deduplicating. Amazon may post financial events up to 48 hours
       late, so re-read recent days.
+
+  - component_id: fbm_shipping
+    type: markdown
+    title: FBM shipping — buying a label versus confirming a shipment
+    body: |
+      Two separate groups of methods exist for merchant-fulfilled (FBM) orders:
+
+      - **Amazon Shipping labels** (get_shipping_rates, get_shipping_additional_inputs,
+        purchase_shipping_shipment, get_shipping_documents, get_shipping_tracking,
+        cancel_shipping_shipment) buy a carrier label through Amazon for one
+        package of one Amazon order.
+      - **confirm_shipment** and **update_shipment_status** tell Amazon that you
+        shipped an order with a carrier and tracking number you already have.
+
+      Amazon's Shipping v2 documentation does not say whether buying a label
+      also confirms the Amazon order as shipped. Before a workflow calls
+      confirm_shipment after a purchase, read the order with get_order: if it is
+      already shipped, do not confirm it again.
+
+      The order of the label methods is the workflow's: get rates, choose an
+      offer, get its additional inputs only if requires_additional_inputs is
+      true, purchase it, then store the label. Nothing chooses an offer, a label
+      format or a service for you.
+
+      **request_token** identifies one get_shipping_rates answer for Amazon
+      Shipping. It is not an access token. Pass it with the chosen **rate_id**.
+      Amazon documents that a purchase must follow within 10 minutes of the
+      rate; an older offer fails with **offer_expired** and is never re-quoted:
+      ask for rates again.
+
+      **Where labels work:** United States, United Kingdom, Italy, France and
+      Spain, for packages leaving that country. Elsewhere the methods answer
+      **unsupported_marketplace** without calling Amazon. The Amazon Shipping
+      business (x-amzn-shipping-business-id) always comes from the
+      connection's marketplace.
+
+  - component_id: fba_inbound
+    type: markdown
+    title: FBA inbound — sending inventory to Amazon
+    body: |
+      An **FBA inbound shipment** moves your stock to Amazon's fulfillment
+      centres. It has nothing to do with a customer order: no buyer, no order ID.
+
+      Every step is its own method; the workflow calls them in Amazon's order:
+
+      1. Prepare items: fba_get_item_eligibility_preview, fba_list_prep_details,
+         fba_set_prep_details, fba_create_marketplace_item_labels.
+      2. fba_create_inbound_plan.
+      3. Packing: fba_generate_packing_options, fba_list_packing_options,
+         fba_list_packing_group_items / boxes, fba_confirm_packing_option.
+      4. Pack Now: fba_set_packing_information before confirming placement.
+      5. Placement: fba_generate_placement_options, fba_list_placement_options,
+         fba_confirm_placement_option.
+      6. Pack Later (pallets only): fba_set_packing_information now.
+      7. Transportation: fba_generate_transportation_options,
+         fba_list_transportation_options, fba_confirm_transportation_options.
+      8. Own carrier only: fba_generate_delivery_window_options,
+         fba_list_delivery_window_options, fba_confirm_delivery_window_options.
+      9. Shipment details and documents: fba_get_shipment, fba_get_labels,
+         fba_get_bill_of_lading (partnered LTL/FTL), and for an own carrier
+         fba_update_shipment_tracking_details.
+
+      Supported combinations (Amazon): small parcel (SPD) or pallets (LTL/FTL),
+      each with an Amazon-partnered carrier or your own carrier, when carton
+      contents are known (Pack Now). Pack Later is for pallets only.
+      Amazon-partnered carriers are offered in the contiguous United States and,
+      through the Partnered Carrier Program, in India; in the EU accept the
+      carrier's and Amazon's terms in Seller Central first. Inbound shipments
+      cannot be created in Brazil.
+
+  - component_id: identifiers
+    type: markdown
+    title: Identifiers are never interchangeable
+    body: |
+      - **inbound_plan_id** (wf…): the plan.
+      - **shipment_id** (sh…): one shipment of the plan, for the 2024-03-20 methods.
+      - **shipment_confirmation_id** (FBA…): the same shipment's ID on labels;
+        fba_get_labels and fba_get_bill_of_lading take only this one.
+      - **operation_id**: one asynchronous request.
+      - **packing_option_id**, **packing_group_id**, **placement_option_id**,
+        **transportation_option_id**, **delivery_window_option_id**, **slot_id**:
+        options Amazon offered.
+      - Shipping labels: **request_token** and **rate_id** (an offer),
+        **shipment_id** (a bought label, unrelated to FBA shipment IDs),
+        **package_client_reference_id** (your package reference),
+        **tracking_id** and **carrier_id**.
+
+      Every method names the exact identifier it needs; pass the field from the
+      earlier step's result, never a description.
+
+  - component_id: async_inbound
+    type: markdown
+    title: Asynchronous FBA requests
+    body: |
+      Creating a plan, generating or confirming options, setting packing or prep
+      information, cancelling and most updates answer as soon as Amazon accepted
+      the request, with an **operation_id**. **Accepted is not completed.** Check
+      it with fba_get_inbound_operation_status: that is one check, not a wait.
+      If the status is IN_PROGRESS, let the workflow check again later. FAILED
+      lists Amazon's problems; WARNING problems can be ignored, ERROR ones cannot.
+
+      Confirming an option never starts the next step, and generating options
+      never confirms one.
+
+  - component_id: costs
+    type: markdown
+    title: Costs and steps that cannot be undone
+    body: |
+      - **purchase_shipping_shipment** charges the seller's account the chosen
+        rate's total_charge. cancel_shipping_shipment works only before the
+        carrier picked the package up; refunds follow the carrier's and Amazon's
+        rules.
+      - **fba_confirm_placement_option** cannot be undone for the plan; its fees
+        are listed with the placement options.
+      - **fba_confirm_transportation_options** with an Amazon-partnered carrier
+        authorizes Amazon to charge the quoted shipping cost (cost and currency in
+        fba_list_transportation_options). A small parcel request can be voided
+        within 24 hours, an LTL/FTL request within one hour; afterwards the cost
+        is charged.
+      - **fba_cancel_inbound_plan** may cost money outside those void windows.
+
+      Every change is an external effect: suppressed in test runs, recorded once
+      per attempt. The platform's effect ID is not an Amazon deduplication key
+      (Amazon documents none, except that purchase_shipping_shipment sends it in
+      the header Amazon's model names). After **outcome_unknown** the error lists
+      the identifiers to read back and the method to read them with: read the
+      current state before trying again. Nothing is retried blindly; only a
+      throttled call (HTTP 429, not processed by Amazon) is repeated.
+
+  - component_id: errors
+    type: markdown
+    title: Errors you can act on
+    body: |
+      - **unsupported_marketplace**: the method or program is not offered in the
+        connection's marketplace. Nothing was sent.
+      - **access_denied**: Amazon refused the call. Usually the application lacks
+        the role (Amazon Fulfillment, Direct-to-Consumer Shipping, Product
+        Listing), the seller authorized it before the role was added (import a
+        new refresh token), or the seller is not enrolled in the program. This is
+        not an authentication problem.
+      - **authentication_failed** / **reauthorization_required**: the
+        connection's token; import a new refresh token.
+      - **offer_expired**: a rate, token or option expired; request new ones.
+      - **invalid_state**: the plan, shipment or label no longer allows the change.
+      - **upstream_validation_failed**: Amazon rejected an input; amazon_errors
+        carries Amazon's code and message.
+      - **rate_limited**: Amazon throttled the operation; run it again later.
+
+      Every Amazon error result carries **amazon_request_id** for a support case.
+
+  - component_id: documents
+    type: markdown
+    title: Labels, bills of lading and challans
+    body: |
+      A document is stored once, unchanged, as a file of the step: a PDF, PNG or
+      ZPL label (ZPL downloads as a .zpl text file), a PDF or ZIP of FBA box or
+      pallet labels, a PDF bill of lading or delivery challan. The bytes are
+      never put into a step output, a log or an AI step, and Amazon's download
+      links are never shown: the extension fetches them itself from Amazon S3,
+      without the connection's token, within size and time limits.
+
+      Shipping labels and packing slips hold the buyer's name and address.
 
   - component_id: paging
     type: markdown
@@ -67,7 +229,17 @@ components:
     type: markdown
     title: Personal data
     body: |
-      **Get buyer and shipping address** and some reports return personal data, and
-      only when the application has Amazon's restricted role for it. Flow Steward's
-      PII protection applies to these results like to any other. Keep such data in
-      workflow outputs only as long as you need it.
+      **Get buyer and shipping address**, shipping labels and some reports carry
+      a buyer's name and address; FBA plans and shipments carry the ship-from
+      address and a contact's name, phone and email. The Operation matrix marks
+      these methods.
+
+      **What Flow Steward does with them today:** its PII protection replaces
+      e-mail addresses and phone numbers in step messages and AI context, but it
+      has no detector for names or postal addresses, and the run's working state
+      keeps step results as they were. Step results and files stay with the run
+      until the account's retention period removes the job (30 days by default).
+      Up to 256 characters from the start of a stored file are kept as its
+      preview; for a ZPL label that text can include the address. Keep personal
+      data out of later steps you do not need it in, and shorten the retention
+      period if your policy requires it.

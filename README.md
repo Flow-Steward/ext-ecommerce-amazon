@@ -1,7 +1,10 @@
 # Amazon Selling Partner API extension for Flow Steward
 
-Atomic Amazon SP-API methods for workflows: orders, FBM shipping, catalog, listings,
-product type requirements, prices, FBA/FBM stock, listing feeds, finances and reports.
+Atomic Amazon SP-API methods for workflows: orders, FBM shipment confirmation and
+Amazon Shipping labels, FBA inbound shipments (Fulfillment Inbound 2024-03-20,
+including India), catalog, listings, product type requirements, prices, FBA/FBM
+stock, listing feeds, finances and reports. You build the processes; no ready-made
+workflows are shipped.
 
 - **Connections.** One connection is one seller account in one marketplace
   (for example *Amazon UK* and *Amazon US*). The API region follows from the
@@ -15,9 +18,16 @@ product type requirements, prices, FBA/FBM stock, listing feeds, finances and re
   awaited; unsupported filters are errors; retries are bounded and a change is not
   repeated after an unknown outcome.
 
-See `docs/live-verification.md` for what still needs a live seller account, and `docs/operation-matrix.md` for every method, the Amazon operations it calls,
-the roles it needs and its external effect, and the extension's UI pages
-(Setup Guide, Connection, How the methods behave) for setup and behaviour.
+- **Where methods work.** Every method declares its marketplaces; Amazon Shipping
+  labels run in US/UK/IT/FR/ES, FBA inbound everywhere but Brazil, the India steps
+  only in India. Elsewhere a method answers `unsupported_marketplace` without
+  calling Amazon.
+
+See `docs/live-verification.md` for what still needs a live seller account,
+`docs/operation-matrix.md` for every method (Amazon operation, roles, marketplaces,
+external effect, personal data, files), `docs/platform-gaps.md` for what the
+platform does not yet do with personal data, and the extension's UI pages (Setup
+Guide, Connection, How the methods behave, Operation matrix).
 
 ## Development
 
@@ -25,6 +35,8 @@ the roles it needs and its external effect, and the extension's UI pages
 python3 tests/reference/refresh_contracts.py   # after changing runtime/sections/*
 ```
 
-Contracts in `contracts/`, `ui/actions/actions.yaml`, the effect and artifact
-blocks of `extension.yaml` and `docs/operation-matrix.md` are generated from the
-registry; `tests/test_manifest_parity.py` fails when they are stale.
+Contracts in `contracts/`, `ui/actions/actions.yaml`, `ui/pages/operation-matrix.yaml`,
+the effect and artifact blocks of `extension.yaml` and `docs/operation-matrix.md`
+are generated from the registry; `runtime/amazon_specs.py` is compiled from
+Amazon's official models in `tests/reference/models`. The parity tests fail when
+any of them is stale.
