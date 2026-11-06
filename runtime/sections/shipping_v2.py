@@ -87,7 +87,7 @@ SHIPPING_DOCUMENT = ArtifactBinding(
     presentation_claim="document_file",
 )
 
-_TOKEN_NOTE = (
+_RATES_NOTE = (
     "request_token identifies this getRates answer for Amazon Shipping; it is not the "
     "connection's access token. Pass it unchanged, with one rate_id from rates, to "
     "purchase_shipping_shipment. Amazon documents that a purchase must follow within "
@@ -199,7 +199,7 @@ def _rates_result(
         "request_token": converted.get("request_token"),
         "rates": converted.get("rates") or [],
         "ineligible_rates": converted.get("ineligible_rates") or [],
-        "note": _TOKEN_NOTE,
+        "note": _RATES_NOTE,
     }
 
 
@@ -376,7 +376,7 @@ METHODS: tuple[Method, ...] = (
         outputs=None,
         pii=False,
         extra_error_codes=(errors.UNSUPPORTED_MARKETPLACE,),
-        note=_TOKEN_NOTE,
+        note=_RATES_NOTE,
         dropped_outputs=(),
     ),
     Method(

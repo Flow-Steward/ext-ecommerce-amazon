@@ -130,8 +130,8 @@ def _widget(spec: Mapping[str, Any]) -> str:
     if "enum" in spec:
         return "select"
     if "array" in types:
-        items = spec.get("items") if isinstance(spec.get("items"), Mapping) else {}
-        return "multi_select" if "enum" in items else "json"
+        items = spec.get("items")
+        return "multi_select" if isinstance(items, Mapping) and "enum" in items else "json"
     if "object" in types:
         return "json"
     if "boolean" in types:

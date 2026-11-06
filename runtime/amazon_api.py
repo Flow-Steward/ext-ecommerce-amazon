@@ -330,7 +330,7 @@ def _plan(method: Method) -> _Plan:
         query_inputs=tuple(query_inputs),
         repeated_query=frozenset(repeated),
         connection_query=tuple(connection_query),
-        body_schema=body if isinstance(body, Mapping) else None,
+        body_schema=dict(body) if isinstance(body, Mapping) else None,
         body_inputs=tuple(body_inputs),
         connection_body=tuple(connection_body),
         page_token=page_token,
@@ -387,10 +387,10 @@ def build(method: Method) -> Operation:
                 input_name in method.required
             ):
                 required.append(input_name)
-    for input_name, schema in method.extra_inputs.items():
+    for input_name, extra_schema in method.extra_inputs.items():
         if input_name in properties:
             raise ValueError(f"{method.operation_id}: input {input_name} declared twice")
-        properties[input_name] = copy.deepcopy(dict(schema))
+        properties[input_name] = copy.deepcopy(dict(extra_schema))
         if input_name in method.required:
             required.append(input_name)
     if layout.page_token:
@@ -523,9 +523,10 @@ def _run(method: Method, layout: _Plan, context: Context) -> dict[str, Any]:
         purpose=f"Amazon {method.amazon_operation}",
         headers=method.headers(context) if method.headers is not None else None,
     )
-    raw = response.body if isinstance(response.body, Mapping) else {}
+    raw: Mapping[str, Any] = response.body if isinstance(response.body, Mapping) else {}
     if layout.payload_wrapped:
-        raw = raw.get("payload") if isinstance(raw.get("payload"), Mapping) else {}
+        payload = raw.get("payload")
+        raw = payload if isinstance(payload, Mapping) else {}
     converted = from_amazon(raw, layout.response)
     if method.result is not None:
         result = method.result(context, converted, response)

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3 — unreleased
+
+Platform extension gate fixes, no behaviour change: mypy type errors in
+runtime/amazon_api.py and the contract generator, and a bandit B105 false
+positive on a variable that holds help text (renamed, no nosec).
+
 ## 0.2.2 — unreleased
 
 Independent review fixes: MSKU lists are sent as repeated query parameters
