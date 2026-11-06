@@ -98,8 +98,8 @@ def run_operation(
     try:
         result = json_safe(row.handler(context))
     except ExtensionError as exc:
-        if exc.code == errors.OUTCOME_UNKNOWN and row.mutating and exc.check is None:
-            exc.check = _check_after_unknown(row, operation_input)
+        if exc.code == errors.OUTCOME_UNKNOWN and row.mutating:
+            exc.check = _merge_check(_check_after_unknown(row, operation_input), exc.check)
         raise
     if row.mutating:
         result.setdefault("external_effect_status", "succeeded")
@@ -167,6 +167,23 @@ def _check_after_unknown(row: Operation, operation_input: Mapping[str, Any]) -> 
     if row.read_back:
         check["read_with"] = list(row.read_back)
     return check
+
+
+def _merge_check(base: dict[str, Any], reported: Mapping[str, Any] | None) -> dict[str, Any]:
+    """Add what the failing call already knew to the input-derived check.
+
+    ``reported`` may carry identifiers Amazon returned before the outcome became
+    unknown (a plan ID without its operation ID). They join the input IDs; an input
+    ID of the same name is kept, and ``read_with`` stays the row's own unless the
+    call named one.
+    """
+    if not reported:
+        return base
+    merged = {**base, **{key: value for key, value in reported.items() if key != "ids"}}
+    ids = dict(reported.get("ids") or {})
+    ids.update(base["ids"])
+    merged["ids"] = ids
+    return merged
 
 
 def _suppressed_result() -> dict[str, Any]:

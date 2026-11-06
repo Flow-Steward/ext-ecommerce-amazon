@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.7 — unreleased
+
+Source-review follow-up to 0.2.6: an `outcome_unknown` caused by a partial
+answer keeps the schema-required identifiers Amazon did return in `check.ids`
+(for example the `inbound_plan_id` of a createInboundPlan answer without its
+`operation_id`), next to the input IDs and the row's `read_with`. Only non-blank
+strings count as identifiers; numbers, booleans, objects, lists and blank strings
+are missing and are not kept. No body content, no new calls.
+
 ## 0.2.6 — unreleased
 
 Audit fixes (candidate after 0.2.5):

@@ -70,6 +70,83 @@ def test_a_created_plan_without_its_ids_is_unknown(amazon, run, answer, missing)
     assert check["read_with"] == ["fba_list_inbound_plans"]
 
 
+def test_a_partial_answer_keeps_the_plan_id_it_returned(amazon, run):
+    amazon.reply(
+        "POST", f"{BASE}/inboundPlans", {"inboundPlanId": PLAN}, status=202, headers=REQUEST_ID
+    )
+    response = run("fba_create_inbound_plan", CREATE_PLAN_INPUT)
+    check = _assert_unknown(response, amazon, missing="operation_id")
+    assert check["ids"] == {"inbound_plan_id": PLAN}
+    assert check["read_with"] == ["fba_list_inbound_plans"]
+
+
+def test_a_partial_answer_keeps_the_operation_id_it_returned(amazon, run):
+    amazon.reply(
+        "POST", f"{BASE}/inboundPlans", {"operationId": OPERATION}, status=202, headers=REQUEST_ID
+    )
+    response = run("fba_create_inbound_plan", CREATE_PLAN_INPUT)
+    check = _assert_unknown(response, amazon, missing="inbound_plan_id")
+    assert check["ids"] == {"operation_id": OPERATION}
+    assert "inbound_plan_id" not in check["ids"]
+    assert check["read_with"] == ["fba_list_inbound_plans"]
+
+
+@pytest.mark.parametrize("bad", [42, 0.5, True, False, {"id": PLAN}, [PLAN], "", "   ", None])
+def test_a_wrong_type_or_blank_id_counts_as_missing_and_is_not_kept(amazon, run, bad):
+    amazon.reply(
+        "POST",
+        f"{BASE}/inboundPlans",
+        {"inboundPlanId": bad, "operationId": OPERATION},
+        status=202,
+        headers=REQUEST_ID,
+    )
+    response = run("fba_create_inbound_plan", CREATE_PLAN_INPUT)
+    check = _assert_unknown(response, amazon, missing="inbound_plan_id")
+    assert check["ids"] == {"operation_id": OPERATION}
+
+
+def test_the_answer_body_never_reaches_the_check(amazon, run):
+    amazon.reply(
+        "POST",
+        f"{BASE}/inboundPlans",
+        {"inboundPlanId": PLAN, "sourceAddress": {"name": "Jane Doe"}, "extra": "x"},
+        status=202,
+        headers=REQUEST_ID,
+    )
+    response = run("fba_create_inbound_plan", CREATE_PLAN_INPUT)
+    check = _assert_unknown(response, amazon, missing="operation_id")
+    assert check == {"ids": {"inbound_plan_id": PLAN}, "read_with": ["fba_list_inbound_plans"]}
+    assert "Jane Doe" not in str(response)
+
+
+def test_an_async_step_keeps_its_input_ids_and_read_with(amazon, run):
+    amazon.reply(
+        "POST",
+        f"{BASE}/inboundPlans/{PLAN}/packingOptions",
+        {"operationId": 7},
+        status=202,
+        headers=REQUEST_ID,
+    )
+    response = run("fba_generate_packing_options", {"inbound_plan_id": PLAN})
+    check = _assert_unknown(response, amazon, missing="operation_id")
+    assert check["ids"] == {"inbound_plan_id": PLAN}
+    assert check["read_with"]
+
+
+@pytest.mark.parametrize("bad", [123, True, {"id": "SHIP-1"}, ["SHIP-1"]])
+def test_a_purchase_with_a_wrong_type_shipment_id_is_unknown(amazon, run, bad):
+    amazon.reply(
+        "POST",
+        PURCHASE,
+        {"payload": {"shipmentId": bad, "packageDocumentDetails": [], "promise": {}}},
+        headers=REQUEST_ID,
+    )
+    response = run("purchase_shipping_shipment", PURCHASE_INPUT)
+    check = _assert_unknown(response, amazon, missing="shipment_id")
+    assert check["ids"] == {"request_token": "rt-1", "rate_id": "rate-1"}
+    assert check["read_with"] == ["get_order"]
+
+
 def test_a_created_plan_with_an_empty_body_is_unknown(amazon, run):
     amazon.reply("POST", f"{BASE}/inboundPlans", status=202, headers=REQUEST_ID, raw=b"")
     response = run("fba_create_inbound_plan", CREATE_PLAN_INPUT)

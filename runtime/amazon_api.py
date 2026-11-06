@@ -432,11 +432,10 @@ def _check_required_ids(
     have happened; without the identifier nobody can tell. The outcome is reported
     as unknown, nothing is called again, and the caller reads back before repeating.
     """
-    missing = [
-        name
-        for name in layout.required_ids
-        if not isinstance(converted.get(name), str) or not converted[name].strip()
-    ]
+    received = {
+        name: converted[name] for name in layout.required_ids if _is_identifier(converted.get(name))
+    }
+    missing = [name for name in layout.required_ids if name not in received]
     if not missing:
         return
     raise ExtensionError(
@@ -448,7 +447,15 @@ def _check_required_ids(
         external_effect_status="unknown",
         http_status=response.status,
         amazon_request_id=response.headers.get("x-amzn-requestid"),
+        # Only the schema-required identifiers Amazon did return, never the body:
+        # with a plan ID but no operation ID the plan can still be read back.
+        check={"ids": received},
     )
+
+
+def _is_identifier(value: Any) -> bool:
+    """A usable identifier: a non-blank string. Numbers, booleans, objects and lists are not."""
+    return isinstance(value, str) and bool(value.strip())
 
 
 def _title(name: str) -> str:
