@@ -109,6 +109,7 @@ SHIPMENT_ID = {
     ),
 }
 PAGE_SIZE = {"title": "Page size", "description": "How many rows one page returns."}
+PLACEMENT_OPTION_ID = {"title": "Placement option ID"}
 
 _ADDRESS_EXAMPLE = {
     "name": "Warehouse 1",
@@ -543,7 +544,7 @@ METHODS: tuple[Method, ...] = (
         "confirmPlacementOption",
         effect_kind="amazon_fba_placement_option_confirmation",
         read_back=("fba_get_inbound_plan",),
-        inputs={"placement_option_id": {"title": "Placement option ID"}},
+        inputs={"placement_option_id": PLACEMENT_OPTION_ID},
     ),
     # -- Transportation -------------------------------------------------------
     _async(
@@ -556,7 +557,7 @@ METHODS: tuple[Method, ...] = (
         effect_kind="amazon_fba_transportation_options_generation",
         read_back=("fba_list_transportation_options",),
         inputs={
-            "placement_option_id": {"title": "Placement option ID"},
+            "placement_option_id": PLACEMENT_OPTION_ID,
             "shipment_transportation_configurations": {
                 "title": "Shipment transportation configurations",
                 "examples": [
@@ -582,7 +583,7 @@ METHODS: tuple[Method, ...] = (
         "(Amazon-partnered or own carrier), carrier and, for partnered carriers, the quote with cost, "
         "currency and expiration." + _LIST_NOTE,
         "listTransportationOptions",
-        inputs={"placement_option_id": {"title": "Placement option ID"}},
+        inputs={"placement_option_id": PLACEMENT_OPTION_ID},
     ),
     Method(
         operation_id="fba_confirm_transportation_options",

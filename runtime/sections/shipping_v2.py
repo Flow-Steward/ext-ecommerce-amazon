@@ -37,7 +37,6 @@ separate method; see the "How the methods behave" page before using both.
 from __future__ import annotations
 
 import base64
-import binascii
 from typing import Any
 
 from .. import documents, errors
@@ -292,7 +291,7 @@ def _decode(contents: Any) -> bytes:
         )
     try:
         return base64.b64decode(contents, validate=True)
-    except (binascii.Error, ValueError) as exc:
+    except ValueError as exc:  # binascii.Error is a ValueError
         raise ExtensionError(
             errors.DOCUMENT_UNAVAILABLE, "Amazon returned a damaged document"
         ) from exc

@@ -292,6 +292,10 @@ _S3_HOSTS = [
     "bucket.s3.dualstack.us-east-1.amazonaws.com",
 ]
 _NOT_S3_HOSTS = [
+    # Load balancer and API names are chosen by their AWS owner and may start with s3-.
+    "s3-evil-1.us-east-1.elb.amazonaws.com",
+    "s3-evil.execute-api.amazonaws.com",
+    "s3.evil.amazonaws.com",
     "ec2-1-2-3-4.compute-1.amazonaws.com",
     "abc123.execute-api.us-east-1.amazonaws.com",
     "nots3.amazonaws.com",
@@ -369,3 +373,19 @@ def _sample(schema: dict):
     if kind == "boolean":
         return True
     return "X" * max(1, schema.get("minLength", 1))
+
+
+def test_a_pathological_host_is_refused_in_linear_time():
+    """The S3 host check cannot backtrack (Sonar python:S5852 on the old regex)."""
+    import time
+
+    hosts = [
+        "s3" + "-a" * 5000 + ".x.amazonaws.co",
+        "s3" + "-a" * 100 + ".amazonaws.com",
+        "a." * 2000 + "s3.amazonaws.com",
+        "s3." + "a-" * 120 + "a.amazonaws.com",
+    ]
+    started = time.perf_counter()
+    for host in hosts:
+        assert not is_amazon_s3_host(host)
+    assert time.perf_counter() - started < 0.05

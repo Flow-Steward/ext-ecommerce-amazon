@@ -11,6 +11,7 @@ the extension's own tests.
 from __future__ import annotations
 
 from dataclasses import replace
+from typing import cast
 
 from .registry import Operation
 from .sections import (
@@ -78,7 +79,7 @@ SELLER_REGION_METHODS = frozenset(
 
 def _scoped(row: Operation) -> Operation:
     if row.operation_id in SELLER_REGION_METHODS:
-        return replace(row, scope="seller_region")
+        return cast(Operation, replace(row, scope="seller_region"))
     return row
 
 

@@ -32,6 +32,7 @@ from .registry import ArtifactBinding, Context
 from .values import dig
 
 _GZIP_WBITS = 16 + zlib.MAX_WBITS
+_NOT_CONFIRMED = "The platform did not confirm the file"
 _INFLATE_CHUNK = 256 * 1024
 #: An absurd number of concatenated gzip members is treated as hostile.
 _MAX_GZIP_MEMBERS = 64
@@ -152,14 +153,10 @@ def write_artifact(context: Context, binding: ArtifactBinding, body: bytes) -> d
             "The file could not be stored on the platform; the step needs an output file grant",
         ) from exc
     if not isinstance(written, Mapping):
-        raise ExtensionError(
-            errors.ARTIFACT_OUTPUT_UNAVAILABLE, "The platform did not confirm the file"
-        )
+        raise ExtensionError(errors.ARTIFACT_OUTPUT_UNAVAILABLE, _NOT_CONFIRMED)
     handle = str(written.get("artifact_handle") or written.get("artifact_id") or "")
     if not handle:
-        raise ExtensionError(
-            errors.ARTIFACT_OUTPUT_UNAVAILABLE, "The platform did not confirm the file"
-        )
+        raise ExtensionError(errors.ARTIFACT_OUTPUT_UNAVAILABLE, _NOT_CONFIRMED)
     return {
         "artifact_handle": handle,
         "size_bytes": int(written.get("size_bytes") or len(body)),
@@ -272,9 +269,7 @@ def _write(context: Context, binding: ArtifactBinding, body: bytes) -> dict[str,
     )
     sha256 = str(written.get("sha256") or "") if isinstance(written, Mapping) else ""
     if not artifact_id or not sha256:
-        raise ExtensionError(
-            errors.ARTIFACT_OUTPUT_UNAVAILABLE, "The platform did not confirm the file"
-        )
+        raise ExtensionError(errors.ARTIFACT_OUTPUT_UNAVAILABLE, _NOT_CONFIRMED)
     return {
         "artifact_id": artifact_id,
         "binding_key": str(written.get("binding_key") or binding.binding_key),

@@ -26,7 +26,6 @@ waits for an asynchronous operation, picks an option or chains a second step.
 from __future__ import annotations
 
 import copy
-import re
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
@@ -106,24 +105,39 @@ def _output(schema: Any) -> Any:
     """
     if not isinstance(schema, Mapping):
         return schema
-    result: dict[str, Any] = {}
-    for key, value in schema.items():
-        if key in {"minLength", "maxLength", "minimum", "maximum", "minItems", "maxItems"}:
-            continue
-        if key in {"additionalProperties", "enum", "examples"}:
-            continue
-        if key == "properties":
-            result[key] = {name: _output(child) for name, child in value.items()}
-        elif key == "items":
-            result[key] = _output(value)
-        elif key == "type":
-            types = [value] if isinstance(value, str) else list(value)
-            if "number" in types:
-                types.append("string")
-            result[key] = list(dict.fromkeys([*types, "null"]))
-        else:
-            result[key] = copy.deepcopy(value)
-    return result
+    return {
+        key: _output_keyword(key, value)
+        for key, value in schema.items()
+        if key not in _OUTPUT_DROPPED_KEYWORDS
+    }
+
+
+_OUTPUT_DROPPED_KEYWORDS = frozenset(
+    {
+        "minLength",
+        "maxLength",
+        "minimum",
+        "maximum",
+        "minItems",
+        "maxItems",
+        "additionalProperties",
+        "enum",
+        "examples",
+    }
+)
+
+
+def _output_keyword(key: str, value: Any) -> Any:
+    if key == "properties":
+        return {name: _output(child) for name, child in value.items()}
+    if key == "items":
+        return _output(value)
+    if key == "type":
+        types = [value] if isinstance(value, str) else list(value)
+        if "number" in types:
+            types.append("string")
+        return list(dict.fromkeys([*types, "null"]))
+    return copy.deepcopy(value)
 
 
 def _nullable(schema: dict[str, Any]) -> dict[str, Any]:
@@ -155,22 +169,27 @@ def contains_personal_data(schema: Any) -> bool:
 def to_amazon(value: Any, schema: Any) -> Any:
     """``value`` with every declared snake_case key renamed to Amazon's name."""
     if isinstance(value, Mapping) and isinstance(schema, Mapping):
-        names = schema.get("x-amazon-names") or {}
-        properties = schema.get("properties") or {}
-        extra = schema.get("additionalProperties")
-        converted: dict[str, Any] = {}
-        for key, item in value.items():
-            if key in names:
-                converted[names[key]] = to_amazon(item, properties.get(key))
-            else:
-                # Only an open object reaches here (validation refused anything
-                # else): its keys are the caller's own, e.g. Amazon's additional
-                # input names, and stay exactly as given.
-                converted[key] = to_amazon(item, extra if isinstance(extra, Mapping) else None)
-        return converted
+        return _object_to_amazon(value, schema)
     if isinstance(value, list) and isinstance(schema, Mapping):
         return [to_amazon(item, schema.get("items")) for item in value]
     return value
+
+
+def _object_to_amazon(value: Mapping[str, Any], schema: Mapping[str, Any]) -> dict[str, Any]:
+    names = schema.get("x-amazon-names") or {}
+    properties = schema.get("properties") or {}
+    extra = schema.get("additionalProperties")
+    open_schema = extra if isinstance(extra, Mapping) else None
+    converted: dict[str, Any] = {}
+    for key, item in value.items():
+        if key in names:
+            converted[names[key]] = to_amazon(item, properties.get(key))
+        else:
+            # Only an open object reaches here (validation refused anything else):
+            # its keys are the caller's own, e.g. Amazon's additional input names,
+            # and stay exactly as given.
+            converted[key] = to_amazon(item, open_schema)
+    return converted
 
 
 def from_amazon(value: Any, schema: Any) -> Any:
@@ -196,8 +215,32 @@ def from_amazon(value: Any, schema: Any) -> Any:
     return value
 
 
+def _fold_plural_acronyms(name: str) -> str:
+    """``supportedDPIs`` -> ``supportedDpis``: one linear pass, no regex."""
+    parts: list[str] = []
+    index = 0
+    while index < len(name):
+        end = index
+        while end < len(name) and name[end].isupper():
+            end += 1
+        if end == index:
+            parts.append(name[index])
+            index += 1
+            continue
+        run = name[index:end]
+        plural = (
+            len(run) >= 2
+            and end < len(name)
+            and name[end] == "s"
+            and (end + 1 == len(name) or name[end + 1].isupper())
+        )
+        parts.append(run[0] + run[1:].lower() if plural else run)
+        index = end
+    return "".join(parts)
+
+
 def _snake(name: str) -> str:
-    name = re.sub(r"([A-Z]{2,})s(?=[A-Z]|$)", lambda match: match.group(1).capitalize() + "s", name)
+    name = _fold_plural_acronyms(name)
     out_chars: list[str] = []
     for index, char in enumerate(name):
         if (
@@ -283,57 +326,74 @@ class _Plan:
     payload_wrapped: bool
 
 
+@dataclass
+class _ParameterLayout:
+    path_inputs: list[tuple[str, str]] = field(default_factory=list)
+    query_inputs: list[tuple[str, str, dict[str, Any]]] = field(default_factory=list)
+    connection_query: list[tuple[str, str]] = field(default_factory=list)
+    repeated: set[str] = field(default_factory=set)
+    page_token: str | None = None
+
+
+def _place_parameter(
+    method: Method, parameter: Mapping[str, Any], layout: _ParameterLayout
+) -> None:
+    name, location = parameter["name"], parameter["in"]
+    if location == "header":
+        if name not in PLATFORM_HEADERS:
+            raise ValueError(f"{method.operation_id}: unexpected header {name}")
+        return
+    if name in FROM_CONNECTION:
+        if location == "path":
+            layout.path_inputs.append((f"@{FROM_CONNECTION[name]}", name))
+        else:
+            layout.connection_query.append((name, FROM_CONNECTION[name]))
+        return
+    if name in PAGE_TOKEN_NAMES:
+        layout.page_token = name
+        return
+    input_name = method.renamed.get(parameter["input"], parameter["input"])
+    if parameter.get("repeated"):
+        layout.repeated.add(name)
+    if location == "path":
+        layout.path_inputs.append((input_name, name))
+    else:
+        layout.query_inputs.append((input_name, name, parameter["schema"]))
+
+
+def _body_layout(body: Any) -> tuple[tuple[str, ...], tuple[tuple[str, str], ...]]:
+    """The body's input names and the body fields filled from the connection."""
+    if not isinstance(body, Mapping):
+        return (), ()
+    names = body.get("x-amazon-names") or {}
+    inputs = tuple(snake for snake, amazon in names.items() if amazon not in FROM_CONNECTION)
+    from_connection = tuple(
+        (snake, FROM_CONNECTION[amazon])
+        for snake, amazon in names.items()
+        if amazon in FROM_CONNECTION
+    )
+    return inputs, from_connection
+
+
 def _plan(method: Method) -> _Plan:
     row = spec(method.namespace, method.amazon_operation)
-    path_inputs: list[tuple[str, str]] = []
-    query_inputs: list[tuple[str, str, dict[str, Any]]] = []
-    connection_query: list[tuple[str, str]] = []
-    repeated: set[str] = set()
-    page_token = None
+    parameters = _ParameterLayout()
     for parameter in row["parameters"]:
-        name, location = parameter["name"], parameter["in"]
-        if location == "header":
-            if name not in PLATFORM_HEADERS:
-                raise ValueError(f"{method.operation_id}: unexpected header {name}")
-            continue
-        if name in FROM_CONNECTION:
-            if location == "path":
-                path_inputs.append((f"@{FROM_CONNECTION[name]}", name))
-            else:
-                connection_query.append((name, FROM_CONNECTION[name]))
-            continue
-        if name in PAGE_TOKEN_NAMES:
-            page_token = name
-            continue
-        input_name = method.renamed.get(parameter["input"], parameter["input"])
-        if parameter.get("repeated"):
-            repeated.add(name)
-        if location == "path":
-            path_inputs.append((input_name, name))
-        else:
-            query_inputs.append((input_name, name, parameter["schema"]))
+        _place_parameter(method, parameter, parameters)
     body = row.get("body")
-    connection_body: list[tuple[str, str]] = []
-    body_inputs: list[str] = []
-    if isinstance(body, Mapping):
-        names = body.get("x-amazon-names") or {}
-        for snake_name, amazon_name in names.items():
-            if amazon_name in FROM_CONNECTION:
-                connection_body.append((snake_name, FROM_CONNECTION[amazon_name]))
-            else:
-                body_inputs.append(snake_name)
+    body_inputs, connection_body = _body_layout(body)
     response = row["response"]
     properties = response.get("properties") or {}
     wrapped = set(properties) <= {"payload", "errors"} and "payload" in properties
     return _Plan(
-        path_inputs=tuple(path_inputs),
-        query_inputs=tuple(query_inputs),
-        repeated_query=frozenset(repeated),
-        connection_query=tuple(connection_query),
+        path_inputs=tuple(parameters.path_inputs),
+        query_inputs=tuple(parameters.query_inputs),
+        repeated_query=frozenset(parameters.repeated),
+        connection_query=tuple(parameters.connection_query),
         body_schema=dict(body) if isinstance(body, Mapping) else None,
-        body_inputs=tuple(body_inputs),
-        connection_body=tuple(connection_body),
-        page_token=page_token,
+        body_inputs=body_inputs,
+        connection_body=connection_body,
+        page_token=parameters.page_token,
         response=properties["payload"] if wrapped else response,
         payload_wrapped=wrapped,
     )
@@ -353,57 +413,79 @@ def _input_schema(name: str, schema: Mapping[str, Any], method: Method) -> dict[
     return built
 
 
-def build(method: Method) -> Operation:
-    """The ``Operation`` row for one method."""
-    layout = _plan(method)
+class _Inputs:
+    """The published input schema of one method, built field by field."""
+
+    def __init__(self, method: Method) -> None:
+        self.method = method
+        self.properties: dict[str, dict[str, Any]] = {"connection_ref": CONNECTION_REF}
+        self.required: list[str] = ["connection_ref"]
+
+    def add(
+        self, name: str, schema: Mapping[str, Any], *, required: bool, raw: bool = False
+    ) -> None:
+        if name in self.properties:
+            raise ValueError(f"{self.method.operation_id}: input {name} declared twice")
+        self.properties[name] = (
+            copy.deepcopy(dict(schema)) if raw else _input_schema(name, schema, self.method)
+        )
+        if required or name in self.method.required:
+            self.required.append(name)
+
+
+def _method_inputs(method: Method, layout: _Plan) -> _Inputs:
     row = spec(method.namespace, method.amazon_operation)
-    properties: dict[str, dict[str, Any]] = {"connection_ref": CONNECTION_REF}
-    required: list[str] = ["connection_ref"]
     parameters = {
         method.renamed.get(parameter["input"], parameter["input"]): parameter
         for parameter in row["parameters"]
     }
+    inputs = _Inputs(method)
     for input_name, _amazon in layout.path_inputs:
-        if input_name.startswith("@"):
-            continue
-        properties[input_name] = _input_schema(input_name, parameters[input_name]["schema"], method)
-        required.append(input_name)
+        if not input_name.startswith("@"):
+            inputs.add(input_name, parameters[input_name]["schema"], required=True)
     for input_name, _amazon, schema in layout.query_inputs:
-        if input_name in method.hidden:
-            continue
-        properties[input_name] = _input_schema(input_name, schema, method)
-        if parameters[input_name]["required"] or input_name in method.required:
-            required.append(input_name)
-    if layout.body_schema is not None:
-        body_properties = layout.body_schema.get("properties") or {}
-        body_required = set(layout.body_schema.get("required") or ())
-        for input_name in layout.body_inputs:
-            if input_name in method.hidden:
-                continue
-            if input_name in properties:
-                raise ValueError(f"{method.operation_id}: input {input_name} declared twice")
-            properties[input_name] = _input_schema(input_name, body_properties[input_name], method)
-            if (row["body_required"] and input_name in body_required) or (
-                input_name in method.required
-            ):
-                required.append(input_name)
+        if input_name not in method.hidden:
+            inputs.add(input_name, schema, required=parameters[input_name]["required"])
+    _add_body_inputs(method, layout, inputs, body_required=row["body_required"])
     for input_name, extra_schema in method.extra_inputs.items():
-        if input_name in properties:
-            raise ValueError(f"{method.operation_id}: input {input_name} declared twice")
-        properties[input_name] = copy.deepcopy(dict(extra_schema))
-        if input_name in method.required:
-            required.append(input_name)
+        inputs.add(input_name, extra_schema, required=False, raw=True)
     if layout.page_token:
-        properties["next_token"] = NEXT_TOKEN
-    outputs = method.outputs if method.outputs is not None else _outputs(method, layout)
-    pii = method.pii if method.pii is not None else contains_personal_data(layout.response)
-    scope = method.scope or (
-        "marketplace"
-        if layout.connection_query
+        inputs.properties["next_token"] = NEXT_TOKEN
+    return inputs
+
+
+def _add_body_inputs(
+    method: Method, layout: _Plan, inputs: _Inputs, *, body_required: bool
+) -> None:
+    if layout.body_schema is None:
+        return
+    properties = layout.body_schema.get("properties") or {}
+    required = set(layout.body_schema.get("required") or ()) if body_required else set()
+    for input_name in layout.body_inputs:
+        if input_name not in method.hidden:
+            inputs.add(input_name, properties[input_name], required=input_name in required)
+
+
+def _scope(method: Method, layout: _Plan) -> str:
+    """``marketplace`` when the request names the connection's marketplace."""
+    if method.scope:
+        return method.scope
+    names_marketplace = (
+        layout.connection_query
         or layout.connection_body
         or any(name.startswith("@marketplace") for name, _amazon in layout.path_inputs)
-        else "seller_region"
     )
+    return "marketplace" if names_marketplace else "seller_region"
+
+
+def build(method: Method) -> Operation:
+    """The ``Operation`` row for one method."""
+    layout = _plan(method)
+    inputs = _method_inputs(method, layout)
+    properties, required = inputs.properties, inputs.required
+    outputs = method.outputs if method.outputs is not None else _outputs(method, layout)
+    pii = method.pii if method.pii is not None else contains_personal_data(layout.response)
+    scope = _scope(method, layout)
     kind = "action" if method.mutating else "source"
     return Operation(
         operation_id=method.operation_id,
@@ -482,10 +564,7 @@ def connection_value(context: Context, source: str) -> Any:
     raise ExtensionError(errors.INTERNAL_ERROR, "An unknown connection value was requested")
 
 
-def _run(method: Method, layout: _Plan, context: Context) -> dict[str, Any]:
-    data = dict(context.input)
-    if method.prepare is not None:
-        method.prepare(context, data)
+def _path_values(layout: _Plan, context: Context, data: Mapping[str, Any]) -> dict[str, str]:
     path: dict[str, str] = {}
     for input_name, amazon_name in layout.path_inputs:
         value = (
@@ -494,24 +573,52 @@ def _run(method: Method, layout: _Plan, context: Context) -> dict[str, Any]:
             else data[input_name]
         )
         path[amazon_name] = str(value)
+    return path
+
+
+def _query_values(
+    method: Method, layout: _Plan, context: Context, data: Mapping[str, Any]
+) -> dict[str, Any]:
     query: dict[str, Any] = {}
     for input_name, amazon_name, _schema in layout.query_inputs:
-        if data.get(input_name) is not None:
-            value = data[input_name]
-            if amazon_name in layout.repeated_query and isinstance(value, list):
-                value = Repeated(value)
-            query[amazon_name] = value
+        value = data.get(input_name)
+        if value is None:
+            continue
+        if amazon_name in layout.repeated_query and isinstance(value, list):
+            value = Repeated(value)
+        query[amazon_name] = value
     for amazon_name, source in layout.connection_query:
         query[amazon_name] = connection_value(context, source)
-    version = api_version(method.namespace)
     if layout.page_token:
-        query[layout.page_token] = pagination.unwrap(context, version)
-    body = None
-    if layout.body_schema is not None:
-        submitted = {name: data[name] for name in layout.body_inputs if name in data}
-        for snake_name, source in layout.connection_body:
-            submitted[snake_name] = connection_value(context, source)
-        body = to_amazon(submitted, layout.body_schema)
+        query[layout.page_token] = pagination.unwrap(context, api_version(method.namespace))
+    return query
+
+
+def _body_value(layout: _Plan, context: Context, data: Mapping[str, Any]) -> Any:
+    if layout.body_schema is None:
+        return None
+    submitted = {name: data[name] for name in layout.body_inputs if name in data}
+    for snake_name, source in layout.connection_body:
+        submitted[snake_name] = connection_value(context, source)
+    return to_amazon(submitted, layout.body_schema)
+
+
+def _response_object(layout: _Plan, response: ApiResponse) -> Mapping[str, Any]:
+    raw: Mapping[str, Any] = response.body if isinstance(response.body, Mapping) else {}
+    if layout.payload_wrapped:
+        payload = raw.get("payload")
+        raw = payload if isinstance(payload, Mapping) else {}
+    return raw
+
+
+def _run(method: Method, layout: _Plan, context: Context) -> dict[str, Any]:
+    data = dict(context.input)
+    if method.prepare is not None:
+        method.prepare(context, data)
+    path = _path_values(layout, context, data)
+    query = _query_values(method, layout, context, data)
+    body = _body_value(layout, context, data)
+    version = api_version(method.namespace)
     row = spec(method.namespace, method.amazon_operation)
     response = context.transport.call(
         row["method"],
@@ -523,10 +630,7 @@ def _run(method: Method, layout: _Plan, context: Context) -> dict[str, Any]:
         purpose=f"Amazon {method.amazon_operation}",
         headers=method.headers(context) if method.headers is not None else None,
     )
-    raw: Mapping[str, Any] = response.body if isinstance(response.body, Mapping) else {}
-    if layout.payload_wrapped:
-        payload = raw.get("payload")
-        raw = payload if isinstance(payload, Mapping) else {}
+    raw = _response_object(layout, response)
     converted = from_amazon(raw, layout.response)
     if method.result is not None:
         result = method.result(context, converted, response)

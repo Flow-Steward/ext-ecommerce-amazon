@@ -189,3 +189,30 @@ def test_every_select_field_carries_its_options():
         {"value": "INBOUND", "label": "INBOUND"},
         {"value": "COMMINGLING", "label": "COMMINGLING"},
     ]
+
+
+def test_runtime_snake_matches_the_compiler_for_every_model_name():
+    """The runtime converts unknown response keys like the compiler converts names."""
+    import json
+    from pathlib import Path
+
+    from build_amazon_specs import snake
+
+    from runtime.amazon_api import _snake
+
+    names: set[str] = set()
+
+    def collect(value):
+        if isinstance(value, dict):
+            names.update(str(key) for key in (value.get("properties") or {}))
+            for child in value.values():
+                collect(child)
+        elif isinstance(value, list):
+            for child in value:
+                collect(child)
+
+    for path in (Path(__file__).parent / "reference" / "models").glob("*.json"):
+        collect(json.loads(path.read_text(encoding="utf-8")))
+    assert len(names) > 400
+    assert {name: _snake(name) for name in names} == {name: snake(name) for name in names}
+    assert _snake("supportedDPIs") == "supported_dpis"

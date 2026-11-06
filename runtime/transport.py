@@ -72,10 +72,16 @@ BACKOFF_CAP_SECONDS = 10.0
 MAX_AMAZON_ERRORS = 20
 MAX_AMAZON_MESSAGE_LENGTH = 500
 
-#: Amazon S3 endpoints only: an optional bucket prefix, then ``s3`` with optional
-#: regional / dual-stack labels, under ``amazonaws.com``. Any other amazonaws.com
-#: host can be operated by an arbitrary AWS customer.
-_S3_HOST_RE = re.compile(r"^(?:[a-z0-9][a-z0-9.-]*\.)?s3(?:[.-][a-z0-9-]+)*\.amazonaws\.com$")
+#: Amazon S3 endpoints only, parsed label by label (no backtracking): optional
+#: bucket labels, then exactly one of ``s3``, ``s3-external-1``, ``s3-<region>``,
+#: ``s3.<region>`` or ``s3.dualstack.<region>``, then ``amazonaws.com``. Any other
+#: amazonaws.com host can be operated by an arbitrary AWS customer (an ELB or API
+#: Gateway name may itself start with ``s3-``), so the S3 labels must be the last
+#: ones before the suffix.
+_S3_SUFFIX = ".amazonaws.com"
+_MAX_HOST_LENGTH = 253
+_HOST_LABEL_RE = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?")
+_AWS_REGION_RE = re.compile(r"[a-z]{2}(?:-gov|-iso[a-z]?)?-[a-z]{2,10}-[0-9]{1,2}")
 
 USER_AGENT = "FlowSteward-AmazonSPAPI/0.2 (Language=Python)"
 _HEADER_VALUE_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
@@ -125,7 +131,7 @@ def encode_path(template: str, parameters: Mapping[str, str]) -> str:
     return path
 
 
-class Repeated(list):  # noqa: FURB189 - a marker type, not a container extension
+class Repeated(list):
     """A list query value sent as one ``name=value`` pair per item (``multi``)."""
 
 
@@ -192,26 +198,14 @@ class SpApiTransport:
         restricted data token is used for the operations that need one.
         ``headers`` may only name ``EXTRA_HEADERS``.
         """
-        extra = dict(headers or {})
-        if set(extra) - EXTRA_HEADERS or not all(
-            isinstance(value, str) and _HEADER_VALUE_RE.fullmatch(value) for value in extra.values()
-        ):
-            raise ExtensionError(errors.INTERNAL_ERROR, "An unsupported request header was built")
+        extra = _checked_extra_headers(headers)
         url = self._connection.api_base_url + encode_path(path_template, path or {})
         encoded_query = encode_query(query or {})
         if encoded_query:
             url = f"{url}?{encoded_query}"
         data = _json_bytes(body) if body is not None else None
         token = access_token if access_token is not None else self._connection.access_token()
-        request_headers = {
-            "Accept": "application/json",
-            "User-Agent": USER_AGENT,
-            "x-amz-access-token": token,
-            "x-amz-date": time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()),
-        }
-        if data is not None:
-            request_headers["Content-Type"] = "application/json; charset=utf-8"
-        request_headers.update(extra)
+        request_headers = _request_headers(token, has_body=data is not None) | extra
         backoff_spent = 0.0
         attempt = 0
         while True:
@@ -364,6 +358,27 @@ class SpApiTransport:
             )
 
 
+def _checked_extra_headers(headers: Mapping[str, str] | None) -> dict[str, str]:
+    extra = dict(headers or {})
+    if set(extra) - EXTRA_HEADERS or not all(
+        isinstance(value, str) and _HEADER_VALUE_RE.fullmatch(value) for value in extra.values()
+    ):
+        raise ExtensionError(errors.INTERNAL_ERROR, "An unsupported request header was built")
+    return extra
+
+
+def _request_headers(token: str, *, has_body: bool) -> dict[str, str]:
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": USER_AGENT,
+        "x-amz-access-token": token,
+        "x-amz-date": time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()),
+    }
+    if has_body:
+        headers["Content-Type"] = "application/json; charset=utf-8"
+    return headers
+
+
 class _Retry(Exception):
     """Internal: a failure the caller may retry after ``minimum_delay``."""
 
@@ -374,8 +389,27 @@ class _Retry(Exception):
 
 
 def is_amazon_s3_host(host: str) -> bool:
-    """Whether ``host`` is an Amazon S3 endpoint (path- or virtual-hosted style)."""
-    return _S3_HOST_RE.fullmatch(host.lower()) is not None
+    """Whether ``host`` is an Amazon S3 endpoint (path- or virtual-hosted style).
+
+    Linear in the host length: a bounded length check, one split, and fixed-shape
+    label patterns that cannot backtrack.
+    """
+    name = host.lower()
+    if len(name) > _MAX_HOST_LENGTH or not name.endswith(_S3_SUFFIX):
+        return False
+    labels = name[: -len(_S3_SUFFIX)].split(".")
+    if not all(_HOST_LABEL_RE.fullmatch(label) for label in labels):
+        return False
+    last = labels[-1]
+    if last in {"s3", "s3-external-1"}:
+        return True
+    if last.startswith("s3-") and _AWS_REGION_RE.fullmatch(last[3:]):
+        return True
+    if not _AWS_REGION_RE.fullmatch(last):
+        return False
+    if len(labels) >= 2 and labels[-2] == "s3":
+        return True
+    return len(labels) >= 3 and labels[-3] == "s3" and labels[-2] == "dualstack"
 
 
 def assert_document_url(url: Any) -> str:

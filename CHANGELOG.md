@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.5 — unreleased
+
+Extension Sonar findings (analysis f9531072, revision 367dfba):
+- python:S5852 (critical vulnerability): the S3 document-host check was a
+  backtracking regex (1 s at 22 repetitions, unbounded beyond) that also accepted
+  hosts whose first label an AWS customer chooses (s3-*.elb / execute-api). It is
+  now a bounded, label-by-label parser that requires the S3 labels right before
+  amazonaws.com.
+- python:S8786: the plural-acronym fold in key conversion is a linear pass.
+- python:S3776: amazon_api _output, to_amazon, _plan, build, _run and
+  transport.call split into small helpers, behaviour unchanged.
+- python:S1192, S5713, S7632, S5886 and two composite assertions in new tests.
+
 ## 0.2.4 — unreleased
 
 Tests only: the FBA document tests no longer resolve the S3 host through DNS

@@ -249,7 +249,8 @@ def test_lists_return_one_page_and_a_bound_token(amazon, run):
     assert first["ok"] is True, first
     assert first["result"]["inbound_plans"][0]["inbound_plan_id"] == PLAN
     token = first["result"]["next_token"]
-    assert token and "amz-next" not in token
+    assert token
+    assert "amz-next" not in token
     assert len(amazon.requests) == 1
 
     amazon.reply("GET", f"{BASE}/inboundPlans", {"inboundPlans": [], "pagination": {}})
@@ -330,7 +331,8 @@ def test_confirming_transportation_explains_the_charge(amazon, run):
     }
     result = response["result"]
     assert result["transportation_selections"] == [selection]
-    assert "charge" in result["charge_notice"] and "24 hours" in result["charge_notice"]
+    assert "charge" in result["charge_notice"]
+    assert "24 hours" in result["charge_notice"]
     assert result["operation_id"] == OPERATION
 
 
