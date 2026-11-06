@@ -8,8 +8,8 @@ Scope: `marketplace` = the request names the connection's marketplace; `seller_r
 
 | Method | Section | Amazon operations | Roles | Marketplaces | Scope | External effect | Personal data | File |
 |---|---|---|---|---|---|---|---|---|
-| `test_connection` | account | Sellers v1 getMarketplaceParticipations<br>Listings Items 2021-08-01 searchListingsItems | Selling Partner Insights or Product Listing (getMarketplaceParticipations)<br>Product Listing (searchListingsItems) | all 23 | marketplace | none (read) | no | no |
-| `verify_connection` (platform only) | account | Sellers v1 getMarketplaceParticipations<br>Listings Items 2021-08-01 searchListingsItems | Selling Partner Insights or Product Listing (getMarketplaceParticipations)<br>Product Listing (searchListingsItems) | all 23 | marketplace | none (read) | no | no |
+| `test_connection` | account | Sellers v1 getMarketplaceParticipations<br>Listings Items 2021-08-01 searchListingsItems | Selling Partner Insights or Product Listing (getMarketplaceParticipations)<br>Product Listing or Inventory and Order Tracking (searchListingsItems) | all 23 | marketplace | none (read) | no | no |
+| `verify_connection` (platform only) | account | Sellers v1 getMarketplaceParticipations<br>Listings Items 2021-08-01 searchListingsItems | Selling Partner Insights or Product Listing (getMarketplaceParticipations)<br>Product Listing or Inventory and Order Tracking (searchListingsItems) | all 23 | marketplace | none (read) | no | no |
 | `search_orders` | orders | Orders 2026-01-01 searchOrders (includedData FULFILLMENT, PROCEEDS)<br>Orders v0 getOrders | Inventory and Order Tracking | all 23 | marketplace | none (read) | no | no |
 | `get_order` | orders | Orders 2026-01-01 getOrder (includedData FULFILLMENT, PROCEEDS)<br>Orders v0 getOrder | Inventory and Order Tracking | all 23 | seller_region | none (read) | no | no |
 | `get_order_items` | orders | Orders 2026-01-01 getOrder (includedData FULFILLMENT, PROCEEDS)<br>Orders v0 getOrderItems | Inventory and Order Tracking | all 23 | seller_region | none (read) | no | no |

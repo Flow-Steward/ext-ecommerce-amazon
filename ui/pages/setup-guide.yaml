@@ -17,8 +17,13 @@ components:
          Provider Portal). If you have no developer profile yet, Amazon asks you to
          register one and reviews it; that review can take days.
       2. **Add new app client.** Choose the API type *SP API*.
-      3. Select the **roles** for what your workflows will do. The Operation matrix
-         page lists the role each method needs:
+      3. Select the **roles**. Every connection needs one role whatever the
+         workflows do, because connecting checks the Seller ID with Listings
+         Items searchListingsItems: **Product Listing** (Amazon also accepts
+         *Inventory and Order Tracking* for that call). A finance-only setup
+         therefore needs Product Listing as well as Finance and Accounting.
+         Add the further roles for what your workflows will do; the Operation
+         matrix page lists the role each method needs:
          - *Product Listing*: listings, requirements, feeds, delete_listing; also
            needed for the India inbound steps.
          - *Pricing*: prices and offers.
@@ -88,6 +93,14 @@ components:
       - **Amazon UK**: marketplace United Kingdom, API region EU.
       - **Amazon US**: marketplace United States, API region NA.
 
+      After the checks pass, Flow Steward replaces the name you typed with the
+      name Amazon confirmed: **store name · Amazon marketplace · Seller ID**, for
+      example *Mugs Ltd · Amazon UK · A1SELLER0TEST1*, or *Amazon UK ·
+      A1SELLER0TEST1* when the seller has no store name. This is the name the
+      workflow connection picker shows, so one store in two marketplaces, or two
+      sellers with the same store name, stay distinguishable. A very long store
+      name is shortened; the marketplace and Seller ID are always kept.
+
       Two connections of the same seller in one region (for example UK and
       Germany) may use the same refresh token. Amazon's rate limits are shared by
       them. Any number of seller accounts can be connected side by side: each
@@ -109,10 +122,19 @@ components:
         Direct-to-Consumer Shipping role. The extension sends the Amazon
         Shipping business of the connection's marketplace with every call.
       - **FBA inbound**: the seller must be enrolled in Fulfillment by Amazon in
-        the marketplace. Amazon-partnered carriers are offered in the contiguous
-        United States and, through the Partnered Carrier Program, in India; in
-        the EU, accept the carrier's and Amazon's terms in Seller Central before
-        the first partnered shipment. Brazil is not supported.
+        the marketplace. Brazil is not supported. Amazon's pages on partnered
+        carriers differ and are listed here separately rather than merged: the
+        partnered-carrier tutorial says such shipments are available only in the
+        contiguous United States; the general inbound guide says that in the EU
+        the carrier's and the Partnered Carrier Program terms must be accepted in
+        Seller Central first; the India tutorial describes the delivery challan
+        of Partnered Carrier Program shipments in the Amazon IN store. Whether a
+        partnered option is offered for a shipment is Amazon's answer in
+        fba_list_transportation_options, read across all its pages.
+      - **Prep and labels (FBA)**: since January 1, 2026 Amazon no longer offers
+        prep and item label services in the US store; the seller preps and
+        labels the units. Prep details set in Seller Central are not visible to
+        fba_list_prep_details: set them with fba_set_prep_details.
       - **India**: compliance details and the delivery challan run only on an
         India connection; the application needs Amazon Fulfillment and Product
         Listing. The self-ship appointment methods are offered on every
@@ -123,3 +145,22 @@ components:
       If a role is added to the application later, authorize it again and import
       the new refresh token into the existing connection (Replace token on the
       Connection page): the connection and its workflows stay as they are.
+
+  - component_id: amazon-docs
+    anchor_id: amazon-docs
+    type: markdown
+    title: Amazon's documentation
+    body: |
+      - Self-authorizing a private application:
+        https://developer-docs.amazon/sp-api/docs/self-authorization
+      - Marketplace (store) IDs: https://developer-docs.amazon/sp-api/docs/marketplace-ids
+      - Amazon Shipping API v2:
+        https://developer-docs.shipping.amazon.com/apis/docs/shipping-api-v2-reference
+      - Fulfillment Inbound API (roles, prep details):
+        https://developer-docs.amazon/sp-api/docs/fulfillment-inbound-api
+      - Creating an inbound shipment:
+        https://developer-docs.amazon/sp-api/docs/create-an-inbound-shipment
+      - Amazon-partnered carrier shipments:
+        https://developer-docs.amazon/sp-api/docs/create-amazon-partnered-carrier-shipment
+      - Inbound to fulfillment centres in India:
+        https://developer-docs.amazon/sp-api/docs/ship-inventory-to-india-fc

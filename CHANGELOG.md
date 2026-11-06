@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.2.6 — unreleased
+
+Audit fixes (candidate after 0.2.5):
+- Compatibility: `runtime.compatibility.platform_min: 1.6.0` (host contract;
+  Flow Steward 0.9.12 ships host 1.6.0). `extension_host_v2` unchanged, no new
+  manifest fields.
+- Verified connection name: `store name · Amazon <marketplace> · <Seller ID>`, or
+  `Amazon <marketplace> · <Seller ID>` without a store name, within 512 UTF-8
+  bytes; only the store name is shortened, the marketplace and Seller ID suffix is
+  always kept. One store in UK and US, or two sellers with one store name, are no
+  longer indistinguishable in the workflow connection picker.
+- Required response identifiers: a change whose 2xx answer lacks a top-level
+  identifier its pinned response schema requires (`inbound_plan_id` and
+  `operation_id` of createInboundPlan, `operation_id` of every asynchronous inbound
+  step, `shipment_id` of purchaseShipment) now reports `outcome_unknown`
+  (`definitely_no_external_effect: false`) with the input IDs to read back and
+  Amazon's request ID, instead of success. Nothing is called again; optional and
+  nested fields and 204 answers are unchanged.
+- The pathological S3-host regression runs in a child process with a 30 s deadline
+  instead of a 50 ms wall-clock assertion, so a hanging regression is killed and a
+  busy scheduler cannot fail it.
+- Docs and help: the minimum connection role (Product Listing, or Inventory and
+  Order Tracking, for the Seller ID check) apart from operation roles; links to
+  Amazon's documentation; `fba_list_prep_details` reads only API-set prep; the US
+  prep/item-label service ended 2026-01-01; read every page of
+  `fba_list_transportation_options` before concluding no partnered option; Amazon's
+  partnered-carrier statements kept per source page.
+
 ## 0.2.5 — unreleased
 
 Extension Sonar findings (analysis f9531072, revision 367dfba):

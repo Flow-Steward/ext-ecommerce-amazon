@@ -28,6 +28,17 @@ components:
       marked as needing attention and **Test the connection** says which check
       failed.
 
+      **The connection's name is the one Amazon confirmed.** Once the checks pass,
+      Flow Steward shows *store name · Amazon marketplace · Seller ID* (or
+      *Amazon marketplace · Seller ID* without a store name) instead of the name
+      typed at import. The workflow connection picker shows only this name, so it
+      always carries the marketplace and the Seller ID; a long store name is
+      shortened, those two are never cut.
+
+      **Every connection needs Product Listing** (or Inventory and Order Tracking),
+      even for finance-only workflows: the Seller ID check calls Listings Items
+      searchListingsItems. The other roles depend on the methods you use.
+
       **One connection is one marketplace.** Every call goes to the connection's
       region, and methods marked marketplace in the Operation matrix name the
       connection's marketplace; a workflow cannot point a step at another seller

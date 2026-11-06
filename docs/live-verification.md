@@ -29,7 +29,10 @@ yet. Sandbox and fixtures are not evidence of live behaviour.
   after 10 minutes; ON-Amazon labels listed for US, UK, IT, FR, ES (Shipping FAQ);
   the header default is `AmazonShipping_UK`, so the extension always sends it.
 - Inbound: no shipment creation in Brazil; partnered carriers in the contiguous
-  US; Pack Later only for pallets; void windows 24 h (SPD) and 1 h (LTL);
+  US per the PCP tutorial (the general guide's EU terms and the India challan
+  tutorial are separate statements, not merged into a region list);
+  `listPrepDetails` returns only API-set prep; US prep/item-label service ended
+  2026-01-01; `listTransportationOptions` is paginated; Pack Later only for pallets; void windows 24 h (SPD) and 1 h (LTL);
   `getLabels`/`getBillOfLading` take the shipment confirmation ID; India
   compliance and challan are IN-only (Amazon docs read 2026-11-06).
 

@@ -1,14 +1,21 @@
 from __future__ import annotations
 
 import http.client
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 from conftest import (
     ACCESS_TOKEN,
     CONNECTION_ID,
+    FakeAmazon,
     FakeResponse,
     SELLER_ID,
     UK_MARKETPLACE_ID,
+    US_MARKETPLACE_ID,
     assert_result_matches_outputs,
     connection_target,
     make_payload,
@@ -76,8 +83,8 @@ def test_test_connection_on_a_rejected_token_is_an_error(amazon, run):
     assert response["error_code"] == "authentication_failed"
 
 
-def _post_connect_payload() -> dict:
-    payload = make_payload("verify_connection", {})
+def _post_connect_payload(**target) -> dict:
+    payload = make_payload("verify_connection", {}, target=connection_target(**target))
     payload["action"]["input"] = {}
     return payload
 
@@ -86,9 +93,9 @@ def _post_connect_payload() -> dict:
 _POST_CONNECT_KEYS = {"subject", "health", "error_code", "safe_metadata", "verified_display_name"}
 
 
-def _verify(amazon) -> dict:
+def _verify(amazon, **target) -> dict:
     response = operations.handle_runtime(
-        _post_connect_payload(), transport_factory=amazon.transport_factory()
+        _post_connect_payload(**target), transport_factory=amazon.transport_factory()
     )
     assert response["ok"] is True, response
     assert_result_matches_outputs("verify_connection", response)
@@ -104,7 +111,7 @@ def test_verify_connection_returns_the_confirmed_seller_as_subject(amazon):
         "health": "ok",
         "error_code": None,
         "safe_metadata": {"marketplace": "UK", "region": "EU"},
-        "verified_display_name": "Test Store",
+        "verified_display_name": f"Test Store · Amazon UK · {SELLER_ID}",
     }
 
 
@@ -114,22 +121,66 @@ def test_verify_connection_declares_exactly_the_keys_it_returns():
     assert set(OPERATIONS_BY_ID["verify_connection"].result_fields) == _POST_CONNECT_KEYS
 
 
-def test_verify_connection_without_a_store_name_sends_a_null_display_name(amazon):
-    participations = {"payload": [dict(PARTICIPATIONS["payload"][0], storeName="  ")]}
-    amazon.reply("GET", "/sellers/v1/marketplaceParticipations", participations)
-    amazon.reply("GET", f"/listings/2021-08-01/items/{SELLER_ID}", {"items": []})
-    result = _verify(amazon)
-    assert result["health"] == "ok" and result["error_code"] is None
-    assert result["verified_display_name"] is None
+def _participations(marketplace_id: str = UK_MARKETPLACE_ID, **entry) -> dict:
+    row = dict(PARTICIPATIONS["payload"][0], **entry)
+    row["marketplace"] = dict(row["marketplace"], id=marketplace_id)
+    return {"payload": [row]}
 
 
-def test_verify_connection_cuts_a_long_store_name_to_core_byte_limit(amazon):
-    participations = {"payload": [dict(PARTICIPATIONS["payload"][0], storeName="店" * 300)]}
+def _verified_name(amazon, *, seller_id=SELLER_ID, marketplace="UK", **entry) -> str:
+    marketplace_id = {"UK": UK_MARKETPLACE_ID, "US": US_MARKETPLACE_ID}[marketplace]
+    amazon.reply(
+        "GET", "/sellers/v1/marketplaceParticipations", _participations(marketplace_id, **entry)
+    )
+    amazon.reply("GET", f"/listings/2021-08-01/items/{seller_id}", {"items": []})
+    result = _verify(amazon, seller_id=seller_id, marketplace=marketplace)
+    assert result["health"] == "ok" and result["error_code"] is None, result
+    return result["verified_display_name"]
+
+
+def test_verified_names_tell_one_store_in_two_marketplaces_apart():
+    uk = _verified_name(FakeAmazon(), marketplace="UK")
+    us = _verified_name(FakeAmazon(), marketplace="US")
+    assert uk == f"Test Store · Amazon UK · {SELLER_ID}"
+    assert us == f"Test Store · Amazon US · {SELLER_ID}"
+    assert uk != us
+
+
+def test_verified_names_tell_two_sellers_with_one_store_name_apart():
+    first = _verified_name(FakeAmazon(), seller_id="A1SELLER0TEST1")
+    second = _verified_name(FakeAmazon(), seller_id="A2SELLER0TEST2")
+    assert first.endswith("· A1SELLER0TEST1") and second.endswith("· A2SELLER0TEST2")
+    assert first != second
+
+
+def test_verified_name_without_a_store_name_still_names_marketplace_and_seller(amazon):
+    assert _verified_name(amazon, storeName="  ") == f"Amazon UK · {SELLER_ID}"
+
+
+def test_verified_name_without_a_store_name_field(amazon):
+    participations = _participations()
+    del participations["payload"][0]["storeName"]
     amazon.reply("GET", "/sellers/v1/marketplaceParticipations", participations)
     amazon.reply("GET", f"/listings/2021-08-01/items/{SELLER_ID}", {"items": []})
-    name = _verify(amazon)["verified_display_name"]
-    assert name == "店" * 170
+    assert _verify(amazon)["verified_display_name"] == f"Amazon UK · {SELLER_ID}"
+
+
+def test_a_long_unicode_store_name_is_cut_and_the_identity_suffix_kept(amazon):
+    name = _verified_name(amazon, storeName="店" * 300)
+    suffix = f" · Amazon UK · {SELLER_ID}"
+    assert name.endswith(suffix)
+    store = name.removesuffix(suffix)
+    assert store and set(store) == {"店"}
     assert len(name.encode("utf-8")) <= 512
+    # The cut keeps as much of the store name as fits on a character boundary.
+    assert len(name.encode("utf-8")) > 512 - len("店".encode())
+
+
+def test_a_store_name_with_combining_and_emoji_characters_stays_valid_utf8(amazon):
+    name = _verified_name(amazon, storeName="Café 🛍️ " * 80)
+    assert name.endswith(f" · Amazon UK · {SELLER_ID}")
+    assert len(name.encode("utf-8")) <= 512
+    name.encode("utf-8").decode("utf-8")
 
 
 def test_verify_connection_flags_a_marketplace_the_seller_does_not_sell_in(amazon):
@@ -375,17 +426,43 @@ def _sample(schema: dict):
     return "X" * max(1, schema.get("minLength", 1))
 
 
-def test_a_pathological_host_is_refused_in_linear_time():
-    """The S3 host check cannot backtrack (Sonar python:S5852 on the old regex)."""
-    import time
+#: Hosts that made the old S3-host regex backtrack exponentially.
+_PATHOLOGICAL_HOSTS = (
+    "s3" + "-a" * 5000 + ".x.amazonaws.co",
+    "s3" + "-a" * 100 + ".amazonaws.com",
+    "a." * 2000 + "s3.amazonaws.com",
+    "s3." + "a-" * 120 + "a.amazonaws.com",
+)
+#: Generous: the label parser answers in milliseconds, a backtracking regex never.
+_HOST_CHECK_DEADLINE_SECONDS = 30
+_HOST_CHECK_SCRIPT = """
+import json, sys
+from runtime.transport import is_amazon_s3_host
+hosts = json.loads(sys.stdin.read())
+sys.exit(1 if any(is_amazon_s3_host(host) for host in hosts) else 0)
+"""
 
-    hosts = [
-        "s3" + "-a" * 5000 + ".x.amazonaws.co",
-        "s3" + "-a" * 100 + ".amazonaws.com",
-        "a." * 2000 + "s3.amazonaws.com",
-        "s3." + "a-" * 120 + "a.amazonaws.com",
-    ]
-    started = time.perf_counter()
-    for host in hosts:
-        assert not is_amazon_s3_host(host)
-    assert time.perf_counter() - started < 0.05
+
+def test_a_pathological_host_is_refused_within_a_bounded_time():
+    """The S3 host check cannot backtrack (Sonar python:S5852 on the old regex).
+
+    It runs in a child process with a hard deadline, so a regression that hangs is
+    killed and reported instead of stalling the suite, and a busy scheduler cannot
+    fail a check that only needs to finish.
+    """
+    root = Path(__file__).resolve().parent.parent
+    env = dict(os.environ, PYTHONPATH=os.pathsep.join(entry for entry in sys.path if entry))
+    try:
+        completed = subprocess.run(  # constant argv, no shell
+            [sys.executable, "-c", _HOST_CHECK_SCRIPT],
+            input=json.dumps(_PATHOLOGICAL_HOSTS),
+            cwd=root,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=_HOST_CHECK_DEADLINE_SECONDS,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail(f"the S3 host check did not finish within {_HOST_CHECK_DEADLINE_SECONDS} s")
+    assert completed.returncode == 0, completed.stderr

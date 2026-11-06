@@ -87,7 +87,8 @@ def _seller_check(context: Context) -> dict[str, Any]:
             message = (
                 "Amazon did not accept this Seller ID for this token. Check the Seller ID "
                 "(Seller Central > Settings > Account Info > Merchant Token) and that the "
-                "application has the Product Listing role."
+                "application has the Product Listing (or Inventory and Order Tracking) role, "
+                "which every connection needs for this check."
             )
         return _check("seller_id", "failed", error_code=exc.code, message=message)
     return _check("seller_id", "passed")
@@ -133,12 +134,28 @@ def _post_connect(
     }
 
 
-def _display_name(value: Any) -> str:
-    """The store name within Core's 512-byte limit, cut on a character boundary."""
-    if not isinstance(value, str):
-        return ""
-    encoded = value.strip().encode("utf-8")[:MAX_DISPLAY_NAME_BYTES]
-    return encoded.decode("utf-8", "ignore").strip()
+LABEL_SEPARATOR = " · "
+
+
+def _display_name(store_name: Any, *, marketplace: str, seller_id: str) -> str:
+    """The connection's verified name: store name, marketplace and Seller ID.
+
+    Core shows this name instead of the one typed at connect time, and the workflow
+    picker shows nothing else, so the name alone must tell connections apart: one
+    store sold in UK and US, two sellers with the same store name, a seller without
+    a store name. The marketplace and Seller ID come last and are never cut; only
+    the store name is shortened, on a character boundary, to stay within Core's
+    512-byte limit.
+    """
+    suffix = f"Amazon {marketplace}{LABEL_SEPARATOR}{seller_id}"
+    store = store_name.strip() if isinstance(store_name, str) else ""
+    if not store:
+        return suffix
+    room = MAX_DISPLAY_NAME_BYTES - len((LABEL_SEPARATOR + suffix).encode("utf-8"))
+    store = store.encode("utf-8")[: max(room, 0)].decode("utf-8", "ignore").strip()
+    if not store:
+        return suffix
+    return f"{store}{LABEL_SEPARATOR}{suffix}"
 
 
 def _verify_connection(context: Context) -> dict[str, Any]:
@@ -169,20 +186,23 @@ def _verify_connection(context: Context) -> dict[str, Any]:
         return _post_connect(
             health="needs_attention", error_code="internal_failure", safe_metadata=metadata
         )
-    store_name = dig(entry, "storeName")
-    display_name = _display_name(store_name)
+    display_name = _display_name(
+        dig(entry, "storeName"),
+        marketplace=marketplace.code,
+        seller_id=context.connection.seller_id,
+    )
     return _post_connect(
         subject=context.connection.seller_id,
         health="ok",
         error_code=None,
         safe_metadata=metadata,
-        verified_display_name=display_name or None,
+        verified_display_name=display_name,
     )
 
 
 _ROLES = (
     "Selling Partner Insights or Product Listing (getMarketplaceParticipations)",
-    "Product Listing (searchListingsItems)",
+    "Product Listing or Inventory and Order Tracking (searchListingsItems)",
 )
 _CALLS = (
     "Sellers v1 getMarketplaceParticipations",

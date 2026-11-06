@@ -1944,7 +1944,7 @@ actions:
   - outcome_unknown
 - action_id: fba_list_prep_details
   title: 'FBA: list prep details'
-  description: Reads the prep category and prep types Amazon has for up to 100 MSKUs in the connection's marketplace.
+  description: Reads the prep category and prep types set through the API (fba_set_prep_details) for up to 100 MSKUs in the connection's marketplace. Prep details entered in Seller Central are not returned here; set them with fba_set_prep_details as a separate step.
   required_scopes:
   - extension:invoke
   handler:
@@ -1987,7 +1987,7 @@ actions:
   - unsupported_marketplace
 - action_id: fba_set_prep_details
   title: 'FBA: set prep details'
-  description: Sets the prep category and prep types of MSKUs in the connection's marketplace, which Amazon needs before those MSKUs can be sent.
+  description: 'Sets the prep category and prep types of MSKUs in the connection''s marketplace, which Amazon needs before those MSKUs can be sent. A separate, explicit step: fba_list_prep_details shows only what was set this way, never Seller Central''s prep settings.'
   required_scopes:
   - extension:invoke
   handler:
@@ -3056,7 +3056,7 @@ actions:
   - unsupported_marketplace
 - action_id: fba_list_transportation_options
   title: 'FBA: list transportation options'
-  description: 'Lists transportation options for a placement option or a shipment: shipping mode, solution (Amazon-partnered or own carrier), carrier and, for partnered carriers, the quote with cost, currency and expiration. Returns one page and next_token; nothing loops over the remaining pages.'
+  description: 'Lists transportation options for a placement option or a shipment: shipping mode, solution (Amazon-partnered or own carrier), carrier and, for partnered carriers, the quote with cost, currency and expiration. Returns one page and next_token; nothing loops over the remaining pages. Read every page (next_token) before concluding that no Amazon-partnered option is offered.'
   required_scopes:
   - extension:invoke
   handler:

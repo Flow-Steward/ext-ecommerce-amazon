@@ -5432,7 +5432,7 @@ operations:
   - outcome_unknown
 - operation_id: fba_list_prep_details
   display_name: 'FBA: list prep details'
-  description: 'Reads the prep category and prep types Amazon has for up to 100 MSKUs in the connection''s marketplace. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Reads the prep category and prep types set through the API (fba_set_prep_details) for up to 100 MSKUs in the connection''s marketplace. Prep details entered in Seller Central are not returned here; set them with fba_set_prep_details as a separate step. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:
@@ -5554,7 +5554,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_set_prep_details
   display_name: 'FBA: set prep details'
-  description: 'Sets the prep category and prep types of MSKUs in the connection''s marketplace, which Amazon needs before those MSKUs can be sent. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
+  description: 'Sets the prep category and prep types of MSKUs in the connection''s marketplace, which Amazon needs before those MSKUs can be sent. A separate, explicit step: fba_list_prep_details shows only what was set this way, never Seller Central''s prep settings. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API.'
   operation_kind: action
   category: ecommerce
   connection_type_ids:
@@ -9647,7 +9647,7 @@ operations:
   - unsupported_marketplace
 - operation_id: fba_list_transportation_options
   display_name: 'FBA: list transportation options'
-  description: 'Lists transportation options for a placement option or a shipment: shipping mode, solution (Amazon-partnered or own carrier), carrier and, for partnered carriers, the quote with cost, currency and expiration. Returns one page and next_token; nothing loops over the remaining pages. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
+  description: 'Lists transportation options for a placement option or a shipment: shipping mode, solution (Amazon-partnered or own carrier), carrier and, for partnered carriers, the quote with cost, currency and expiration. Returns one page and next_token; nothing loops over the remaining pages. Read every page (next_token) before concluding that no Amazon-partnered option is offered. Availability: Every Amazon marketplace except Brazil, where Amazon does not support inbound shipment creation through the API. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'
   operation_kind: source
   category: ecommerce
   connection_type_ids:

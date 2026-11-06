@@ -13,7 +13,7 @@ components:
 - component_id: matrix_account
   type: markdown
   title: Account and connection
-  body: '- **Test the connection** (`test_connection`): Sellers v1 getMarketplaceParticipations; Listings Items 2021-08-01 searchListingsItems. Roles: Selling Partner Insights or Product Listing (getMarketplaceParticipations), Product Listing (searchListingsItems). Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
+  body: '- **Test the connection** (`test_connection`): Sellers v1 getMarketplaceParticipations; Listings Items 2021-08-01 searchListingsItems. Roles: Selling Partner Insights or Product Listing (getMarketplaceParticipations), Product Listing or Inventory and Order Tracking (searchListingsItems). Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
 
     '
 - component_id: matrix_orders

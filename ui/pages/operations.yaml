@@ -93,10 +93,19 @@ components:
       Supported combinations (Amazon): small parcel (SPD) or pallets (LTL/FTL),
       each with an Amazon-partnered carrier or your own carrier, when carton
       contents are known (Pack Now). Pack Later is for pallets only.
-      Amazon-partnered carriers are offered in the contiguous United States and,
-      through the Partnered Carrier Program, in India; in the EU accept the
-      carrier's and Amazon's terms in Seller Central first. Inbound shipments
-      cannot be created in Brazil.
+      Partnered carriers, per Amazon's pages taken one by one: the partnered-carrier
+      tutorial names the contiguous United States only; the general inbound guide
+      requires EU sellers to accept the carrier's and the Partnered Carrier Program
+      terms in Seller Central first; the India tutorial covers the delivery challan
+      of Partnered Carrier Program shipments in the Amazon IN store.
+      fba_list_transportation_options returns one page: follow next_token through
+      every page before concluding that no partnered option is offered. Inbound
+      shipments cannot be created in Brazil.
+
+      Prep: fba_list_prep_details reads only prep details set through the API with
+      fba_set_prep_details, not Seller Central's prep settings, so setting them is
+      its own explicit step. In the US store Amazon stopped offering prep and item
+      label services on January 1, 2026: the seller preps and labels.
 
   - component_id: identifiers
     type: markdown

@@ -2,7 +2,7 @@ manifest_version: 2
 lifecycle: {data_schema_version: 1, data_migrations: []}
 extension_id: flowsteward.amazon-sp-api
 kind: tool_provider
-version: 0.2.5
+version: 0.2.6
 release_stage: active
 billing_mode: free
 display_name: Amazon Selling Partner API
@@ -62,6 +62,7 @@ external_effects:
   - {operation_id: cancel_report, effect_kind: amazon_report_cancellation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
 runtime:
   contract_version: extension_host_v2
+  compatibility: {platform_min: 1.6.0}
   extension_contract_v2:
     oauth_providers:
       - provider_id: amazon_lwa

@@ -324,6 +324,9 @@ class _Plan:
     page_token: str | None
     response: dict[str, Any]
     payload_wrapped: bool
+    #: Top-level identifiers the pinned response schema marks required (see
+    #: ``_required_ids``); a mutation whose answer lacks one has an unknown outcome.
+    required_ids: tuple[str, ...] = ()
 
 
 @dataclass
@@ -385,6 +388,7 @@ def _plan(method: Method) -> _Plan:
     response = row["response"]
     properties = response.get("properties") or {}
     wrapped = set(properties) <= {"payload", "errors"} and "payload" in properties
+    answer = properties["payload"] if wrapped else response
     return _Plan(
         path_inputs=tuple(parameters.path_inputs),
         query_inputs=tuple(parameters.query_inputs),
@@ -394,8 +398,56 @@ def _plan(method: Method) -> _Plan:
         body_inputs=body_inputs,
         connection_body=connection_body,
         page_token=parameters.page_token,
-        response=properties["payload"] if wrapped else response,
+        response=answer,
         payload_wrapped=wrapped,
+        required_ids=_required_ids(method, answer),
+    )
+
+
+def _required_ids(method: Method, response: Mapping[str, Any]) -> tuple[str, ...]:
+    """The identifiers a change's answer must carry, read from the pinned response schema.
+
+    Only a mutation's top-level string fields that the schema marks required and
+    that name an identifier (``*_id``): the plan ID of a created plan, the
+    operation ID of an asynchronous step, the shipment ID of a bought label. Optional
+    and nested fields are not checked, and an answer without a body (204) has no
+    required fields.
+    """
+    if not method.mutating:
+        return ()
+    properties = response.get("properties") or {}
+    return tuple(
+        name
+        for name in response.get("required") or ()
+        if name.endswith("_id") and (properties.get(name) or {}).get("type") == "string"
+    )
+
+
+def _check_required_ids(
+    method: Method, layout: _Plan, converted: Mapping[str, Any], response: ApiResponse
+) -> None:
+    """Refuse to call a change done when Amazon's success answer lacks its identifiers.
+
+    The request reached Amazon and was answered with a 2xx status, so the change may
+    have happened; without the identifier nobody can tell. The outcome is reported
+    as unknown, nothing is called again, and the caller reads back before repeating.
+    """
+    missing = [
+        name
+        for name in layout.required_ids
+        if not isinstance(converted.get(name), str) or not converted[name].strip()
+    ]
+    if not missing:
+        return
+    raise ExtensionError(
+        errors.OUTCOME_UNKNOWN,
+        f"Amazon accepted {method.amazon_operation} but its answer has no "
+        f"{', '.join(missing)}, so whether the change was made is unknown. Read the current "
+        "state before running it again.",
+        definitely_no_external_effect=False,
+        external_effect_status="unknown",
+        http_status=response.status,
+        amazon_request_id=response.headers.get("x-amzn-requestid"),
     )
 
 
@@ -632,6 +684,7 @@ def _run(method: Method, layout: _Plan, context: Context) -> dict[str, Any]:
     )
     raw = _response_object(layout, response)
     converted = from_amazon(raw, layout.response)
+    _check_required_ids(method, layout, converted, response)
     if method.result is not None:
         result = method.result(context, converted, response)
     else:

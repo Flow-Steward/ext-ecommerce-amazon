@@ -8,6 +8,7 @@ import pytest
 from conftest import UK_MARKETPLACE_ID, connection_target
 from test_connection_and_transport import _sample
 
+from runtime import amazon_api
 from runtime.amazon_api import spec
 from runtime.catalog import OPERATIONS_BY_ID
 from runtime.sections import fba_inbound, fba_inbound_documents
@@ -148,10 +149,15 @@ def test_every_method_makes_exactly_one_amazon_call(amazon, run, method):
     if target is not None:
         minimal["connection_ref"] = "conn-in"
     status = amazon_spec["success_status"]
+    # A change's answer carries the identifiers its schema requires; an answer
+    # without them is an unknown outcome (tests/test_required_response_ids.py).
+    layout = amazon_api._plan(method)
+    names = layout.response.get("x-amazon-names") or {}
+    answer = {names.get(name, name): f"{name}-1" for name in layout.required_ids}
     amazon.reply(
         amazon_spec["method"],
         _path(method, minimal),
-        raw=b"" if status == 204 else b"{}",
+        raw=b"" if status == 204 else json.dumps(answer).encode(),
         status=status,
     )
     response = run(method.operation_id, minimal, **({"target": target} if target else {}))

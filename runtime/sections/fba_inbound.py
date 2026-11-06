@@ -299,8 +299,9 @@ METHODS: tuple[Method, ...] = (
     _read(
         "fba_list_prep_details",
         "FBA: list prep details",
-        "Reads the prep category and prep types Amazon has for up to 100 MSKUs in the connection's "
-        "marketplace.",
+        "Reads the prep category and prep types set through the API (fba_set_prep_details) for up "
+        "to 100 MSKUs in the connection's marketplace. Prep details entered in Seller Central are "
+        "not returned here; set them with fba_set_prep_details as a separate step.",
         "listPrepDetails",
         inputs={
             "mskus": {
@@ -314,7 +315,8 @@ METHODS: tuple[Method, ...] = (
         "fba_set_prep_details",
         "FBA: set prep details",
         "Sets the prep category and prep types of MSKUs in the connection's marketplace, which Amazon "
-        "needs before those MSKUs can be sent.",
+        "needs before those MSKUs can be sent. A separate, explicit step: fba_list_prep_details "
+        "shows only what was set this way, never Seller Central's prep settings.",
         "setPrepDetails",
         effect_kind="amazon_fba_prep_details_update",
         read_back=("fba_list_prep_details",),
@@ -581,7 +583,8 @@ METHODS: tuple[Method, ...] = (
         "FBA: list transportation options",
         "Lists transportation options for a placement option or a shipment: shipping mode, solution "
         "(Amazon-partnered or own carrier), carrier and, for partnered carriers, the quote with cost, "
-        "currency and expiration." + _LIST_NOTE,
+        "currency and expiration." + _LIST_NOTE + " Read every page (next_token) before concluding "
+        "that no Amazon-partnered option is offered.",
         "listTransportationOptions",
         inputs={"placement_option_id": PLACEMENT_OPTION_ID},
     ),
