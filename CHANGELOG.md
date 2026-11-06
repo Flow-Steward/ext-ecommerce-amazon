@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 — unreleased
+
+Audit fixes on 0.2.0: select and multi_select fields carry their options (enum
+inputs were free text in the builder); list_financial_records is marked
+seller-region; Setup Guide, Connection and behaviour pages state scope, single
+actions, credential storage and the India programmes exactly.
+
 ## 0.2.0 — unreleased
 
 - FBM Amazon Shipping v2 for Amazon orders: get_shipping_rates,
