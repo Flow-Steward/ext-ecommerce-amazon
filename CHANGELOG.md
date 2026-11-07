@@ -2,6 +2,16 @@
 
 ## 0.2.11
 
+### Added
+
+- Tests only, runtime unchanged: `tests/ui_mock/` adds a TEST / MOCK fixture
+  for UI acceptance of several seller connections without Amazon credentials:
+  a mock LWA token endpoint and the two SP-API reads of the connection check on
+  reserved `*.amazon-mock.test` names, a TEST / MOCK copy of the bundle that
+  names only those hosts, an overlay for Core's isolated manual OAuth browser
+  lane, a seed (prepare / exercise with egress assertions) and `run.sh
+  up|exercise|ca|status|down`. Unit tests in `tests/test_ui_mock_fixture.py`.
+
 ### Fixed
 
 - Setup Guide: the seven official Amazon addresses are named Markdown links

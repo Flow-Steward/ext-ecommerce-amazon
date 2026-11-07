@@ -1,0 +1,176 @@
+# TEST / MOCK Amazon overlay for Core's isolated manual OAuth browser lane.
+#
+# Used only by tests/ui_mock/run.sh on top of Core's
+#   infra/docker/docker-compose.yaml
+#   infra/docker/docker-compose.oauth-browser.yaml        (default network internal: true)
+#   infra/docker/docker-compose.oauth-browser-manual.yaml (Traefik on 127.0.0.1 only)
+# Nothing here is part of the extension bundle's runtime or of any production image.
+#
+# Boundaries:
+# * the mock answers only on reserved *.amazon-mock.test names, as network aliases of
+#   the project's internal network; it publishes no port;
+# * the TEST / MOCK extension copy names only those hosts (preprovision.py refuses a
+#   copy that still names amazon.com or amazonaws.com);
+# * the mock's certificate is signed by the lane's per-run CA, trusted only inside
+#   this project through SSL_CERT_FILE, which Core already sets for its lane;
+# * the extension source arrives as a tar stream of one git revision into a named
+#   volume (no bind mount), and is checked blob by blob against that revision.
+
+services:
+  amazon-mock-source-init:
+    image: ${FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE:?set FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE}
+    pull_policy: never
+    user: "0:0"
+    stdin_open: true
+    profiles: [amazon-mock-tools]
+    command:
+      - sh
+      - -euc
+      - |
+        find /src -mindepth 1 -maxdepth 1 -exec rm -r -- {} +
+        tar -x -C /src
+        chmod -R a+rX /src
+    volumes:
+      - amazon-mock-source:/src
+    network_mode: none
+    restart: "no"
+
+  amazon-mock-source-verify:
+    image: ${FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE:?set FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE}
+    pull_policy: never
+    user: "0:0"
+    stdin_open: true
+    profiles: [amazon-mock-tools]
+    # stdin: `git ls-tree -r --format='%(objectmode) %(objectname) %(path)' <revision>`
+    command:
+      - python
+      - -c
+      - |
+        import hashlib, pathlib, sys
+        bad = []
+        for line in sys.stdin:
+            mode, blob, path = line.rstrip("\n").split(" ", 2)
+            if mode in ("120000", "160000"):
+                continue
+            data = (pathlib.Path("/src") / path).read_bytes()
+            if hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest() != blob:
+                bad.append(path)
+        if bad:
+            sys.exit(f"extension source does not match the revision: {bad[:10]}")
+        print("extension source matches the revision")
+    volumes:
+      - amazon-mock-source:/src:ro
+    network_mode: none
+    restart: "no"
+
+  amazon-mock-cert-init:
+    image: ${FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE:?set FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE}
+    pull_policy: never
+    user: "0:0"
+    command:
+      - sh
+      - -euc
+      - |
+        rm -f /mock-certs/*
+        openssl req -newkey rsa:2048 -nodes -subj '/CN=TEST MOCK Amazon' \
+          -keyout /mock-certs/mock.key -out /mock-certs/mock.csr >/dev/null 2>&1
+        printf '%s\n' \
+          'subjectAltName=DNS:lwa.amazon-mock.test,DNS:spapi-na.amazon-mock.test,DNS:spapi-eu.amazon-mock.test,DNS:spapi-fe.amazon-mock.test' \
+          'extendedKeyUsage=serverAuth' >/mock-certs/mock.ext
+        openssl x509 -req -days 1 -sha256 -in /mock-certs/mock.csr \
+          -CA /certs/ca.crt -CAkey /certs/ca.key -CAcreateserial -CAserial /mock-certs/ca.srl \
+          -extfile /mock-certs/mock.ext -out /mock-certs/mock.crt >/dev/null 2>&1
+        chmod 0644 /mock-certs/mock.crt
+        chmod 0600 /mock-certs/mock.key
+    volumes:
+      - oauth-browser-certs:/certs:ro
+      - amazon-mock-certs:/mock-certs
+    depends_on:
+      oauth-cert-init:
+        condition: service_completed_successfully
+    restart: "no"
+
+  amazon-mock:
+    image: ${FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE:?set FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE}
+    pull_policy: never
+    user: "0:0"
+    working_dir: /src/tests/ui_mock
+    command: ["python", "mock_amazon.py", "--port", "443", "--cert-file", "/mock-certs/mock.crt", "--key-file", "/mock-certs/mock.key"]
+    volumes:
+      - amazon-mock-source:/src:ro
+      - amazon-mock-certs:/mock-certs:ro
+      - oauth-browser-certs:/certs:ro
+    networks:
+      default:
+        aliases:
+          - lwa.amazon-mock.test
+          - spapi-na.amazon-mock.test
+          - spapi-eu.amazon-mock.test
+          - spapi-fe.amazon-mock.test
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          SSL_CERT_FILE=/certs/ca.crt python -c
+          "import urllib.request; urllib.request.urlopen('https://lwa.amazon-mock.test/__mock/health', timeout=2)"
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    depends_on:
+      amazon-mock-cert-init:
+        condition: service_completed_successfully
+    restart: "no"
+
+  amazon-mock-preprovision:
+    image: ${FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE:?set FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE}
+    pull_policy: never
+    user: "0:0"
+    working_dir: /src/tests/ui_mock
+    command:
+      - sh
+      - -euc
+      - |
+        python preprovision.py --source /src --extensions-root /w/extensions \
+          --revision "${FS_AMAZON_MOCK_EXT_REVISION:?set FS_AMAZON_MOCK_EXT_REVISION}"
+        chown -R 1000:1000 /w/extensions/flowsteward_amazon_sp_api_test_mock
+    volumes:
+      - amazon-mock-source:/src:ro
+      - oauth-browser-extensions:/w/extensions
+    network_mode: none
+    depends_on:
+      oauth-app-volumes-init:
+        condition: service_completed_successfully
+    restart: "no"
+
+  extension-dependencies:
+    depends_on:
+      amazon-mock-preprovision:
+        condition: service_completed_successfully
+
+  fs-app:
+    depends_on:
+      amazon-mock:
+        condition: service_healthy
+
+  amazon-mock-seed:
+    image: ${FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE:?set FS_OAUTH_ACCEPTANCE_AUDIT_IMAGE}
+    pull_policy: never
+    user: "0:0"
+    working_dir: /src/tests/ui_mock
+    command: ["python", "seed.py", "${FS_AMAZON_MOCK_SEED_STAGE:-prepare}", "--output", "/state/amazon-mock.json"]
+    environment:
+      SSL_CERT_FILE: /certs/ca.crt
+    volumes:
+      - amazon-mock-source:/src:ro
+      - oauth-browser-certs:/certs:ro
+      - oauth-browser-state:/state
+    depends_on:
+      oauth-browser-seed:
+        condition: service_completed_successfully
+      amazon-mock:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  amazon-mock-source:
+  amazon-mock-certs:
