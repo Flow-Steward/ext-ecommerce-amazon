@@ -365,13 +365,15 @@ OPERATIONS: tuple[Operation, ...] = (
         section="reports",
         properties={
             "connection_ref": CONNECTION_REF,
-            # The enum is the whole allowlist so that asking for a settlement report gets
-            # the explanation from the handler, not a bare enum refusal.
+            # Only requestable types are offered, so the step form never lists a choice this
+            # method refuses. Settlement reports stay in search_reports and download_report;
+            # the handler still refuses one should it arrive some other way.
             "report_type": enum(
                 "Report type",
-                "Requestable: " + ", ".join(CREATABLE_REPORT_TYPE_NAMES) + ". "
-                "GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2 cannot be requested; Amazon generates it.",
-                REPORT_TYPE_NAMES,
+                "One of the report types Amazon lets you request. Settlement reports are not "
+                "listed: Amazon generates them itself; find them with search_reports and fetch "
+                "them with download_report.",
+                CREATABLE_REPORT_TYPE_NAMES,
             ),
             "data_start_time": timestamp("Data start", "Start of the period the report covers."),
             "data_end_time": timestamp("Data end", "End of the period the report covers."),

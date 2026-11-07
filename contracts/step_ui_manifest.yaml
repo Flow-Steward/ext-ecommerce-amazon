@@ -2619,10 +2619,8 @@ forms:
     label: Report type
     widget_type: select
     required: true
-    help_text: 'Requestable: GET_MERCHANT_LISTINGS_ALL_DATA, GET_MERCHANT_LISTINGS_DATA, GET_FLAT_FILE_OPEN_LISTINGS_DATA, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL, GET_FLAT_FILE_ALL_ORDERS_DATA_BY_LAST_UPDATE_GENERAL, GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA, GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA, GET_FLAT_FILE_RETURNS_DATA_BY_RETURN_DATE. GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2 cannot be requested; Amazon generates it.'
+    help_text: 'One of the report types Amazon lets you request. Settlement reports are not listed: Amazon generates them itself; find them with search_reports and fetch them with download_report.'
     options:
-    - value: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
-      label: GET_V2_SETTLEMENT_REPORT_DATA_FLAT_FILE_V2
     - value: GET_MERCHANT_LISTINGS_ALL_DATA
       label: GET_MERCHANT_LISTINGS_ALL_DATA
     - value: GET_MERCHANT_LISTINGS_DATA

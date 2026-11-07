@@ -86,6 +86,36 @@ def test_create_report_for_the_connection_marketplace(amazon, run):
 def test_settlement_report_cannot_be_requested(amazon, run):
     response = run("create_report", {"report_type": SETTLEMENT})
     assert response["error_code"] == "invalid_payload"
+    assert "report_type" in response["error"]
+    assert SETTLEMENT not in response["error"]
+    assert amazon.requests == []
+
+
+def test_request_offers_only_requestable_types_and_find_keeps_settlement():
+    from runtime.catalog import OPERATIONS_BY_ID
+
+    create = OPERATIONS_BY_ID["create_report"].input_schema["properties"]["report_type"]
+    assert create["enum"] == list(reports.CREATABLE_REPORT_TYPE_NAMES)
+    assert len(create["enum"]) == 8
+    assert SETTLEMENT not in create["enum"]
+    assert "Settlement reports are not listed" in create["description"]
+
+    search = OPERATIONS_BY_ID["search_reports"].input_schema["properties"]["report_types"]
+    assert SETTLEMENT in search["items"]["enum"]
+    assert set(search["items"]["enum"]) == set(reports.REPORT_TYPE_NAMES)
+
+
+def test_the_handler_still_refuses_a_settlement_request_that_skips_the_form(
+    amazon, run, monkeypatch
+):
+    """Defence in depth: the schema enum is the first gate, the handler the second."""
+    from runtime.catalog import OPERATIONS_BY_ID
+
+    schema = OPERATIONS_BY_ID["create_report"].input_schema
+    widened = {**schema["properties"]["report_type"], "enum": list(reports.REPORT_TYPE_NAMES)}
+    monkeypatch.setitem(schema["properties"], "report_type", widened)
+    response = run("create_report", {"report_type": SETTLEMENT})
+    assert response["error_code"] == "invalid_payload"
     assert "cannot be requested" in response["error"] and "search_reports" in response["error"]
     assert amazon.requests == []
 

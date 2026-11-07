@@ -85,8 +85,16 @@ components:
     type: markdown
     title: 5. Create the connections
     body: |
-      Open the **Connection** page. For every seller account and marketplace, add a
-      connection with a name (for example *Amazon UK*), the refresh token, the
+      The **Connection** page opens once the application configuration in the
+      **Amazon SP-API application** section above is ready: it says *Ready for
+      authorization* or *Verified*. Until then the Connection tab is greyed out and
+      the reason is shown under the tabs. *Needs attention* with *invalid_client*
+      means Amazon refused the LWA client ID or client secret the last time they
+      were used: check the client ID, choose **Replace**, paste the current client
+      secret and save. *Incomplete* means a required field is still empty.
+
+      Then open the **Connection** page. For every seller account and marketplace,
+      add a connection with a name (for example *Amazon UK*), the refresh token, the
       Seller ID and the marketplace. The API region (NA, EU or FE) is chosen
       automatically from the marketplace.
 
@@ -151,16 +159,10 @@ components:
     type: markdown
     title: Amazon's documentation
     body: |
-      - Self-authorizing a private application:
-        https://developer-docs.amazon/sp-api/docs/self-authorization
-      - Marketplace (store) IDs: https://developer-docs.amazon/sp-api/docs/marketplace-ids
-      - Amazon Shipping API v2:
-        https://developer-docs.shipping.amazon.com/apis/docs/shipping-api-v2-reference
-      - Fulfillment Inbound API (roles, prep details):
-        https://developer-docs.amazon/sp-api/docs/fulfillment-inbound-api
-      - Creating an inbound shipment:
-        https://developer-docs.amazon/sp-api/docs/create-an-inbound-shipment
-      - Amazon-partnered carrier shipments:
-        https://developer-docs.amazon/sp-api/docs/create-amazon-partnered-carrier-shipment
-      - Inbound to fulfillment centres in India:
-        https://developer-docs.amazon/sp-api/docs/ship-inventory-to-india-fc
+      - [Self-authorizing a private application](https://developer-docs.amazon/sp-api/docs/self-authorization)
+      - [Marketplace (store) IDs](https://developer-docs.amazon/sp-api/docs/marketplace-ids)
+      - [Amazon Shipping API v2 reference](https://developer-docs.shipping.amazon.com/apis/docs/shipping-api-v2-reference)
+      - [Fulfillment Inbound API (roles, prep details)](https://developer-docs.amazon/sp-api/docs/fulfillment-inbound-api)
+      - [Creating an inbound shipment](https://developer-docs.amazon/sp-api/docs/create-an-inbound-shipment)
+      - [Amazon-partnered carrier shipments](https://developer-docs.amazon/sp-api/docs/create-amazon-partnered-carrier-shipment)
+      - [Inbound to fulfillment centres in India](https://developer-docs.amazon/sp-api/docs/ship-inventory-to-india-fc)

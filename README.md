@@ -77,14 +77,14 @@ the verified Flow Steward extension SDK wheel before the development requirement
 After the release changes are merged, create a new tag matching `extension.yaml`:
 
 ```sh
-git tag v0.2.10
-git push origin v0.2.10
+git tag v0.2.11
+git push origin v0.2.11
 ```
 
 To run the same release pipeline manually for that immutable tag:
 
 ```sh
-gh workflow run release.yml --ref main -f tag=v0.2.10
+gh workflow run release.yml --ref main -f tag=v0.2.11
 ```
 
 The release caller builds, tests and packages the tagged source through the shared

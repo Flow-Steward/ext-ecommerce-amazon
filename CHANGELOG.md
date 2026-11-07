@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.11
+
+### Fixed
+
+- Setup Guide: the seven official Amazon addresses are named Markdown links
+  (they were plain text, so not clickable or reachable by keyboard).
+- Setup Guide step 5 says that the Connection page opens only once the
+  application configuration is *Ready for authorization* or *Verified*, where
+  the reason is shown while it is not, and how to fix *Needs attention*
+  (invalid_client: replace the client secret and save) and *Incomplete*.
+- Request a report offers only the 8 requestable report types. The settlement
+  report is no longer listed there (Amazon generates it); it stays in Find
+  reports and Download a report. The schema enum still refuses anything else,
+  and the handler still refuses a settlement request as a second gate.
+
 ## 0.2.10
 
 ### Added
