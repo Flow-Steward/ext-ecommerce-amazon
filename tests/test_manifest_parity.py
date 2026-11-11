@@ -95,5 +95,7 @@ def test_no_json_authoring_files():
         if ".git" not in path.parts
         and "dev-wheels" not in path.parts
         and path.parent != AMAZON_MODELS
+        # The repository build recipe is tooling, not an extension authoring file.
+        and path != ROOT / ".github" / "release-config.json"
     ]
     assert offenders == []

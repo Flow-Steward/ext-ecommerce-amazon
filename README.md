@@ -66,3 +66,27 @@ the effect and artifact blocks of `extension.yaml` and `docs/operation-matrix.md
 are generated from the registry; `runtime/amazon_specs.py` is compiled from
 Amazon's official models in `tests/reference/models`. The parity tests fail when
 any of them is stale.
+
+## CI and releases
+
+Pull requests and pushes to `main` run the shared extension build workflow. The
+repository recipe is `.github/release-config.json`: it selects the test
+requirements, test paths and portable source package. Shared tooling installs
+the verified Flow Steward extension SDK wheel before the development requirements.
+
+After the release changes are merged, create a new tag matching `extension.yaml`:
+
+```sh
+git tag v0.2.10
+git push origin v0.2.10
+```
+
+To run the same release pipeline manually for that immutable tag:
+
+```sh
+gh workflow run release.yml --ref main -f tag=v0.2.10
+```
+
+The release caller builds, tests and packages the tagged source through the shared
+workflow. Keep published tags immutable; release a new patch version for later
+changes rather than moving an existing tag or uploading a replacement ZIP.

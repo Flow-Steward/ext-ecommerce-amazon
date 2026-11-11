@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.10
+
+### Added
+
+- Automatic shared CI for pull requests and pushes to main, with tests and source-based release packaging.
+- Tag and manual release callers for the shared extension release workflow.
+
 ## 0.2.9
 
 ### Changed
