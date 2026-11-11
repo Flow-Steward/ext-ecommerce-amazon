@@ -2,11 +2,16 @@ manifest_version: 2
 lifecycle: {data_schema_version: 1, data_migrations: []}
 extension_id: flowsteward.amazon-sp-api
 kind: tool_provider
-version: 0.2.8
+version: 0.2.9
 release_stage: active
 billing_mode: free
 display_name: Amazon Selling Partner API
-description: Atomic Amazon SP-API methods for orders, FBM shipment confirmation and Amazon Shipping labels, FBA inbound shipments (including India), catalog, listings, prices, stock, feeds, finances and reports. One connection is one seller account in one marketplace; Orders and Finances are available in both the current and the legacy API version.
+description: |-
+  Connect Amazon seller operations to Flow Steward workflows across order handling, catalog maintenance, fulfillment and financial reporting. Read orders and order items, retrieve permitted buyer information, confirm merchant-fulfilled shipments and update shipment status. Search Amazon catalog items and seller listings, inspect listing issues, retrieve product type requirements, check restrictions and validate proposed listing changes before submitting them.
+
+  Catalog and inventory steps can create, update or delete listings, change offer prices and merchant-fulfilled quantities, read FBA inventory and compare offers and competitive pricing. FBA inbound operations cover plans, packing and placement choices, transportation, delivery windows, shipment details and shipping documents, with additional India compliance and challan operations. Amazon Shipping steps retrieve rates, purchase or cancel shipments, download labels and read tracking in supported countries.
+
+  Use listing feeds for batch submissions, inspect their processing status and download results. Finance steps retrieve transactions, order-related financial records and legacy financial event groups; report steps request, inspect and download Amazon reports, including eligible settlement reports. These building blocks suit stock updates, shipment processing and accounting exports. Each connection selects one seller and marketplace. Lists return a page, and asynchronous submissions need later status checks; roles and marketplace availability determine which operations can run.
 vendor:
   name: Flow Steward
   support_url: https://github.com/Flow-Steward/ext-ecommerce-amazon/issues
@@ -14,7 +19,8 @@ vendor:
 listing:
   category: ecommerce
   tags: [amazon, sp-api, seller-central, orders, listings, pricing, inventory, fba, fbm, feeds, finances, reports, ecommerce]
-  summary: Read and change Amazon orders, listings, prices and stock, submit listing feeds and download finance and settlement reports from your workflows.
+  summary: "Automate Amazon orders, listings, pricing, FBA and FBM inventory, inbound shipments, shipping labels, listing feeds and financial reports."
+  setup_summary: "Use Flow Steward 0.9.12 or later and configure a private SP-API application with its LWA credentials. Self-authorize the seller in Seller Central, import its refresh token, and select the seller ID and marketplace; grant Product Listing for connection verification and add the roles needed by the operations you use."
 features: [tool, action]
 required_scopes: [extension:invoke, artifact:read, artifact:write]
 account_scope:

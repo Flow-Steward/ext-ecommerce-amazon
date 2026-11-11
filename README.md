@@ -1,10 +1,12 @@
 # Amazon Selling Partner API extension for Flow Steward
 
-Atomic Amazon SP-API methods for workflows: orders, FBM shipment confirmation and
-Amazon Shipping labels, FBA inbound shipments (Fulfillment Inbound 2024-03-20,
-including India), catalog, listings, product type requirements, prices, FBA/FBM
-stock, listing feeds, finances and reports. You build the processes; no ready-made
-workflows are shipped.
+Connect Amazon seller operations to Flow Steward workflows across order handling, catalog maintenance, fulfillment and financial reporting. Read orders and order items, retrieve permitted buyer information, confirm merchant-fulfilled shipments and update shipment status. Search Amazon catalog items and seller listings, inspect listing issues, retrieve product type requirements, check restrictions and validate proposed listing changes before submitting them.
+
+Catalog and inventory steps can create, update or delete listings, change offer prices and merchant-fulfilled quantities, read FBA inventory and compare offers and competitive pricing. FBA inbound operations cover plans, packing and placement choices, transportation, delivery windows, shipment details and shipping documents, with additional India compliance and challan operations. Amazon Shipping steps retrieve rates, purchase or cancel shipments, download labels and read tracking in supported countries.
+
+Use listing feeds for batch submissions, inspect their processing status and download results. Finance steps retrieve transactions, order-related financial records and legacy financial event groups; report steps request, inspect and download Amazon reports, including eligible settlement reports. These building blocks suit stock updates, shipment processing and accounting exports. Each connection selects one seller and marketplace. Lists return a page, and asynchronous submissions need later status checks; roles and marketplace availability determine which operations can run.
+
+Use Flow Steward 0.9.12 or later and configure a private SP-API application with its LWA credentials. Self-authorize the seller in Seller Central, import its refresh token, and select the seller ID and marketplace; grant Product Listing for connection verification and add the roles needed by the operations you use.
 
 - **Connections.** One connection is one seller account in one marketplace
   (for example *Amazon UK* and *Amazon US*). The API region follows from the

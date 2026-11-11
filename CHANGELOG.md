@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.9
+
+### Changed
+
+- Clarified the catalog description, supported operations and connection setup.
+
 ## 0.2.8 — unreleased
 
 Sonar follow-up to 0.2.7, no behaviour change:
