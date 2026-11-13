@@ -19,6 +19,7 @@ from typing import Any
 
 import yaml
 
+from runtime.action_copy import FIELD_EXAMPLES
 from runtime.catalog import CATEGORY, CHANNEL, OPERATIONS
 from runtime.marketplaces import MARKETPLACE_CODES
 from runtime.connection import CONNECTION_TYPE_ID
@@ -147,11 +148,14 @@ def _widget(spec: Mapping[str, Any]) -> str:
 MAX_PLACEHOLDER = 160
 
 
-def _placeholder(spec: Mapping[str, Any]) -> str:
+def _placeholder(spec: Mapping[str, Any], name: str = "") -> str:
     examples = spec.get("examples")
-    if not isinstance(examples, list) or not examples:
+    if isinstance(examples, list) and examples:
+        example = examples[0]
+    elif name in FIELD_EXAMPLES:
+        example = FIELD_EXAMPLES[name]
+    else:
         return ""
-    example = examples[0]
     text = example if isinstance(example, str) else json.dumps(example, ensure_ascii=False)
     return text if len(text) <= MAX_PLACEHOLDER else ""
 
@@ -203,7 +207,7 @@ def step_ui_manifest() -> dict[str, Any]:
             help_text = _help(spec)
             if help_text:
                 field["help_text"] = help_text
-            placeholder = _placeholder(spec)
+            placeholder = _placeholder(spec, name)
             if placeholder:
                 field["placeholder"] = placeholder
             options = _options(spec)

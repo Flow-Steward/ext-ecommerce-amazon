@@ -25,21 +25,25 @@ forms:
     widget_type: text
     required: false
     help_text: 'Orders created at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-01T00:00:00Z'
   - name: created_before
     label: Created before
     widget_type: text
     required: false
     help_text: 'Orders created before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-08T00:00:00Z'
   - name: last_updated_after
     label: Updated after
     widget_type: text
     required: false
     help_text: 'Orders updated at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-01T00:00:00Z'
   - name: last_updated_before
     label: Updated before
     widget_type: text
     required: false
     help_text: 'Orders updated before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-08T00:00:00Z'
   - name: statuses
     label: Statuses
     widget_type: multi_select
@@ -110,6 +114,7 @@ forms:
     widget_type: json
     required: false
     help_text: 'Up to 50 order IDs. Allowed: up to 50 entries.'
+    placeholder: '["123-1234567-1234567"]'
   - name: seller_order_id
     label: Seller order ID (v0)
     widget_type: text
@@ -128,6 +133,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
+    placeholder: 123-1234567-1234567
   - name: api_version
     label: Amazon API version
     widget_type: select
@@ -174,6 +180,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
+    placeholder: 123-1234567-1234567
   - name: api_version
     label: Amazon API version
     widget_type: select
@@ -197,6 +204,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
+    placeholder: 123-1234567-1234567
   - name: api_version
     label: Amazon API version
     widget_type: select
@@ -215,6 +223,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
+    placeholder: 123-1234567-1234567
   - name: package_reference_id
     label: Package reference ID
     widget_type: text
@@ -271,6 +280,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
+    placeholder: 123-1234567-1234567
   - name: shipment_status
     label: Shipment status
     widget_type: select
@@ -467,6 +477,7 @@ forms:
     widget_type: json
     required: false
     help_text: 'Up to 20 search keywords. Allowed: up to 20 entries.'
+    placeholder: '["blue ceramic mug"]'
   - name: brand_names
     label: Brands
     widget_type: json
@@ -482,6 +493,7 @@ forms:
     widget_type: text
     required: false
     help_text: 'Keyword search only: the language of the keywords. Allowed: up to 10 characters.'
+    placeholder: en_GB
   - name: included_data
     label: Included data
     widget_type: multi_select
@@ -531,6 +543,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
+    placeholder: B000000000
   - name: included_data
     label: Included data
     widget_type: multi_select
@@ -609,21 +622,25 @@ forms:
     widget_type: text
     required: false
     help_text: 'Listings created at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-01T00:00:00Z'
   - name: created_before
     label: Created before
     widget_type: text
     required: false
     help_text: 'Listings created at or before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-08T00:00:00Z'
   - name: last_updated_after
     label: Updated after
     widget_type: text
     required: false
     help_text: 'Listings updated at or after this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-01T00:00:00Z'
   - name: last_updated_before
     label: Updated before
     widget_type: text
     required: false
     help_text: 'Listings updated at or before this time. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-08T00:00:00Z'
   - name: with_issue_severity
     label: With issue severity
     widget_type: multi_select
@@ -703,6 +720,7 @@ forms:
     widget_type: text
     required: false
     help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+    placeholder: en_GB
   - name: page_size
     label: Page size
     widget_type: integer
@@ -721,6 +739,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
   - name: included_data
     label: Included data
     widget_type: multi_select
@@ -748,6 +767,7 @@ forms:
     widget_type: text
     required: false
     help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+    placeholder: en_GB
 - operation_id: get_listing_issues
   title: Get listing issues
   fields:
@@ -756,11 +776,13 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
     help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+    placeholder: en_GB
 - operation_id: create_listing
   title: Create or replace a listing
   fields:
@@ -769,6 +791,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
   - name: listing_kind
     label: Listing kind
     widget_type: select
@@ -784,6 +807,7 @@ forms:
     widget_type: text
     required: false
     help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
+    placeholder: B000000000
   - name: condition_type
     label: Condition
     widget_type: select
@@ -831,6 +855,7 @@ forms:
     widget_type: text
     required: false
     help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+    placeholder: en_GB
 - operation_id: update_listing_attributes
   title: Update listing attributes
   fields:
@@ -839,6 +864,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
   - name: product_type
     label: Amazon product type
     widget_type: text
@@ -854,6 +880,7 @@ forms:
     widget_type: text
     required: false
     help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+    placeholder: en_GB
 - operation_id: delete_listing
   title: Delete a listing
   fields:
@@ -862,11 +889,13 @@ forms:
     widget_type: text
     required: true
     help_text: The seller SKU whose listing is deleted.
+    placeholder: MUG-BLUE-01
   - name: issue_locale
     label: Issue locale
     widget_type: text
     required: false
     help_text: 'A locale for localization of issues. When not provided, the default language code of the first Amazon store is used. Examples: `en_US`, `fr_CA`, `fr_FR`. Localized messages default to `en_US` when localization is not available for the specified locale.'
+    placeholder: en_GB
 - operation_id: search_product_types
   title: Find product types
   fields:
@@ -875,6 +904,7 @@ forms:
     widget_type: json
     required: false
     help_text: 'Up to 20 keywords. Allowed: up to 20 entries.'
+    placeholder: '["blue ceramic mug"]'
   - name: item_name
     label: Product title
     widget_type: text
@@ -1037,6 +1067,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
+    placeholder: B000000000
   - name: condition_type
     label: Condition
     widget_type: select
@@ -1087,6 +1118,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
   - name: request_kind
     label: Request kind
     widget_type: select
@@ -1112,6 +1144,7 @@ forms:
     widget_type: text
     required: false
     help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
+    placeholder: B000000000
   - name: condition_type
     label: Condition
     widget_type: select
@@ -1164,6 +1197,7 @@ forms:
     widget_type: text
     required: false
     help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+    placeholder: en_GB
 - operation_id: get_own_offer
   title: Get my offer
   fields:
@@ -1172,6 +1206,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
 - operation_id: get_listing_offers
   title: Get offers on my listing
   fields:
@@ -1180,6 +1215,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
   - name: item_condition
     label: Item condition
     widget_type: select
@@ -1214,6 +1250,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'The 10-character Amazon Standard Identification Number. Allowed: up to 10 characters.'
+    placeholder: B000000000
   - name: item_condition
     label: Item condition
     widget_type: select
@@ -1248,6 +1285,7 @@ forms:
     widget_type: json
     required: true
     help_text: '1 to 20 distinct ASINs. Allowed: up to 20 entries.'
+    placeholder: '["B000000000"]'
   - name: included_data
     label: Included data
     widget_type: multi_select
@@ -1286,6 +1324,7 @@ forms:
     widget_type: json
     required: true
     help_text: '1 to 40 distinct seller SKUs. Allowed: up to 40 entries.'
+    placeholder: '["MUG-BLUE-01"]'
 - operation_id: set_price
   title: Set a price
   fields:
@@ -1294,6 +1333,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
   - name: product_type
     label: Amazon product type
     widget_type: text
@@ -1304,21 +1344,25 @@ forms:
     widget_type: text
     required: true
     help_text: 'The new price as a decimal string, for example "19.99". Allowed: up to 24 characters.'
+    placeholder: '19.90'
   - name: currency_code
     label: Currency
     widget_type: text
     required: true
     help_text: 'ISO 4217 code of the marketplace currency, for example GBP. Allowed: up to 3 characters.'
+    placeholder: GBP
   - name: business_price
     label: Business price
     widget_type: text
     required: false
     help_text: 'Optional B2B price as a decimal string (Amazon Business sellers). Allowed: up to 24 characters.'
+    placeholder: '17.90'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
     help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+    placeholder: en_GB
 - operation_id: get_fba_inventory
   title: Get FBA inventory
   fields:
@@ -1327,11 +1371,13 @@ forms:
     widget_type: json
     required: false
     help_text: 'Up to 50 seller SKUs. Allowed: up to 50 entries.'
+    placeholder: '["MUG-BLUE-01"]'
   - name: start_date_time
     label: Changed since
     widget_type: text
     required: false
     help_text: 'Only summaries changed since this time (at most 18 months ago). ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-01T00:00:00Z'
   - name: next_token
     label: Continuation token
     widget_type: text
@@ -1345,6 +1391,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
 - operation_id: set_fbm_quantity
   title: Set merchant quantity
   fields:
@@ -1353,6 +1400,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'Your seller SKU. Any character is allowed; it is sent percent-encoded. Allowed: up to 200 characters.'
+    placeholder: MUG-BLUE-01
   - name: product_type
     label: Amazon product type
     widget_type: text
@@ -1363,11 +1411,13 @@ forms:
     widget_type: integer
     required: true
     help_text: 'Units available for sale, 0 or more. Allowed: from 0 to 99999999.'
+    placeholder: '24'
   - name: issue_locale
     label: Issue language
     widget_type: text
     required: false
     help_text: 'Locale for issue messages, for example en_US or de_DE. Defaults to the marketplace language. Allowed: up to 5 characters.'
+    placeholder: en_GB
 - operation_id: fba_list_prep_details
   title: 'FBA: list prep details'
   fields:
@@ -2394,11 +2444,13 @@ forms:
     widget_type: text
     required: false
     help_text: 'Records posted at or after this time; at least two minutes in the past. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-01T00:00:00Z'
   - name: posted_before
     label: Posted before
     widget_type: text
     required: false
     help_text: 'Records posted before this time (default: two minutes ago). At most 180 days after posted_after. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-08T00:00:00Z'
   - name: transaction_status
     label: Transaction status (2024-06-19)
     widget_type: select
@@ -2434,6 +2486,7 @@ forms:
     widget_type: text
     required: true
     help_text: 'The Amazon order ID, for example 123-1234567-1234567. Allowed: up to 64 characters.'
+    placeholder: 123-1234567-1234567
   - name: api_version
     label: Amazon API version
     widget_type: select
@@ -2517,11 +2570,13 @@ forms:
     widget_type: text
     required: false
     help_text: 'Records posted at or after this time; at least two minutes in the past. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-01T00:00:00Z'
   - name: posted_before
     label: Posted before
     widget_type: text
     required: false
     help_text: 'Records posted before this time (default: two minutes ago). At most 180 days after posted_after. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-08T00:00:00Z'
   - name: transaction_status
     label: Transaction status (2024-06-19)
     widget_type: select
@@ -2642,11 +2697,13 @@ forms:
     widget_type: text
     required: false
     help_text: 'Start of the period the report covers. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-01T00:00:00Z'
   - name: data_end_time
     label: Data end
     widget_type: text
     required: false
     help_text: 'End of the period the report covers. ISO 8601 with a time zone, for example 2026-11-01T00:00:00Z. Allowed: up to 40 characters.'
+    placeholder: '2026-11-08T00:00:00Z'
 - operation_id: get_report
   title: Get report status
   fields:

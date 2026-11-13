@@ -1,5 +1,7 @@
 # Amazon Selling Partner API extension for Flow Steward
 
+See [Workflow actions and examples](docs/workflow-actions.md) for connection setup, action inputs and end-to-end examples.
+
 Connect Amazon seller operations to Flow Steward workflows across order handling, catalog maintenance, fulfillment and financial reporting. Read orders and order items, retrieve permitted buyer information, confirm merchant-fulfilled shipments and update shipment status. Search Amazon catalog items and seller listings, inspect listing issues, retrieve product type requirements, check restrictions and validate proposed listing changes before submitting them.
 
 Catalog and inventory steps can create, update or delete listings, change offer prices and merchant-fulfilled quantities, read FBA inventory and compare offers and competitive pricing. FBA inbound operations cover plans, packing and placement choices, transportation, delivery windows, shipment details and shipping documents, with additional India compliance and challan operations. Amazon Shipping steps retrieve rates, purchase or cancel shipments, download labels and read tracking in supported countries.
@@ -77,14 +79,14 @@ the verified Flow Steward extension SDK wheel before the development requirement
 After the release changes are merged, create a new tag matching `extension.yaml`:
 
 ```sh
-git tag v0.2.11
-git push origin v0.2.11
+git tag v0.2.12
+git push origin v0.2.12
 ```
 
 To run the same release pipeline manually for that immutable tag:
 
 ```sh
-gh workflow run release.yml --ref main -f tag=v0.2.11
+gh workflow run release.yml --ref main -f tag=v0.2.12
 ```
 
 The release caller builds, tests and packages the tagged source through the shared
