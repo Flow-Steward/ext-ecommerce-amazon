@@ -4,3 +4,4 @@ pages:
   - ref: pages/connection.yaml
   - ref: pages/operations.yaml
   - ref: pages/operation-matrix.yaml
+  - ref: pages/support.yaml
