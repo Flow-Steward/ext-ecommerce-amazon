@@ -221,11 +221,7 @@ def _search_reports(context: Context) -> dict[str, Any]:
 def _create_report(context: Context) -> dict[str, Any]:
     """createReport for a requestable report type.
 
-    Requesting a report only asks Amazon to compile a file from the seller's
-    existing data; it changes no listing, order, price or stock, and Amazon
-    keeps the file for a limited time on its own. It is therefore not an
-    external effect on the seller's data (``mutating=False``), and a repeat only
-    produces a second copy of the same report.
+    Requesting a report starts a provider job. A retry may schedule a second job.
     """
     data = context.input
     row = _report_type(data["report_type"])
@@ -246,11 +242,11 @@ def _create_report(context: Context) -> dict[str, Any]:
     if end is not None:
         body["dataEndTime"] = end
     response = context.transport.call(
-        "POST", REPORTS, body=body, mutating=False, purpose="Amazon create report"
+        "POST", REPORTS, body=body, mutating=True, purpose="Amazon create report"
     )
     report_id = dig(response.body, "reportId")
     if not isinstance(report_id, str) or not report_id:
-        raise ExtensionError(errors.UPSTREAM_FAILURE, "Amazon returned no report ID")
+        raise errors.mutation_outcome_unknown()
     return {"report_id": report_id, "report_type": row.name, "contains_pii": row.contains_pii}
 
 
@@ -383,6 +379,10 @@ OPERATIONS: tuple[Operation, ...] = (
         handler=_create_report,
         amazon_calls=("Reports 2021-06-30 createReport",),
         roles=(_ROLE_REPORTS,),
+        kind="action",
+        mutating=True,
+        effect_kind="amazon_report_request",
+        read_back=("search_reports",),
     ),
     Operation(
         operation_id="get_report",

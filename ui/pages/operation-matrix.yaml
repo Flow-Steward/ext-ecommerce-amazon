@@ -209,7 +209,7 @@ components:
 - component_id: matrix_feeds
   type: markdown
   title: Feeds
-  body: '- **Upload a feed document** (`upload_feed_document`): Feeds 2021-06-30 createFeedDocument; Upload to the presigned Amazon S3 URL. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: reads a file.
+  body: '- **Upload a feed document** (`upload_feed_document`): Feeds 2021-06-30 createFeedDocument; Upload to the presigned Amazon S3 URL. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes Amazon (amazon_feed_document_upload). Personal data: no. File: reads a file.
 
     - **Submit a feed** (`create_feed`): Feeds 2021-06-30 createFeed. Roles: Product Listing. Marketplaces: all 23. Scope: this connection''s marketplace. Changes Amazon (amazon_feed_submission). Personal data: no. File: no.
 
@@ -239,7 +239,7 @@ components:
   title: Reports
   body: '- **Find reports** (`search_reports`): Reports 2021-06-30 getReports. Roles: The role the report type needs (for example Inventory and Order Tracking, Product Listing, Amazon Fulfillment, Finance and Accounting). Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
 
-    - **Request a report** (`create_report`): Reports 2021-06-30 createReport. Roles: The role the report type needs (for example Inventory and Order Tracking, Product Listing, Amazon Fulfillment, Finance and Accounting). Marketplaces: all 23. Scope: this connection''s marketplace. Read only. Personal data: no. File: no.
+    - **Request a report** (`create_report`): Reports 2021-06-30 createReport. Roles: The role the report type needs (for example Inventory and Order Tracking, Product Listing, Amazon Fulfillment, Finance and Accounting). Marketplaces: all 23. Scope: this connection''s marketplace. Changes Amazon (amazon_report_request). Personal data: no. File: no.
 
     - **Get report status** (`get_report`): Reports 2021-06-30 getReport. Roles: The role the report type needs (for example Inventory and Order Tracking, Product Listing, Amazon Fulfillment, Finance and Accounting). Marketplaces: all 23. Scope: the seller''s data in this connection''s region (by Amazon ID). Read only. Personal data: no. File: no.
 

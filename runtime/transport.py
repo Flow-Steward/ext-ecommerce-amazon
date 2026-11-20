@@ -98,6 +98,16 @@ EXTRA_HEADERS = frozenset({"x-amzn-shipping-business-id", "x-amzn-IdempotencyKey
 #: Amazon error codes and wording that say an offered rate, token or option is no
 #: longer valid, or that the resource is not in a state that allows the change.
 _EXPIRED_CODES = frozenset({"TOKEN_EXPIRED", "RATE_EXPIRED", "OPTION_EXPIRED"})
+_PUBLIC_AMAZON_ERROR_CODES = _EXPIRED_CODES | {
+    "AccessDenied",
+    "InternalFailure",
+    "InvalidInput",
+    "InvalidState",
+    "NotFound",
+    "QuotaExceeded",
+    "Unauthorized",
+    "UnsupportedOperation",
+}
 _EXPIRED_TEXT = re.compile(r"\b(expired|has expired|no longer valid)\b", re.IGNORECASE)
 _STATE_TEXT = re.compile(
     r"(ineligible state|invalid state|not in a valid state|current (state|status)|"
@@ -175,10 +185,16 @@ class SpApiTransport:
         self._sleep = sleep
         self._jitter = jitter
         self._timeout_seconds = max(1.0, min(float(timeout_seconds), MAX_TIMEOUT_SECONDS))
+        self._mutation_response_received = False
 
     @property
     def connection(self) -> Connection:
         return self._connection
+
+    @property
+    def mutation_response_received(self) -> bool:
+        """Whether this operation has received a successful provider mutation response."""
+        return self._mutation_response_received
 
     def call(
         self,
@@ -213,7 +229,9 @@ class SpApiTransport:
             attempt += 1
             request = Request(url, method=method, data=data, headers=request_headers)
             try:
-                return self._send(request, mutating=mutating, purpose=purpose)
+                response = self._send(
+                    request, mutating=mutating, purpose=purpose, access_token=token
+                )
             except _Retry as retry:
                 delay = self._delay(attempt, retry)
                 retryable = attempt < MAX_ATTEMPTS and (
@@ -223,6 +241,16 @@ class SpApiTransport:
                     raise retry.error from None
                 backoff_spent += delay
                 self._sleep(delay)
+                continue
+            except ExtensionError:
+                raise
+            except Exception as exc:
+                if not mutating:
+                    raise
+                raise errors.mutation_outcome_unknown() from exc
+            if mutating:
+                self._mutation_response_received = True
+            return response
 
     def _delay(self, attempt: int, retry: _Retry) -> float:
         ceiling = min(BACKOFF_CAP_SECONDS, BACKOFF_BASE_SECONDS * (2 ** (attempt - 1)))
@@ -231,18 +259,24 @@ class SpApiTransport:
             delay = max(delay, min(retry.minimum_delay, BACKOFF_CAP_SECONDS))
         return delay
 
-    def _send(self, request: Request, *, mutating: bool, purpose: str) -> ApiResponse:
+    def _send(
+        self, request: Request, *, mutating: bool, purpose: str, access_token: str
+    ) -> ApiResponse:
         try:
             with self._opener(
                 request, timeout_seconds=self._timeout_seconds, purpose=purpose
             ) as response:
                 status = _status(response)
                 raw = read_bounded(response, MAX_RESPONSE_BYTES, mutating=mutating)
-                response_headers = _headers(getattr(response, "headers", None))
+                response_headers = _headers(
+                    getattr(response, "headers", None), access_token=access_token
+                )
         except HTTPError as exc:
             status = int(exc.code)
             raw_error = _read_error_body(exc)
-            raise _failure(status, raw_error, exc.headers, mutating=mutating) from None
+            raise _failure(
+                status, raw_error, exc.headers, mutating=mutating, access_token=access_token
+            ) from None
         except PinnedPeerError as exc:
             raise ExtensionError(
                 errors.BLOCKED_ADDRESS, "The Amazon endpoint is not reachable under the host policy"
@@ -278,11 +312,13 @@ class SpApiTransport:
                 )
             ) from exc
         if 300 <= status < 400:
+            if mutating:
+                raise errors.mutation_outcome_unknown()
             raise ExtensionError(
                 errors.REDIRECT_REJECTED, "Amazon redirected the request and it was not followed"
             )
         if status >= 400:
-            raise _failure(status, raw, None, mutating=mutating)
+            raise _failure(status, raw, None, mutating=mutating, access_token=access_token)
         if not raw.strip():
             return ApiResponse(status=status, body={}, headers=response_headers)
         return ApiResponse(
@@ -431,7 +467,9 @@ def assert_document_url(url: Any) -> str:
         ) from exc
 
 
-def _failure(status: int, raw: bytes, headers: Any, *, mutating: bool) -> Exception:
+def _failure(
+    status: int, raw: bytes, headers: Any, *, mutating: bool, access_token: str
+) -> Exception:
     code, message = errors.classify_status(status, mutating=mutating)
     amazon_errors = amazon_error_list(raw)
     if status == 400 and _mentions_next_token(amazon_errors):
@@ -460,8 +498,13 @@ def _failure(status: int, raw: bytes, headers: Any, *, mutating: bool) -> Except
         definitely_no_external_effect=not ambiguous,
         external_effect_status="unknown" if ambiguous else "failed",
         http_status=status,
-        amazon_errors=amazon_errors,
-        amazon_request_id=_request_id(headers),
+        amazon_errors=[
+            {"code": code}
+            for entry in amazon_errors
+            if (code := entry.get("code", "")) in _PUBLIC_AMAZON_ERROR_CODES
+            and (not access_token or access_token not in code)
+        ],
+        amazon_request_id=_request_id(headers, access_token=access_token),
     )
     if status == 429 or (status in _RETRYABLE_STATUSES and not mutating):
         return _Retry(error, minimum_delay=retry_after or _rate_limit_delay(headers))
@@ -507,15 +550,21 @@ def _says_invalid_state(amazon_errors: Sequence[Mapping[str, str]]) -> bool:
     )
 
 
-def _request_id(headers: Any) -> str | None:
+def _request_id(headers: Any, *, access_token: str) -> str | None:
     if headers is None:
         return None
     try:
         value = headers.get("x-amzn-RequestId") or headers.get("x-amzn-requestid")
     except (AttributeError, TypeError, ValueError):
         return None
+    return _safe_request_id(value, access_token=access_token)
+
+
+def _safe_request_id(value: Any, *, access_token: str) -> str | None:
     text = str(value or "").strip()
-    return text[:128] if text and _HEADER_VALUE_RE.fullmatch(text[:128]) else None
+    if (access_token and access_token in text) or not _HEADER_VALUE_RE.fullmatch(text):
+        return None
+    return text
 
 
 def _mentions_next_token(amazon_errors: Sequence[Mapping[str, str]]) -> bool:
@@ -570,16 +619,19 @@ def _status(response: Any) -> int:
     return int(getattr(response, "status", 0) or getattr(response, "code", 0) or 0)
 
 
-def _headers(headers: Any) -> dict[str, str]:
+def _headers(headers: Any, *, access_token: str) -> dict[str, str]:
     if headers is None:
         return {}
-    wanted = ("x-amzn-ratelimit-limit", "x-amzn-requestid")
     found: dict[str, str] = {}
     items = headers.items() if hasattr(headers, "items") else []
     for key, value in items:
         lowered = str(key).lower()
-        if lowered in wanted:
+        if lowered == "x-amzn-ratelimit-limit":
             found[lowered] = str(value)[:128]
+        elif lowered == "x-amzn-requestid":
+            request_id = _safe_request_id(value, access_token=access_token)
+            if request_id:
+                found[lowered] = request_id
     return found
 
 

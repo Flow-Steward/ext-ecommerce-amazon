@@ -27,6 +27,7 @@ version on its own.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from .. import errors, pagination, validation
@@ -90,8 +91,6 @@ FULFILLED_BY = ("MERCHANT", "AMAZON")
 _CHANNEL_TO_V0 = {"MERCHANT": "MFN", "AMAZON": "AFN"}
 _V0_CHANNEL = {value: key for key, value in _CHANNEL_TO_V0.items()}
 INCLUDED_DATA = (
-    "BUYER",
-    "RECIPIENT",
     "PROCEEDS",
     "EXPENSE",
     "PROMOTION",
@@ -170,6 +169,11 @@ def _address(value: Any) -> dict[str, Any] | None:
 
 def normalize_order(raw: Any, version: str) -> dict[str, Any]:
     if version == V2026:
+        public_order = (
+            {key: value for key, value in raw.items() if key not in {"buyer", "recipient"}}
+            if isinstance(raw, Mapping)
+            else raw
+        )
         return {
             "order_id": dig(raw, "orderId"),
             "status": dig(raw, "fulfillment", "fulfillmentStatus"),
@@ -179,7 +183,7 @@ def normalize_order(raw: Any, version: str) -> dict[str, Any]:
             "fulfilled_by": dig(raw, "fulfillment", "fulfilledBy"),
             "order_total": money(dig(raw, "proceeds", "grandTotal")),
             "api_version": V2026,
-            "amazon": raw,
+            "amazon": public_order,
         }
     return {
         "order_id": dig(raw, "AmazonOrderId"),
@@ -448,7 +452,8 @@ _SEARCH_PROPERTIES: dict[str, dict[str, Any]] = {
     "max_results": integer("Page size", "Orders per page, 1 to 100.", minimum=1, maximum=100),
     "included_data": enum_list(
         "Included data (2026-01-01)",
-        "Extra order sections to return. FULFILLMENT and PROCEEDS are always included.",
+        "Extra non-personal order sections. FULFILLMENT and PROCEEDS are always included. "
+        "Use get_order_buyer_info for buyer and recipient data.",
         INCLUDED_DATA,
     ),
     "amazon_order_ids": text_list(

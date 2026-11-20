@@ -85,12 +85,8 @@ forms:
     label: Included data (2026-01-01)
     widget_type: multi_select
     required: false
-    help_text: 'Extra order sections to return. FULFILLMENT and PROCEEDS are always included. Allowed: up to 11 entries.'
+    help_text: 'Extra non-personal order sections. FULFILLMENT and PROCEEDS are always included. Use get_order_buyer_info for buyer and recipient data. Allowed: up to 9 entries.'
     options:
-    - value: BUYER
-      label: BUYER
-    - value: RECIPIENT
-      label: RECIPIENT
     - value: PROCEEDS
       label: PROCEEDS
     - value: EXPENSE
@@ -148,12 +144,8 @@ forms:
     label: Included data (2026-01-01)
     widget_type: multi_select
     required: false
-    help_text: 'Extra order sections to return. FULFILLMENT and PROCEEDS are always included. Allowed: up to 11 entries.'
+    help_text: 'Extra non-personal order sections. FULFILLMENT and PROCEEDS are always included. Use get_order_buyer_info for buyer and recipient data. Allowed: up to 9 entries.'
     options:
-    - value: BUYER
-      label: BUYER
-    - value: RECIPIENT
-      label: RECIPIENT
     - value: PROCEEDS
       label: PROCEEDS
     - value: EXPENSE

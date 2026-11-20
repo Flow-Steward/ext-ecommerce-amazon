@@ -4221,13 +4221,14 @@ actions:
   - unsupported_marketplace
 - action_id: upload_feed_document
   title: Upload a feed document
-  description: Validates a JSON_LISTINGS_FEED (header.sellerId must be the connection's seller, version 2.0, 1 to 25,000 messages each with messageId, sku and operationType) and uploads it to Amazon. Returns the feed_document_id for create_feed; Amazon keeps it for two days. Nothing changes on Amazon until create_feed.
+  description: Validates a JSON_LISTINGS_FEED (header.sellerId must be the connection's seller, version 2.0, 1 to 25,000 messages each with messageId, sku and operationType) and uploads it to Amazon. Returns the feed_document_id for create_feed; Amazon keeps it for two days. It does not change listings until create_feed.
   required_scopes:
   - extension:invoke
   - artifact:read
   handler:
     mode: extension
-  mutates_platform: false
+  command_type: invoke_extension_action
+  mutates_platform: true
   workflow_visible: true
   parameters:
   - name: connection_ref
@@ -4270,6 +4271,8 @@ actions:
   - redirect_rejected
   - blocked_address
   - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
   - document_unavailable
   - artifact_input_unavailable
 - action_id: create_feed
@@ -4824,7 +4827,8 @@ actions:
   - extension:invoke
   handler:
     mode: extension
-  mutates_platform: false
+  command_type: invoke_extension_action
+  mutates_platform: true
   workflow_visible: true
   parameters:
   - name: connection_ref
@@ -4864,6 +4868,8 @@ actions:
   - redirect_rejected
   - blocked_address
   - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
 - action_id: get_report
   title: Get report status
   description: Returns one report's processing status, period and document ID.

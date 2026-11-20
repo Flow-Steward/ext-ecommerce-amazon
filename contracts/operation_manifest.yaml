@@ -260,13 +260,11 @@ operations:
     schema:
       type: array
       title: Included data (2026-01-01)
-      description: Extra order sections to return. FULFILLMENT and PROCEEDS are always included.
+      description: Extra non-personal order sections. FULFILLMENT and PROCEEDS are always included. Use get_order_buyer_info for buyer and recipient data.
       minItems: 1
       items:
         type: string
         enum:
-        - BUYER
-        - RECIPIENT
         - PROCEEDS
         - EXPENSE
         - PROMOTION
@@ -276,7 +274,7 @@ operations:
         - TAX
         - PAYMENT
         - FULFILLMENT_ORDERS
-      maxItems: 11
+      maxItems: 9
   - name: amazon_order_ids
     value_type: array
     required: false
@@ -400,13 +398,11 @@ operations:
     schema:
       type: array
       title: Included data (2026-01-01)
-      description: Extra order sections to return. FULFILLMENT and PROCEEDS are always included.
+      description: Extra non-personal order sections. FULFILLMENT and PROCEEDS are always included. Use get_order_buyer_info for buyer and recipient data.
       minItems: 1
       items:
         type: string
         enum:
-        - BUYER
-        - RECIPIENT
         - PROCEEDS
         - EXPENSE
         - PROMOTION
@@ -416,7 +412,7 @@ operations:
         - TAX
         - PAYMENT
         - FULFILLMENT_ORDERS
-      maxItems: 11
+      maxItems: 9
   outputs:
   - name: order
     value_type: object
@@ -13402,13 +13398,14 @@ operations:
   - unsupported_marketplace
 - operation_id: upload_feed_document
   display_name: Upload a feed document
-  description: Validates a JSON_LISTINGS_FEED (header.sellerId must be the connection's seller, version 2.0, 1 to 25,000 messages each with messageId, sku and operationType) and uploads it to Amazon. Returns the feed_document_id for create_feed; Amazon keeps it for two days. Nothing changes on Amazon until create_feed.
-  operation_kind: source
+  description: Validates a JSON_LISTINGS_FEED (header.sellerId must be the connection's seller, version 2.0, 1 to 25,000 messages each with messageId, sku and operationType) and uploads it to Amazon. Returns the feed_document_id for create_feed; Amazon keeps it for two days. It does not change listings until create_feed.
+  operation_kind: action
   category: ecommerce
   connection_type_ids:
   - amazon_seller
   workflow_visible: true
   required_oauth_scopes: []
+  effect_kind: amazon_feed_document_upload
   inputs:
   - name: connection_ref
     value_type: connection_ref
@@ -13491,6 +13488,8 @@ operations:
   - redirect_rejected
   - blocked_address
   - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
   - document_unavailable
   - artifact_input_unavailable
 - operation_id: create_feed
@@ -14569,12 +14568,13 @@ operations:
 - operation_id: create_report
   display_name: Request a report
   description: Asks Amazon to compile a report for the connection's marketplace. Amazon builds it asynchronously; read it later with get_report and download_report. Settlement reports cannot be requested.
-  operation_kind: source
+  operation_kind: action
   category: ecommerce
   connection_type_ids:
   - amazon_seller
   workflow_visible: true
   required_oauth_scopes: []
+  effect_kind: amazon_report_request
   inputs:
   - name: connection_ref
     value_type: connection_ref
@@ -14651,6 +14651,8 @@ operations:
   - redirect_rejected
   - blocked_address
   - internal_error
+  - missing_idempotency_key
+  - outcome_unknown
 - operation_id: get_report
   display_name: Get report status
   description: 'Returns one report''s processing status, period and document ID. Scope: The seller''s data in the connection''s region: the method addresses a resource by its Amazon ID or reads seller-wide data, and Amazon answers for any marketplace of the seller in that region. Check marketplace_ids in the result where it matters.'

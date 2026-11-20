@@ -1,11 +1,8 @@
 """Stable, safe error vocabulary for the Amazon SP-API extension.
 
-Every failure the runtime can produce maps to exactly one of these codes. No
-message carries the access token, a restricted data token, a presigned URL or
-unbounded upstream content. Amazon's own error ``code`` values are short closed
-identifiers and are passed through in ``amazon_errors``; their free-text
-``message`` is cut to a bounded length and never carries credentials, because
-Amazon does not echo them.
+Every failure maps to a locally authored code and message. Only recognized
+Amazon error codes are included in ``amazon_errors``; provider free text is
+kept out of workflow-visible errors.
 """
 
 from __future__ import annotations
@@ -206,9 +203,14 @@ def error_response(
     if safe_code in AMBIGUOUS_ERROR_CODES:
         response["external_effect_status"] = "unknown"
         response["definitely_no_external_effect"] = False
+        response["retryable"] = False
     if retry_facts:
         response.update(retry_facts)
     return response
+
+
+def mutation_outcome_unknown(*, check: Mapping[str, object] | None = None) -> ExtensionError:
+    return ExtensionError(OUTCOME_UNKNOWN, _MESSAGE_UNKNOWN_OUTCOME, check=check)
 
 
 def classify_status(status: int, *, mutating: bool) -> tuple[str, str]:
@@ -218,6 +220,8 @@ def classify_status(status: int, *, mutating: bool) -> tuple[str, str]:
     is reported as such rather than as a plain failure.
     """
     if 300 <= status < 400:
+        if mutating:
+            return OUTCOME_UNKNOWN, _MESSAGE_UNKNOWN_OUTCOME
         return REDIRECT_REJECTED, "Amazon redirected the request and it was not followed"
     if status == 401:
         return AUTHENTICATION_FAILED, "Amazon rejected this connection's access token"

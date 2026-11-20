@@ -115,7 +115,7 @@ def test_filters_of_the_other_version_are_refused_not_dropped(amazon, run):
     assert response["error_code"] == "unsupported_filter"
     response = run(
         "search_orders",
-        {"api_version": "v0", "created_after": "2026-11-01T00:00:00Z", "included_data": ["BUYER"]},
+        {"api_version": "v0", "created_after": "2026-11-01T00:00:00Z", "included_data": ["TAX"]},
     )
     assert response["error_code"] == "unsupported_filter"
     response = run(
@@ -305,13 +305,13 @@ def test_2026_calls_always_ask_for_fulfillment_and_proceeds(amazon, run):
     run("get_order", {"order_id": "202-1111111-1111111"})
     run(
         "get_order",
-        {"order_id": "202-1111111-1111111", "included_data": ["BUYER", "PROCEEDS", "TAX"]},
+        {"order_id": "202-1111111-1111111", "included_data": ["PACKAGES", "PROCEEDS", "TAX"]},
     )
     items = run("get_order_items", {"order_id": "202-1111111-1111111"})
     assert [request.query["includedData"] for request in amazon.requests] == [
         "FULFILLMENT,PROCEEDS",
         "FULFILLMENT,PROCEEDS",
-        "BUYER,PROCEEDS,TAX,FULFILLMENT",
+        "PACKAGES,PROCEEDS,TAX,FULFILLMENT",
         "FULFILLMENT,PROCEEDS",
     ]
     item = items["result"]["items"][0]
@@ -322,9 +322,36 @@ def test_search_with_included_data_merges_without_repeats(amazon, run):
     amazon.reply("GET", "/orders/2026-01-01/orders", {"orders": []})
     run(
         "search_orders",
-        {"created_after": "2026-11-01T00:00:00Z", "included_data": ["FULFILLMENT", "BUYER"]},
+        {"created_after": "2026-11-01T00:00:00Z", "included_data": ["FULFILLMENT", "TAX"]},
     )
-    assert amazon.requests[0].query["includedData"] == "FULFILLMENT,BUYER,PROCEEDS"
+    assert amazon.requests[0].query["includedData"] == "FULFILLMENT,TAX,PROCEEDS"
+
+
+@pytest.mark.parametrize("section", ["BUYER", "RECIPIENT"])
+@pytest.mark.parametrize(
+    ("operation", "inputs"),
+    [
+        ("search_orders", {"created_after": "2026-11-01T00:00:00Z"}),
+        ("get_order", {"order_id": "202-1111111-1111111"}),
+    ],
+)
+def test_generic_order_reads_refuse_personal_sections(amazon, run, operation, inputs, section):
+    response = run(operation, {**inputs, "included_data": [section]})
+
+    assert response["error_code"] == "invalid_payload"
+    assert amazon.requests == []
+
+
+def test_generic_order_result_omits_unsolicited_personal_sections(amazon, run):
+    amazon.reply(
+        "GET",
+        "/orders/2026-01-01/orders/202-1111111-1111111",
+        {"order": {**V2026_ORDER, "buyer": {"name": "fixture"}, "recipient": {"city": "York"}}},
+    )
+
+    response = run("get_order", {"order_id": "202-1111111-1111111"})
+
+    assert response["result"]["order"]["amazon"] == V2026_ORDER
 
 
 @pytest.mark.parametrize("version", ["2026-01-01", "v0"])
@@ -367,10 +394,10 @@ def test_included_data_may_change_between_pages(amazon, run):
     amazon.reply("GET", "/orders/2026-01-01/orders", {"orders": []})
     second = run(
         "search_orders",
-        {"created_after": "2026-11-01T00:00:00Z", "included_data": ["BUYER"], "next_token": token},
+        {"created_after": "2026-11-01T00:00:00Z", "included_data": ["TAX"], "next_token": token},
     )
     assert second["ok"] is True, second
-    assert amazon.requests[1].query["includedData"] == "BUYER,FULFILLMENT,PROCEEDS"
+    assert amazon.requests[1].query["includedData"] == "TAX,FULFILLMENT,PROCEEDS"
     # A real filter still binds the token.
     other = run(
         "search_orders",

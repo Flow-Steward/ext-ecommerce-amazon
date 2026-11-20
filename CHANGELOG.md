@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.14
+
+### Security
+
+- Require host authorization for feed uploads and report requests, and suppress both during test runs.
+- Preserve unknown outcomes when processing a mutation response fails.
+- Limit provider error details to recognized error codes and the request ID.
+- Use the dedicated buyer and shipping address action for those sections.
+
 ## 0.2.13
 
 ### Added

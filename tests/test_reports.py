@@ -74,7 +74,13 @@ def test_create_report_for_the_connection_marketplace(amazon, run):
         },
     )
     assert response["ok"] is True, response
-    assert response["result"] == {"report_id": "REP-9", "report_type": ORDERS, "contains_pii": True}
+    assert response["result"] == {
+        "report_id": "REP-9",
+        "report_type": ORDERS,
+        "contains_pii": True,
+        "external_effect_status": "succeeded",
+        "definitely_no_external_effect": False,
+    }
     assert amazon.requests[0].body == {
         "reportType": ORDERS,
         "marketplaceIds": [UK_MARKETPLACE_ID],

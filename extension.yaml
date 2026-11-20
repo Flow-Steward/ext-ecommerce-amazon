@@ -2,7 +2,7 @@ manifest_version: 2
 lifecycle: {data_schema_version: 1, data_migrations: []}
 extension_id: flowsteward.amazon-sp-api
 kind: tool_provider
-version: 0.2.13
+version: 0.2.14
 release_stage: active
 billing_mode: free
 display_name: Amazon Selling Partner API
@@ -63,8 +63,10 @@ external_effects:
   - {operation_id: fba_generate_self_ship_appointment_slots, effect_kind: amazon_fba_appointment_slots_generation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: fba_schedule_self_ship_appointment, effect_kind: amazon_fba_appointment_scheduling, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: fba_cancel_self_ship_appointment, effect_kind: amazon_fba_appointment_cancellation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: upload_feed_document, effect_kind: amazon_feed_document_upload, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: create_feed, effect_kind: amazon_feed_submission, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: cancel_feed, effect_kind: amazon_feed_cancellation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
+  - {operation_id: create_report, effect_kind: amazon_report_request, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
   - {operation_id: cancel_report, effect_kind: amazon_report_cancellation, channel: amazon_sp_api, idempotency: required, test_mode_behavior: suppress}
 runtime:
   contract_version: extension_host_v2

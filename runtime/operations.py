@@ -97,14 +97,20 @@ def run_operation(
     )
     try:
         result = json_safe(row.handler(context))
-    except ExtensionError as exc:
-        if exc.code == errors.OUTCOME_UNKNOWN and row.mutating:
+        if row.mutating:
+            result.setdefault("external_effect_status", "succeeded")
+            result.setdefault("definitely_no_external_effect", False)
+        return _ok(result)
+    except Exception as exc:
+        if not row.mutating:
+            raise
+        if isinstance(exc, ExtensionError) and exc.code == errors.OUTCOME_UNKNOWN:
             exc.check = _merge_check(_check_after_unknown(row, operation_input), exc.check)
+        elif context.transport.mutation_response_received:
+            raise errors.mutation_outcome_unknown(
+                check=_check_after_unknown(row, operation_input)
+            ) from exc
         raise
-    if row.mutating:
-        result.setdefault("external_effect_status", "succeeded")
-        result.setdefault("definitely_no_external_effect", False)
-    return _ok(result)
 
 
 def _connection_ref(

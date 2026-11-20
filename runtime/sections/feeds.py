@@ -242,8 +242,8 @@ def _upload_feed_document(context: Context) -> dict[str, Any]:
     holder write the feed document. Returning it to the workflow would store it
     in run history, where anyone who can read the run could replace the feed
     content before it is submitted. The URL is therefore used here, immediately,
-    and only the feedDocumentId is returned. Nothing changes on Amazon until
-    create_feed submits the document, so this operation is not an external effect.
+    and only the feedDocumentId is returned. The upload creates a remote document.
+    Listing changes begin when create_feed submits the document.
     """
     feed_type = _feed_type(context)
     content_type = FEED_TYPES[feed_type]
@@ -253,19 +253,23 @@ def _upload_feed_document(context: Context) -> dict[str, Any]:
         "POST",
         DOCUMENTS,
         body={"contentType": content_type},
-        # Creating an empty feed document changes nothing; a repeat is harmless.
-        mutating=False,
+        mutating=True,
         purpose="Amazon create feed document",
     )
     document_id = dig(response.body, "feedDocumentId")
     if not isinstance(document_id, str) or not document_id:
-        raise ExtensionError(errors.UPSTREAM_FAILURE, "Amazon returned no feed document ID")
-    context.transport.upload_document(
-        dig(response.body, "url"),
-        body,
-        content_type=content_type,
-        purpose="Amazon feed document upload",
-    )
+        raise errors.mutation_outcome_unknown()
+    try:
+        context.transport.upload_document(
+            dig(response.body, "url"),
+            body,
+            content_type=content_type,
+            purpose="Amazon feed document upload",
+        )
+    except Exception as exc:
+        raise errors.mutation_outcome_unknown(
+            check={"ids": {"feed_document_id": document_id}}
+        ) from exc
     return {
         "feed_document_id": document_id,
         "feed_type": feed_type,
@@ -534,7 +538,7 @@ OPERATIONS: tuple[Operation, ...] = (
             "Validates a JSON_LISTINGS_FEED (header.sellerId must be the connection's seller, "
             "version 2.0, 1 to 25,000 messages each with messageId, sku and operationType) and "
             "uploads it to Amazon. Returns the feed_document_id for create_feed; Amazon keeps it "
-            "for two days. Nothing changes on Amazon until create_feed."
+            "for two days. It does not change listings until create_feed."
         ),
         section="feeds",
         properties={
@@ -566,6 +570,9 @@ OPERATIONS: tuple[Operation, ...] = (
             "Upload to the presigned Amazon S3 URL",
         ),
         roles=(_ROLE_LISTINGS,),
+        kind="action",
+        mutating=True,
+        effect_kind="amazon_feed_document_upload",
         extra_error_codes=(errors.DOCUMENT_UNAVAILABLE, errors.ARTIFACT_INPUT_UNAVAILABLE),
         artifact_input=FEED_INPUT,
     ),

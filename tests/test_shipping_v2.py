@@ -5,6 +5,7 @@ import hashlib
 import json
 from typing import Any
 
+import pytest
 from conftest import EXTERNAL_EFFECT_ID, connection_target
 
 RATES = "/shipping/v2/shipments/rates"
@@ -281,6 +282,25 @@ def test_an_unknown_purchase_outcome_names_what_to_check_and_is_not_repeated(ama
     check = response["result"]["check"]
     assert check["ids"] == {"request_token": "rt-1", "rate_id": "rate-1"}
     assert check["read_with"] == ["get_order"]
+    assert len(amazon.requests) == 1
+
+
+@pytest.mark.parametrize(
+    "point", ["runtime.transport.decode_json", "runtime.amazon_api.from_amazon"]
+)
+def test_purchase_processing_failure_preserves_unknown_outcome(amazon, run, monkeypatch, point):
+    def fail(*args, **kwargs):
+        raise ValueError("response conversion failed")
+
+    monkeypatch.setattr(point, fail)
+    amazon.reply("POST", PURCHASE, {"payload": {"shipmentId": "SHIP-1"}})
+
+    response = run("purchase_shipping_shipment", PURCHASE_INPUT)
+
+    assert response["error_code"] == "outcome_unknown"
+    assert response["definitely_no_external_effect"] is False
+    assert response["retryable"] is False
+    assert response["result"]["check"]["ids"] == {"request_token": "rt-1", "rate_id": "rate-1"}
     assert len(amazon.requests) == 1
 
 

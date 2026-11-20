@@ -5,11 +5,28 @@ from __future__ import annotations
 import base64
 import hashlib
 
+import pytest
 from conftest import SELLER_ID, connection_target
 
 from runtime.documents import detect_format
 
 PLAN = "wf1234abcd-1234-abcd-5678-1234abcd5678"
+
+
+@pytest.mark.parametrize(
+    ("operation", "inputs"),
+    [
+        ("upload_feed_document", {"feed_type": "JSON_LISTINGS_FEED", "content": {}}),
+        ("create_report", {"report_type": "GET_MERCHANT_LISTINGS_ALL_DATA"}),
+    ],
+)
+def test_provider_resource_creation_needs_effect_authorization(amazon, run, operation, inputs):
+    denied = run(operation, inputs, effect_id=None)
+    assert denied["error_code"] == "missing_idempotency_key"
+
+    rehearsal = run(operation, inputs, effect_id=None, test_mode=True)
+    assert rehearsal["result"]["external_effect_status"] == "suppressed"
+    assert amazon.requests == []
 
 
 def writer(calls):

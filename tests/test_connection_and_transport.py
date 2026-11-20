@@ -321,6 +321,24 @@ def test_broken_answer_to_a_read_is_retried_as_a_connection_failure(amazon, run)
     assert len(amazon.requests) == 4
 
 
+def test_provider_diagnostics_return_only_recognized_codes(amazon, run):
+    amazon.reply(
+        "GET",
+        "/orders/2026-01-01/orders/202-1",
+        {
+            "errors": [
+                {"code": "InvalidInput", "message": "provider text", "details": "provider detail"},
+                {"code": "UnknownDiagnostic", "message": "another provider message"},
+            ]
+        },
+        status=400,
+    )
+
+    response = run("get_order", {"order_id": "202-1"})
+
+    assert response["result"]["amazon_errors"] == [{"code": "InvalidInput"}]
+
+
 @pytest.mark.parametrize("method", ["download", "upload"])
 def test_broken_document_transfer_is_a_connection_failure(amazon, monkeypatch, method):
     monkeypatch.setenv("FS_ALLOW_PRIVATE_REMOTE_URLS", "1")

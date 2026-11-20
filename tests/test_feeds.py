@@ -176,7 +176,8 @@ def test_upload_url_outside_amazon_s3_is_refused(amazon, run):
     response = run(
         "upload_feed_document", {"feed_type": "JSON_LISTINGS_FEED", "content": listings_feed()}
     )
-    assert response["error_code"] == "blocked_address"
+    assert response["error_code"] == "outcome_unknown"
+    assert response["result"]["check"]["ids"] == {"feed_document_id": "doc-2"}
     assert len(amazon.requests) == 1
     assert "attacker.example.com" not in json.dumps(response)
 
@@ -546,7 +547,8 @@ def test_feed_rows_declare_their_effects():
     rows = {row.operation_id: row for row in feeds.OPERATIONS}
     assert rows["create_feed"].mutating is True
     assert rows["create_feed"].effect_kind == "amazon_feed_submission"
-    assert rows["upload_feed_document"].mutating is False
+    assert rows["upload_feed_document"].mutating is True
+    assert rows["upload_feed_document"].effect_kind == "amazon_feed_document_upload"
     assert rows["upload_feed_document"].artifact_input.binding_key == "amazon_feed_input"
     assert rows["upload_feed_document"].artifact_input.max_size_bytes <= 10 * 1024 * 1024
     assert rows["get_feed_result"].artifact_output.binding_key == "amazon_feed_result"

@@ -69,6 +69,10 @@ report** and pass its file handle to later parsing steps. The download action
 does not parse report contents. Amazon generates settlement reports itself;
 find those with **Find reports**, then download them.
 
+Test runs suppress feed uploads and report requests because both create resources
+in Amazon. Use the dedicated **Get buyer and shipping address** action to read
+buyer or recipient data with the corresponding Amazon role.
+
 ## Select other operation families
 
 | Need | How to compose the existing actions |
